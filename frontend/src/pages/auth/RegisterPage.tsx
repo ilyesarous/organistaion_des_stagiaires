@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Button, Form } from "react-bootstrap";
 import { axiosRequest } from "../../apis/AxiosHelper";
+import { useNavigate } from "react-router-dom";
+// import VerifyEmail from "./VerificationEmailPage";
 
 export const RegisterPage = () => {
   const [nom, setNom] = useState("");
@@ -12,8 +14,7 @@ export const RegisterPage = () => {
   const [numBadge, setNumBadge] = useState("");
   const [signature, setSignature] = useState("");
   const [role, setRole] = useState("");
-  const [isRegistered, setIsRegistered] = useState(false);
-  const [verificationSent, setVerificationSent] = useState(false);
+  const navigate = useNavigate();
 
   const register = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,10 +36,14 @@ export const RegisterPage = () => {
       societe_id: 1,
     })
       .then(async (response) => {
+        // navigate(`/verify-email`);
         console.log("Registration successful:", response.data);
-        setIsRegistered(true);
-        setVerificationSent(true);
-        await axiosRequest("post", "/email/verification-notification");
+
+        const token = response.data.access_token;
+        localStorage.setItem("token", token);
+        // setIsRegistered(true);
+        // setVerificationSent(true);
+        // await axiosRequest("post", "/email/verification-notification");
         // Redirect or show success message
       })
       .catch((error) => {
@@ -138,42 +143,6 @@ export const RegisterPage = () => {
             </Button>
           </div>
         </form>
-        {isRegistered && (
-          <div className="col-md-6 offset-md-3 mt-4">
-            <div className="alert alert-info">
-              <h4>Verify Your Email Address</h4>
-              <p>
-                A verification link has been sent to <strong>{email}</strong>.
-                Please check your email and click the link to verify your
-                account.
-              </p>
-
-              {verificationSent && (
-                <div className="alert alert-success mt-2">
-                  Verification email sent successfully!
-                </div>
-              )}
-
-              <button
-                className="btn btn-link p-0"
-                onClick={async () => {
-                  try {
-                    await axiosRequest(
-                      "post",
-                      "/email/verification-notification"
-                    );
-                    setVerificationSent(true);
-                  } catch (error) {
-                    console.error("Failed to resend:", error);
-                    alert("Failed to resend verification email");
-                  }
-                }}
-              >
-                Didn't receive the email? Click here to resend
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

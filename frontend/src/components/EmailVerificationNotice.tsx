@@ -1,48 +1,49 @@
-// components/EmailVerificationNotice.js
-import { useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';// Adjust the import path as necessary
-import { Button, Alert } from 'react-bootstrap';
-import { resendVerificationEmail } from '../pages/auth/authRedux/AuthSlice';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-export default function EmailVerificationNotice() {
-  const dispatch = useDispatch();
-  const { user } = useSelector((state: any) => state.auth);
-  const { resendLoading, resendError, resendSuccess } = useSelector(
-    (state: any) => state.auth.verification
-  );
-
-  const handleResend = () => {
-    dispatch(resendVerificationEmail());
-  };
+function VerifyEmail() {
+  const [status, setStatus] = useState("verifying");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (resendSuccess) {
-      // You might want to show a toast notification here
-      console.log('Verification email resent successfully');
+    const params = new URLSearchParams(window.location.search);
+    console.log(params);
+    
+    const verifyUrl = params.get("verify_url"); // ✅ FULL Laravel verification URL
+    console.log("🔗 Verification URL:", verifyUrl);
+    
+
+    // const token = localStorage.getItem("token");
+
+    if (!verifyUrl) {
+      setStatus("missing");
+      return;
     }
-  }, [resendSuccess]);
+
+    axios
+      .get(verifyUrl)
+      .then((response) => {
+        console.log("✅ Email verified:", response.data);
+        setStatus("success");
+        navigate("/"); // Redirect to login after successful verification
+      })
+      .catch((error) => {
+        console.error("❌ Verification failed:", error.response?.data || error);
+        setStatus("failed");
+      });
+  }, []);
 
   return (
-    <div className="verification-notice">
-      <h4>Verify Your Email Address</h4>
-      <p>
-        A verification link has been sent to <strong>{user?.email}</strong>.
-        Please check your email and click the link to verify your account.
-      </p>
-      
-      {resendError && <Alert variant="danger">{resendError}</Alert>}
-      {resendSuccess && <Alert variant="success">Verification email sent!</Alert>}
-      
-      <p>
-        Didn't receive the email?{' '}
-        <Button 
-          variant="link" 
-          onClick={handleResend}
-          disabled={resendLoading}
-        >
-          {resendLoading ? 'Sending...' : 'Click here to resend'}
-        </Button>
-      </p>
+    <div className="container text-center mt-5">
+      {status === "verifying" && <p>⏳ Verifying your email...</p>}
+      {status === "success" && <p>✅ Your email has been verified!</p>}
+      {status === "failed" && (
+        <p>❌ Verification failed. Link may be expired or invalid.</p>
+      )}
+      {status === "missing" && <p>⚠️ Missing verification URL.</p>}
     </div>
   );
 }
+
+export default VerifyEmail;

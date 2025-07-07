@@ -18,7 +18,7 @@ export const LoginPage = () => {
     await axiosRequest("post", "/auth/login", { email, password })
       .then((response) => {
         dispatch(AuthActions.login(response.data));
-        console.log("Login successful:", response.data);
+        navigate("/dashboard"); // Redirect to dashboard after successful login
         // Redirect or show success message
       })
       .catch((error) => {

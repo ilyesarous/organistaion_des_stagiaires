@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\SocieteController;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,39 +20,22 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-Route::post('auth/register', [AuthController::class, 'register']);
-Route::post('auth/login', [AuthController::class, 'login']);
-Route::post('societe/create', [SocieteController::class, 'create']);
-Route::get('societe/getEmployees/{id}', [SocieteController::class, 'getEmployees']);
-
-
 Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return response()->json(['message' => 'Verification link sent!']);
 })->middleware(['auth:sanctum', 'throttle:6,1']);
 
-Route::get('/email/verify/{id}/{hash}', function (Request $request) {
-    if (!$request->hasValidSignature()) {
-        return response()->json(['message' => 'Invalid verification link'], 403);
-    }
+Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
+    ->middleware('signed')->name('verification.verify');
 
-    if ($request->user()->hasVerifiedEmail()) {
-        return response()->json(['message' => 'Email already verified']);
-    }
-
-    $request->user()->markEmailAsVerified();
-
-    return response()->json(['message' => 'Email successfully verified']);
-})->middleware(['auth:sanctum', 'signed'])->name('verification.verify');
-
-
-// Route::group(['middleware' => ['auth:user-api', 'checkUserToken:user-api']], function () {
     
-// });
-// Route::group(['prefix' => ['auth']], function () {
-//     Route::get('auth/user', [AuthController::class, 'getUser']);
-// });
+Route::post('auth/register', [AuthController::class, 'register']);
+Route::post('auth/login', [AuthController::class, 'login']);
+
+Route::prefix('auth')->middleware(['auth:api', 'verified'])->group(function () {
+    Route::get('/user', function (Request $request) {
+        return response()->json(['data' => $request->user()]);
+    });
+    Route::post('/logout', [AuthController::class, 'logout']);
+});
+

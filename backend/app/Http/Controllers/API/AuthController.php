@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\User;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegistrationRequest;
+use App\Models\Admin;
 use App\Models\Employee;
 use App\Models\Etudiant;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -35,31 +36,47 @@ class AuthController extends Controller
     {
         $request->validated();
         $userable = null;
-        if ($request->type === 'employee') {
-            $userable = Employee::create([
-                'numBadge' => $request->numBadge,
-                'signature' => $request->signature ?? null,
-                'societe_id' => $request->societe_id,
+        if ($request->type === "admin") {
+            $userable = User::create([
+                'nom' => $request->nom,
+                'prenom' => $request->prenom,
+                'email' => $request->email,
+                'password' => $request->password,
+                'phone' => $request->phone,
+                'profile_picture' => $request->profile_picture,
             ]);
+            $user = $userable;
         } else {
-            $userable = Etudiant::create([
-                'CV' => $request->cv ?? null,
-                'convention' => $request->convention ?? null,
-                'letterAffectation' => $request->letterAffectation ?? null,
+            if ($request->type === 'employee') {
+                $userable = Employee::create([
+                    'numBadge' => $request->numBadge,
+                    'signature' => $request->signature ?? null,
+                    'societe_id' => $request->societe_id,
+                ]);
+            } elseif ($request->type === "etudiant") {
+                $userable = Etudiant::create([
+                    'CV' => $request->cv ?? null,
+                    'convention' => $request->convention ?? null,
+                    'letterAffectation' => $request->letterAffectation ?? null,
+                ]);
+            }
+            $user = $userable->user()->create([
+                'nom' => $request->nom,
+                'prenom' => $request->prenom,
+                'email' => $request->email,
+                'password' => $request->password,
+                'phone' => $request->phone,
+                'profile_picture' => $request->profile_picture,
             ]);
         }
-        $user = $userable->user()->create([
-            'nom' => $request->nom,
-            'prenom' => $request->prenom,
-            'email' => $request->email,
-            'password' => $request->password,
-            'phone' => $request->phone,
-            'profile_picture' => $request->profile_picture,
-        ]);
 
         if ($user) {
-            $token = Auth::login($user);
-            return $this->responseWithToken($token, $user);
+            $user->sendEmailVerificationNotification();
+            // $token = Auth::login($user);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'User registered. Verification email sent.'
+            ]);
         } else {
             return response()->json([
                 'status' => 'error',
@@ -75,6 +92,13 @@ class AuthController extends Controller
             return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
         }
         return response()->json(['status' => 'success', 'user' => $user]);
+    }
+
+    public function logout()
+    {
+        // $request->$user()->curentAccessToken()->delete();
+        Auth::logout();
+        return response()->json(['status' => 'success', 'message' => 'Logged out successfully']);
     }
 
     /**
