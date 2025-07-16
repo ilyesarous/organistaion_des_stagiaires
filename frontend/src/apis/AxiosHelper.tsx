@@ -1,23 +1,53 @@
+// axiosHelper.ts
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:8000/api";
-axios.defaults.headers.post["Content-Type"] = "application/json";
-const token = localStorage.getItem("token");
-if (token) {
-  axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-}
-axios.defaults.withCredentials = true; //to allow cookies
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:8000/api",
+  headers: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+  withCredentials: true,
+});
+
+// // Request interceptor to add token dynamically
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle 401 errors
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+    }
+    return Promise.reject(error);
+  }
+);
 
 export const axiosRequest = (
-  method: any,
+  method: "get" | "post" | "put" | "patch" | "delete",
   url: string,
   data?: any,
-  header?: any
+  headers?: any
 ) => {
-  return axios({
-    method: method,
-    url: url,
-    data: data,
-    headers: header
+  return axiosInstance({
+    method,
+    url,
+    data,
+    headers: {
+      ...axiosInstance.defaults.headers,
+      ...headers,
+    },
   });
 };

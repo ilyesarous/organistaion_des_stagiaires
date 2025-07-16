@@ -10,16 +10,14 @@ class Etudiant extends Model
     protected $fillable = [
         'cv',
         'convention',
-        'letterAffectation'
+        'letterAffectation',
+        'facultee_id',
+        'sujet_id'
     ];
 
     public function facultee()
     {
         return $this->belongsTo(Facultee::class);
-    }
-    public function societes()
-    {
-        return $this->belongsTo(Societe::class);
     }
     public function attestation()
     {

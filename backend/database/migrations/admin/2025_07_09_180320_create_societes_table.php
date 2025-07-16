@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('site_web')->nullable();
             $table->string('address')->nullable();
             $table->string('cachet')->nullable();
-            $table->string('logo')->nullable();
+            $table->text('logo')->nullable();
             $table->timestamps();
         });
     }

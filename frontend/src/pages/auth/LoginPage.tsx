@@ -13,21 +13,18 @@ export const LoginPage = () => {
 
   const HandleLogin = async (e: any) => {
     e.preventDefault();
-    // Handle login logic here
 
     await axiosRequest("post", "/auth/login", { email, password })
       .then((response) => {
+        console.log(response.data);
+        
         dispatch(AuthActions.login(response.data));
-        navigate("/dashboard"); // Redirect to dashboard after successful login
-        // Redirect or show success message
+        navigate("/dashboard"); 
       })
       .catch((error) => {
         console.error("Login failed:", error);
         // Show error message
       });
-
-    // console.log("Email:", email);
-    // console.log("Password:", password);
   };
 
   return (
@@ -52,9 +49,6 @@ export const LoginPage = () => {
           <div className="d-flex justify-content-end gap-3 mt-4">
             <Button variant="primary" type="submit">
               Login
-            </Button>
-            <Button variant="secondary" type="button" onClick={() => {navigate("/register")}}>
-              Register
             </Button>
           </div>
         </form>

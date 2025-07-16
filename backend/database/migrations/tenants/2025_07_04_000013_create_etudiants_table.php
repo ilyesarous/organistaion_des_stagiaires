@@ -25,10 +25,11 @@ return new class extends Migration
             $table->foreignIdFor(Facultee::class)
                 ->constrained('facultees')
                 ->cascadeOnDelete();
-            $table->foreignIdFor(Societe::class)
-                ->constrained('societes')
-                ->cascadeOnDelete();
+            // $table->foreignIdFor(Societe::class)
+            //     ->constrained('societes')
+            //     ->cascadeOnDelete();
             $table->foreignIdFor(Sujet::class)
+                ->nullable()
                 ->constrained('sujets');
         });
     }

@@ -22,15 +22,15 @@ class SocieteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'matricule_fiscale' => ['required', 'string', 'max:255'],
-            'uuid' => ['required', 'string', 'max:255'],
-            'raison_sociale' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'email:filter', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:15'],
-            'site_web' => ['nullable', 'string', 'max:255'],
-            'address' => ['nullable', 'string', 'max:255'],
-            'cachet' => ['nullable', 'string', 'max:2048'],
-            'logo' => ['nullable', 'string', 'max:2048'],
+            'matricule_fiscale' => 'required|string|max:255',
+            'uuid' => 'required|string|max:255',
+            'raison_sociale' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:20',
+            'site_web' => 'required|url|max:255',
+            'address' => 'required|string|max:255',
+            'cachet' => 'required|string|max:255',
+            'logo' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 }

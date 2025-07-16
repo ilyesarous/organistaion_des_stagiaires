@@ -21,10 +21,6 @@ class Sujet extends Model
         'nbEtudiants',
         'typeStage'
     ];
-    public function societes()
-    {
-        return $this->belongsToMany(Societe::class);
-    }
     public function attestations()
     {
         return $this->hasMany(Attestation::class);

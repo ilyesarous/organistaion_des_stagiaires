@@ -11,17 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('facultees', function (Blueprint $table) {
+        Schema::create('user_verifications', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
-            $table->string('department')->nullable();
-            $table->string('email')->unique();
-            $table->string('phone')->nullable();
-            $table->string('site_web')->nullable();
-            $table->string('address')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('token')->unique();
             $table->timestamps();
         });
-        
     }
 
     /**
@@ -29,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('facultees');
+        Schema::dropIfExists('user_verifications');
     }
 };

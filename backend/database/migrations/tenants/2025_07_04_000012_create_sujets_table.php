@@ -24,8 +24,8 @@ return new class extends Migration
             $table->timestamps();
         });
         Schema::table('sujets', function (Blueprint $table) {
-            $table->foreignIdFor(Societe::class) // Use foreignIdFor for better readability
-                ->constrained('societes');
+            // $table->foreignIdFor(Societe::class) // Use foreignIdFor for better readability
+            //     ->constrained('societes');
             $table->foreignIdFor(Employee::class)// Nullable in case the subject is not assigned to an employee yet
                 ->constrained('employees');
         });

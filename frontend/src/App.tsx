@@ -1,33 +1,57 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import "./App.css";
-import { RegisterPage } from "./pages/auth/RegisterPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { Dashboard } from "./pages/Dashboard";
-import VerifyEmail from "./components/EmailVerificationNotice";
+import { VerifyEmailPage } from "./components/EmailVerificationNotice";
 import NotFoundPage from "./components/NotFound";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-//
-function App() {
-  const token = useSelector((state: any) => state.auth.token); // Access token from Redux store
-  // const isAuthenticated = !!token; // Check if token exists
+import { Profile } from "./pages/auth/Profile";
 
+function App() {
+  const isAuthenticated = useSelector((state: any)=> state.auth.isAuthenticated);
+
+  // Listen for changes in localStorage
   useEffect(() => {
-    token && localStorage.getItem("token"); // Store token in localStorage
-  }, [token]);
+    isAuthenticated
+  }, [isAuthenticated]);
+
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* ... other routes ... */}
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        {/* Protected routes that require verified email */}
-        {!token ? (
-          <Route path="/" element={<LoginPage />} />
-        ) : (
-          <Route path="/dashboard" element={<Dashboard />} />
-        )}
+        {/* Public routes */}
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        
+        {/* Auth route - only accessible when not authenticated */}
+        <Route 
+          path="/login" 
+          element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} 
+        />
+        
+        {/* Protected routes - only accessible when authenticated */}
+        <Route 
+          path="/dashboard" 
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+        />
+        <Route 
+          path="/profile" 
+          element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} 
+        />
+        
+        {/* Root path redirects based on auth status */}
+        <Route 
+          path="/" 
+          element={
+            isAuthenticated ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          } 
+        />
+        
+        {/* Catch-all route */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>

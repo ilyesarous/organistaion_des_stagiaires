@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\Employee;
+use App\Models\Etudiant;
+use App\Models\Societe;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,13 +20,19 @@ return new class extends Migration
             $table->string('prenom');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('phone');
-            $table->string('profile_picture');
+            $table->text('profile_picture')->nullable();
             $table->string('userable_type')->nullable();
             $table->unsignedBigInteger('userable_id')->nullable();
             $table->rememberToken();
             $table->timestamps();
+        });
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignIdFor(Societe::class) // Use foreignIdFor for better readability
+                ->nullable()
+                ->constrained('societes')
+                ->cascadeOnDelete();
         });
     }
 

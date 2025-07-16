@@ -25,9 +25,9 @@ class RegistrationRequest extends FormRequest
             'nom' => ['required', 'string', 'min:2'],
             'prenom' => ['required', 'string', 'min:2'],
             'email' => ['required', 'email:filter', 'unique:users'],
-            'password' => ['required', 'string', 'min:6', 'confirmed'],
+            'password' => ['nullable'],
             'phone' => ['nullable', 'string', 'max:15'],
-            'profile_picture' => ['nullable', 'string', 'max:2048'], 
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'type' => 'required|in:employee,etudiant,admin'
         ];
     }

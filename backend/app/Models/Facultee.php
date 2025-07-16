@@ -17,10 +17,6 @@ class Facultee extends Model
         'address',
     ];
 
-    public function societes()
-    {
-        return $this->belongsToMany(Societe::class);
-    }
     public function etudiants()
     {
         return $this->hasMany(Etudiant::class);

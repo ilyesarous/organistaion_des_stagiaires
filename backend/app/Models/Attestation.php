@@ -17,10 +17,6 @@ class Attestation extends Model
         'isApproved'
     ];
 
-    public function societe()
-    {
-        return $this->belongsTo(Societe::class);
-    }
     public function sujet()
     {
         return $this->belongsTo(Sujet::class);

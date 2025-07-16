@@ -11,14 +11,9 @@ class Employee extends Model
 
     protected $fillable = [
         'numBadge',
-        'signature',
-        'societe_id'
+        'signature'
     ];
     
-    public function societes()
-    {
-        return $this->belongsTo(Societe::class);
-    }
     public function attestation()
     {
         return $this->hasOne(Attestation::class);

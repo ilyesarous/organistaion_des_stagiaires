@@ -15,14 +15,14 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->string('numBadge');
-            $table->string('signature')->nullable();
+            $table->text('signature')->nullable();
             $table->timestamps();
         });
-        Schema::table('employees', function (Blueprint $table) {
-            $table->foreignIdFor(Societe::class) // Use foreignIdFor for better readability
-                ->constrained('societes')
-                ->cascadeOnDelete();
-        });
+        // Schema::table('employees', function (Blueprint $table) {
+        //     $table->foreignIdFor(Societe::class) // Use foreignIdFor for better readability
+        //         ->constrained('societes')
+        //         ->cascadeOnDelete();
+        // });
     }
 
     /**

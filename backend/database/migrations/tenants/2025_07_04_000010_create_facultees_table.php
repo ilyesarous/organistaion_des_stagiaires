@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\Facultee;
 use App\Models\Societe;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -13,16 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('facultees_societes', function (Blueprint $table) {
+        Schema::create('facultees', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Facultee::class)
-                ->constrained('facultees')
-                ->onDelete('cascade');
-            $table->foreignIdFor(Societe::class)
-                ->constrained('societes')
-                ->onDelete('cascade');
+            $table->string('name')->unique();
+            $table->string('department')->nullable();
+            $table->string('email')->unique();
+            $table->string('phone')->nullable();
+            $table->string('site_web')->nullable();
+            $table->string('address')->nullable();
             $table->timestamps();
         });
+        
     }
 
     /**
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('facultees_societes');
+        Schema::dropIfExists('facultees');
     }
 };
