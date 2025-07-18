@@ -8,6 +8,7 @@ use App\Http\Requests\RegistrationRequest;
 use App\Models\Employee;
 use App\Models\Etudiant;
 use App\Models\Facultee;
+use App\Models\Role;
 use Illuminate\Support\Str;
 use App\Models\Societe;
 use App\Models\Tenants;
@@ -48,9 +49,6 @@ class AuthController extends Controller
     public function register(RegistrationRequest $request)
     {
         $loggedIN = Auth::guard('api')->user();
-        // echo($loggedIN);
-        // $societe = Societe::on('admin')->where("id", )->first();
-        // $this->ChangeToAdmin();
 
         $user = User::on('admin')->create([
             'nom' => $request->nom,
@@ -66,7 +64,7 @@ class AuthController extends Controller
         } else {
             $userable = new Etudiant();
         }
-        $user->userable_type = get_class($userable) === "App\Models\Employee" ? "employee" : "etudiant";
+        $user->userable_type = get_class($userable);
         $user->save();
 
         $token = Str::random(64);
@@ -141,7 +139,7 @@ class AuthController extends Controller
         $user->userable_id = $userable->id;
         $user->save();
 
-        DB::table('user_verifications')->where('user_id', $user->id)->delete();
+        DB::table('user_verifications')->where('user_id', $user->id)->update(['is_verified' => true, 'updated_at' => now()]);
 
         return response()->json(['message' => 'Account verified successfully']);
     }
@@ -215,7 +213,25 @@ class AuthController extends Controller
         $this->ChangeToTenant($societe->raison_sociale);
     }
 
-    // public function updateProfile(RegistrationRequest $request) {}
+    public function assignRolesToUsers(Request $request)
+    {
+        $request->validate([
+            'userId'=> 'required|int',
+            'role'=> 'required|string', 
+        ]);
+
+        $user = User::on('admin')->where('id', $request->userId)->first();
+        if($user->roles()->exists())
+            $user->roles()->detach();
+
+        $role = Role::on('admin')->where("name", $request->role)->first();
+
+        $user->roles()->attach($role->id);
+        $user->role = $role->name;
+
+        $user->save();
+        return response()->json(['status' => 'success', 'message' => 'Role set successfully!']);
+    }
 
 
 

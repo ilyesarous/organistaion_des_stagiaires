@@ -16,10 +16,11 @@ export const TableHeader = ({
   onSearchChange,
 }: SocieteListHeaderProps) => {
   const type = localStorage.getItem("type");
-
+  // console.log("search ", searchTerm );
+  
   const showBtn = () => {
-    if (type === "superAdmin")
-      return type === "superAdmin" && name !== "Utilisateurs";
+    // if (type === "superAdmin")
+    //   return type === "superAdmin" && name === "Utilisateurs";
     return true;
   };
 

@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SocieteRequest;
 use App\Models\Employee;
 use App\Models\Etudiant;
+use App\Models\Role;
 use App\Models\Societe;
+use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +20,6 @@ class SocieteController extends Controller
         try {
             $data = $request->validated();
 
-            // Handle file upload
             if ($request->hasFile('logo')) {
                 $path = $request->file('logo')->store('company-logos', 'public');
                 $data['logo'] = $path; // This will store the path like "company-logos/filename.jpg"
@@ -28,24 +29,29 @@ class SocieteController extends Controller
                 ['uuid' => $request->uuid],
                 $data
             );
-            DB::table('users')->insert([
+            $userId = DB::table('users')->insertGetId([
                 'nom' => "admin",
                 'prenom' => "admin",
-                'email' => "admin@" . $data["raison_sociale"]. ".com",
+                'email' => "admin@" . $data["raison_sociale"] . ".com",
                 'email_verified_at' => now(),
                 'password' => "$2y$10$4H66smDHNSSL4QTIg1Wyq.pnHrcjOyK2g.i6NUnrL/rV2hOLyMK.G",
                 'phone' => "00000000",
-                'userable_type' => "admin",
                 'created_at' => now(),
                 'updated_at' => now(),
                 'societe_id' => $company->id
             ]);
             DB::table('tenants')->insert([
-                'email'=>"admin@" . $data["raison_sociale"]. ".com",
+                'email' => "admin@" . $data["raison_sociale"] . ".com",
                 'database' => $data["raison_sociale"],
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);
+            $user = User::find($userId);
+            $adminRole = Role::where('name', 'admin')->first();
+
+            $user->roles()->attach($adminRole);
+            $user->role = $adminRole->name;
+            $user->save();
 
             $tenantDbName = strtolower(Str::slug($data["raison_sociale"], '_'));
             $this->createTenantDatabase($tenantDbName);
@@ -70,7 +76,7 @@ class SocieteController extends Controller
 
     public function createTenantDatabase(string $dbname)
     {
-        
+
         config(['database.connections.pgcreator' => [
             'driver'   => 'pgsql',
             'host'     => env('DB_HOST', '127.0.0.1'),

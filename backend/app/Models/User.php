@@ -6,7 +6,6 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Sanctum\HasApiTokens;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -29,12 +28,24 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
         'password',
         'phone',
         'profile_picture',
-        'societe_id'
+        'role',
+        'societe_id',
     ];
 
-    function societes (){
+    function societes()
+    {
         return $this->belongsTo(Societe::class);
     }
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'users_roles');
+    }
+
+    public function hasRole($roleName)
+    {
+        return $this->roles->contains('name', $roleName);
+    }
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -89,5 +100,4 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return strtolower(class_basename($this->userable_type));
     }
-
 }

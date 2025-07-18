@@ -43,7 +43,7 @@ const Sidebar: React.FC<StaticSidebarProps> = ({
           </div>
           <ul className="nav flex-column px-3 py-3 flex-grow-1">
             {items
-              .filter((item) => item.id !== "settings")
+              .filter((item) => item.id !== "logout")
               .map((item) => (
                 <li
                   key={item.id}
@@ -65,19 +65,19 @@ const Sidebar: React.FC<StaticSidebarProps> = ({
               ))}
           </ul>
           <div className="px-3 py-2 border-top nav-item">
-            <div className="nav-link d-flex align-items-center py-2 px-3 rounded-3" onClick={() => onItemClick && onItemClick("settings")}>
+            <div className="nav-link d-flex align-items-center py-2 px-3 rounded-3" onClick={() => onItemClick && onItemClick("logout")}>
               {(() => {
                 const settingsItem = items.find(
-                  (item) => item.id === "settings"
+                  (item) => item.id === "logout"
                 );
                 return settingsItem && settingsItem.icon ? (
                   <span className="me-3 text-muted">{settingsItem.icon}</span>
                 ) : null;
               })()}
               <span className="text-dark">
-                {items.find((item) => item.id === "settings")?.title}
+                {items.find((item) => item.id === "logout")?.title}
               </span>
-              {activeItem === "settings" && (
+              {activeItem === "logout" && (
                 <span className="active-indicator ms-auto"></span>
               )}
             </div>

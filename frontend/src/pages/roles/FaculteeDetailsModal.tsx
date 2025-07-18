@@ -1,5 +1,5 @@
 // src/components/SocieteDetailsModal.tsx
-import { Modal, Button, Row, Col } from "react-bootstrap";
+import { Modal, Button, Row, Col, Image, Badge } from "react-bootstrap";
 import type { Facultee } from "../../models/Facultee";
 
 interface Props {

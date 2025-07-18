@@ -2,6 +2,7 @@
 
 use App\Models\Employee;
 use App\Models\Societe;
+use App\Models\TypeStage;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -20,7 +21,7 @@ return new class extends Migration
             $table->text('competences');
             $table->integer('duree'); // Duration in days
             $table->integer('nbEtudiants'); // Number of students
-            $table->enum('typeStage', ['stage', 'projet', 'par annee']); 
+            $table->string('typeStage')->default(TypeStage::PFE->value);
             $table->timestamps();
         });
         Schema::table('sujets', function (Blueprint $table) {

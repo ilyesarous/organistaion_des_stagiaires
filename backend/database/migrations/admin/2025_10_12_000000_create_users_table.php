@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('phone');
             $table->text('profile_picture')->nullable();
             $table->string('userable_type')->nullable();
+            $table->string('role')->nullable();
             $table->unsignedBigInteger('userable_id')->nullable();
             $table->rememberToken();
             $table->timestamps();

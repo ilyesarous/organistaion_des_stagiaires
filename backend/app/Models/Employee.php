@@ -13,20 +13,20 @@ class Employee extends Model
         'numBadge',
         'signature'
     ];
-    
+
     public function attestation()
     {
         return $this->hasOne(Attestation::class);
     }
-    public function sujet(){
+    public function sujet()
+    {
         return $this->hasMany(Sujet::class);
     }
     public function etudiants()
     {
-        return $this->belongsToMany(Etudiant::class);
+        return $this->belongsToMany(Etudiant::class, 'employees_etudiants');
     }
-
-     public function user()
+    public function user()
     {
         return $this->morphOne(User::class, 'userable');
     }

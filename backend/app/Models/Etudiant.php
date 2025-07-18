@@ -27,14 +27,13 @@ class Etudiant extends Model
     {
         return $this->hasOne(Sujet::class);
     }
-    public function employes()
+    public function employees()
     {
-        return $this->belongsToMany(Employee::class);
+        return $this->belongsToMany(Employee::class, 'employees_etudiants');
     }
 
-     public function user()
+    public function user()
     {
         return $this->morphOne(User::class, 'userable');
     }
-    
 }

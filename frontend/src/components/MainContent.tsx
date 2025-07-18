@@ -3,6 +3,7 @@ import { SocieteList } from "../pages/societe/ShowSocietes";
 import { UsersList } from "../pages/users/UsersList";
 import { FaculteeList } from "../pages/facultee/ShowFacultees";
 import { Profile } from "../pages/auth/Profile";
+import { GestionList } from "../pages/roles/ShowRoles";
 
 export const MainContent = (props: any) => {
   let content = props.content;
@@ -12,6 +13,7 @@ export const MainContent = (props: any) => {
         {content === "societes" && <SocieteList />}
         {content === "users" && <UsersList />}
         {content === "facultees" && <FaculteeList />}
+        {content === "roles" && <GestionList />}
         {content === "settings" && <Profile />}
       </Col>
     </>

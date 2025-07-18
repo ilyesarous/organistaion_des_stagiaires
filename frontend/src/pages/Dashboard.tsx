@@ -8,6 +8,7 @@ import { AuthActions } from "./auth/authRedux/AuthSlice";
 import { useNavigate } from "react-router-dom";
 import { IoBusiness } from "react-icons/io5";
 import { LuUniversity } from "react-icons/lu";
+import { MdOutlineManageAccounts } from "react-icons/md";
 
 export const Dashboard = () => {
   const [type, setType] = useState<string | null>(null);
@@ -20,6 +21,7 @@ export const Dashboard = () => {
 
   const sidebarItems = [
     { id: "users", title: "Users", icon: <IoMdPerson /> },
+    { id: "roles", title: "Roles", icon: <MdOutlineManageAccounts /> },
     { id: "societes", title: "Societes", icon: <IoBusiness /> },
     { id: "facultees", title: "Facultés", icon: <LuUniversity /> },
     { id: "sujets", title: "Sujets", icon: <IoMdPaper /> },
@@ -43,13 +45,7 @@ export const Dashboard = () => {
   return (
     <div className="d-flex h-100">
       <Sidebar
-        items={
-          type === "superAdmin"
-            ? sidebarItems.filter((item) => item.id !== "facultees" && item.id !== "sujets")
-            : type ==="admin" ? sidebarItems.filter((item) => item.id !== "societes")
-            : type ==="employee" ? sidebarItems.filter((item) => item.id !== "societes" && item.id !== "users")
-            : sidebarItems.filter((item) => item.id !== "societes" && item.id !== "users" && item.id !== "facultees")
-        }
+        items={sidebarItems}
         onItemClick={handleItemClick}
         activeItem={activeItem}
         logo={<h4 className="mb-0">MyApp</h4>}

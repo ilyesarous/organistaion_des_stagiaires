@@ -7,5 +7,5 @@ export interface User {
   password: string;
   phone: string;
   profilePicture: string;
-  userable_type: string;
+  role: string;
 }

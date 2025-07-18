@@ -2,18 +2,9 @@
 
 namespace App\Models;
 
-enum TypeStage
+enum TypeStage: string
 {
-    case STAGE_DETE;
-    case PFE;
-    case PAR_ANNEE;
-
-    public function label(): string
-    {
-        return match ($this) {
-            self::STAGE_DETE => 'Stage d\'été',
-            self::PFE => 'PFE',
-            self::PAR_ANNEE => 'par année',
-        };
-    }
+    case STAGE_DETE = 'stage d\'été';
+    case PFE = "stage pfe";
+    case PAR_ANNEE = "par année";
 }

@@ -30,7 +30,7 @@ export const Profile = () => {
         <h3 className="mt-3 mb-1">
           {user?.nom} {user?.prenom}
         </h3>
-        <p className="text-muted mb-2">{user?.userable_type}</p>
+        <p className="text-muted mb-2">{user?.role}</p>
       </div>
 
       <Row className="text-center mb-4">

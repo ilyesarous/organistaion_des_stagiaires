@@ -48,6 +48,7 @@ export const UsersList = () => {
     }
   };
 
+
   const filteredusers = (users ?? []).filter(
     (user) =>
       user.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -83,6 +84,9 @@ export const UsersList = () => {
               users={filteredusers}
               onDelete={handleDelete}
               deleteId={deleteId}
+              onSuccess={() => {
+                fetchSocietes();
+              }}
             />
           )}
         </Card.Body>

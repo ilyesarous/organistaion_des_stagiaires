@@ -20,7 +20,7 @@ const authSlice = createSlice({
       state.error = null;
 
       localStorage.setItem("token", action.payload.access_token);
-      localStorage.setItem("type", action.payload.user.userable_type);
+      localStorage.setItem("type", action.payload.user.role);
       localStorage.setItem("user", JSON.stringify(action.payload.user));
     },
     logout(state) {

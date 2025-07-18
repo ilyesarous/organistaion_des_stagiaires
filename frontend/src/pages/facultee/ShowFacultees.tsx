@@ -17,8 +17,8 @@ export const FaculteeList = () => {
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-   const [showDetailsModal, setShowDetailsModal] = useState(false);
-    const [selectedFacultee, setSelectedFacultee] = useState<Facultee>();
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedFacultee, setSelectedFacultee] = useState<Facultee>();
 
   const handleSuccess = () => {
     fetchFacultees();
@@ -41,7 +41,8 @@ export const FaculteeList = () => {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this facultée?")) return;
+    if (!window.confirm("Are you sure you want to delete this facultée?"))
+      return;
 
     setDeleteId(id);
     try {
@@ -69,13 +70,18 @@ export const FaculteeList = () => {
   );
 
   if (loading) return <LoadingIndicator />;
-  if (error) return <Alert variant="danger" onClose={() => setError(null)} dismissible>{error}</Alert>;
+  if (error)
+    return (
+      <Alert variant="danger" onClose={() => setError(null)} dismissible>
+        {error}
+      </Alert>
+    );
 
   return (
     <Container fluid className="px-4 py-3">
       <Card className="border-0 shadow-sm">
         <Card.Header className="bg-white border-0 py-3">
-          <TableHeader 
+          <TableHeader
             name="Facultées"
             onAddClick={() => setShowModal(true)}
             searchTerm={searchTerm}
@@ -87,10 +93,10 @@ export const FaculteeList = () => {
           {filteredFacultees.length === 0 ? (
             <EmptyState searchTerm={searchTerm} name="société" />
           ) : (
-            <DisplayTable 
-              facultees={filteredFacultees} 
-              onDelete={handleDelete} 
-              deleteId={deleteId} 
+            <DisplayTable
+              facultees={filteredFacultees}
+              onDelete={handleDelete}
+              deleteId={deleteId}
               details={handleDetails}
             />
           )}
@@ -99,23 +105,23 @@ export const FaculteeList = () => {
         {filteredFacultees.length > 0 && (
           <Card.Footer className="bg-white border-0 py-3">
             <TableFooter
-              filteredCount={filteredFacultees.length} 
-              totalCount={facultees.length} 
+              filteredCount={filteredFacultees.length}
+              totalCount={facultees.length}
             />
           </Card.Footer>
         )}
       </Card>
-      
+
       <AddNewFacultee
         show={showModal}
         onHide={() => setShowModal(false)}
         onSuccess={handleSuccess}
       />
       <FaculteeDetailsModal
-              show={showDetailsModal}
-              onHide={() => setShowDetailsModal(false)}
-              facultee={selectedFacultee ? selectedFacultee : null}
-            />
+        show={showDetailsModal}
+        onHide={() => setShowDetailsModal(false)}
+        facultee={selectedFacultee ? selectedFacultee : null}
+      />
     </Container>
   );
 };
