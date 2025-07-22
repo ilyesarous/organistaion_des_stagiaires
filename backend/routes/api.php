@@ -6,6 +6,7 @@ use App\Http\Controllers\API\Faculte\FaculteController;
 use App\Http\Controllers\API\Societe\SocieteController;
 use App\Http\Controllers\Gestion\GestionsController;
 use App\Http\Controllers\Role\RolesController;
+use App\Http\Controllers\Sujet\SujetController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -42,10 +43,13 @@ Route::prefix('auth')->middleware(['auth:api', 'verified', 'tenant'])->group(fun
     Route::delete('delete/{id}', [AuthController::class, 'deleteUser'])->middleware(['can:superAdmin_or_admin']);
 });
 
+Route::get('societe/employees', [SocieteController::class, 'getEmployees'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin', 'tenant']);
+
 Route::prefix('societe')->middleware(['auth:api', 'verified', 'can:superAdmin', 'tenant'])->group(function () {
     Route::get('/', [SocieteController::class, 'getAll']);
     Route::post('/create', [SocieteController::class, 'create']);
     Route::get('/details/{id}', [SocieteController::class, 'getSocieteById']);
+    Route::get('/etudiants/{id}', [SocieteController::class, 'getEtudiants']);
     Route::delete('/delete/{id}', [SocieteController::class, 'deleteSociete']);
 });
 
@@ -62,11 +66,20 @@ Route::prefix('gestion')->middleware(['auth:api', 'verified', 'tenant', 'can:sup
     Route::get('/', [GestionsController::class, 'getAll']);
     Route::get('/{id}', [GestionsController::class, "getGestionByRole"]);
 });
+
 Route::get('/action', [ActionsController::class, 'getAll'])->middleware(['can:superAdmin_or_admin']);
+
 Route::prefix('role')->middleware(['auth:api', 'verified', 'tenant', 'can:superAdmin_or_admin'])->group(function () {
     Route::get('/', [RolesController::class, 'getAll']);
     Route::get('/getAllNames', [RolesController::class, 'getAllNames']);
     Route::post('/create', [RolesController::class, "create"]);
     Route::put('/{id}/update', [RolesController::class, 'update']);
+});
 
+Route::prefix('sujet')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {
+    Route::get('/', [SujetController::class, 'getAll']);
+    Route::get('/{id}', [SujetController::class, 'getSujet']);
+    Route::post('/create', [SujetController::class, "create"]);
+    Route::put('/update/{id}', [SujetController::class, 'updateSujet']);
+    Route::delete('/delete/{id}', [SujetController::class, 'delete']);
 });

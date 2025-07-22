@@ -19,7 +19,8 @@ class Sujet extends Model
         'competences',
         'duree',
         'nbEtudiants',
-        'typeStage'
+        'typeStage',
+        'employee_id'
     ];
     public function attestations()
     {

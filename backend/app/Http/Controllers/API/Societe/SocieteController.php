@@ -11,6 +11,7 @@ use App\Models\Societe;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SocieteController extends Controller
@@ -96,14 +97,13 @@ class SocieteController extends Controller
         DB::reconnect('tenant');
     }
 
-    public function getEmployees($id)
+    public function getEmployees()
     {
-
-        $societe = Societe::findOrFail($id);
-
-        if ($societe) {
-            $employees = Employee::where('societe_id', $id)->get();
-        }
+        $id = Auth::user()->societe_id;
+        $employees = User::on('admin')
+        ->where("societe_id", $id)
+        ->where("userable_type", Employee::class)
+        ->get();
         return response()->json(['employees' => $employees], 200);
     }
     public function getEtudiants($id)

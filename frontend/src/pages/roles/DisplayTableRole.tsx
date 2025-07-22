@@ -21,7 +21,9 @@ export const DisplayTableRole = ({ data, onUpdate }: GestionTableProps) => {
               <th>Nom</th>
               <th>Gestion</th>
               <th>Fonctionnalités</th>
-              <th>Actions</th>
+              <th style={{ width: "120px" }} className="text-end">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
