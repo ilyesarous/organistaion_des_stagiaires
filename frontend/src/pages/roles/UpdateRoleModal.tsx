@@ -1,51 +1,62 @@
 import { useEffect, useState } from "react";
 import { Form, Button, Alert, Modal } from "react-bootstrap";
 import { axiosRequest } from "../../apis/AxiosHelper";
+import type { role } from "../../models/Role";
 
-interface AddRoleModalProps {
+interface UpdateRoleModalProps {
   show: boolean;
   onHide: () => void;
   onSuccess: () => void;
+  selectedRole: role | null;
 }
 
-export const AddNewRole = ({ show, onHide, onSuccess }: AddRoleModalProps) => {
+export const UpdateRoleModal = ({
+  show,
+  onHide,
+  onSuccess,
+  selectedRole,
+}: UpdateRoleModalProps) => {
   const [roleName, setRoleName] = useState("");
   const [gestions, setGestions] = useState<string[]>([]);
   const [actions, setActions] = useState<string[]>([]);
   const [selectedGestions, setSelectedGestions] = useState<string[]>([]);
   const [selectedAction, setSelectedAction] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
   const [message, setMessage] = useState<{
     text: string;
     variant: "success" | "danger";
   } | null>(null);
 
   useEffect(() => {
-    const fetchGestions = async () => {
+    if (!show || !selectedRole) return;
+
+    const fetchInitialData = async () => {
       try {
-        const res = await axiosRequest("get", "gestion");
-        setGestions(res.data.gestions);
-        // Adjust if your response key differs
+        const [gestRes, actRes] = await Promise.all([
+          axiosRequest("get", "gestion"),
+          axiosRequest("get", "action"),
+        ]);
+        setGestions(gestRes.data.gestions);
+        setActions(actRes.data.actions);
+
+        console.log(gestRes.data.gestions);
+        
       } catch (error) {
-        console.error("Error fetching gestions", error);
-      }
-    };
-    const fetchActions = async () => {
-      try {
-        const res = await axiosRequest("get", "action");
-        setActions(res.data.actions);
-        // Adjust if your response key differs
-      } catch (error) {
-        console.error("Error fetching actions", error);
+        console.error("Failed to load gestions or actions", error);
       }
     };
 
-    if (show) {
-      fetchGestions();
-      fetchActions();
-    }
-  }, [show]);
+    // Pre-fill fields
+    setRoleName(selectedRole.name);
+    setSelectedGestions([
+      ...new Set(selectedRole.data.map((d) => d.name)),
+    ]);
+    setSelectedAction([
+      ...new Set(selectedRole.data.map((d) => d.action_id.toString())),
+    ]);
+
+    fetchInitialData();
+  }, [show, selectedRole]);
 
   const handleSelectedChange = (gestion: string) => {
     setSelectedGestions((prev) =>
@@ -54,16 +65,17 @@ export const AddNewRole = ({ show, onHide, onSuccess }: AddRoleModalProps) => {
         : [...prev, gestion]
     );
   };
-  const removeGestion = (gestion: string) => {
-    setSelectedGestions((prev) => prev.filter((g) => g !== gestion));
-  };
 
   const handleCheckboxChange = (action: string) => {
     setSelectedAction((prev) =>
       prev.includes(action)
-        ? prev.filter((action) => action !== action)
+        ? prev.filter((a) => a !== action)
         : [...prev, action]
     );
+  };
+
+  const removeGestion = (gestion: string) => {
+    setSelectedGestions((prev) => prev.filter((g) => g !== gestion));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,28 +84,28 @@ export const AddNewRole = ({ show, onHide, onSuccess }: AddRoleModalProps) => {
     setMessage(null);
 
     try {
-      await axiosRequest("post", "role/create", {
+      await axiosRequest("put", `role/${selectedRole?.id}/update`, {
         name: roleName,
         gestions: selectedGestions,
         actions: selectedAction,
-      }).then(() => {
-        setMessage({
-          text: "Role created and gestions assigned successfully!",
-          variant: "success",
-        });
-
-        setTimeout(() => {
-          setRoleName("");
-          setSelectedGestions([]);
-          setSelectedAction([]);
-          onSuccess();
-          onHide();
-        }, 2000);
       });
-    } catch (error: any) {
-      console.error("Error submitting form:", error);
+
       setMessage({
-        text: error.response?.data?.message || "Network error occurred.",
+        text: "Rôle mis à jour avec succès!",
+        variant: "success",
+      });
+
+      setTimeout(() => {
+        setRoleName("");
+        setSelectedGestions([]);
+        setSelectedAction([]);
+        onSuccess();
+        onHide();
+      }, 2000);
+    } catch (error: any) {
+      console.error("Update failed:", error);
+      setMessage({
+        text: error.response?.data?.message || "Une erreur est survenue.",
         variant: "danger",
       });
     } finally {
@@ -105,8 +117,8 @@ export const AddNewRole = ({ show, onHide, onSuccess }: AddRoleModalProps) => {
     <Modal show={show} onHide={onHide} size="lg" centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          <i className="bi bi-shield-lock me-2 text-primary"></i>
-          Ajouter un nouveau rôle
+          <i className="bi bi-pencil-square me-2 text-warning"></i>
+          Modifier le rôle
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -132,7 +144,7 @@ export const AddNewRole = ({ show, onHide, onSuccess }: AddRoleModalProps) => {
 
           <Form.Group className="mb-4">
             <Form.Label className="fw-bold mb-2">
-              Assigner les gestions
+              Gestions assignées
             </Form.Label>
 
             {selectedGestions.length > 0 && (
@@ -155,7 +167,9 @@ export const AddNewRole = ({ show, onHide, onSuccess }: AddRoleModalProps) => {
               </div>
             )}
 
-            <Form.Select onChange={(e) => handleSelectedChange(e.target.value)}>
+            <Form.Select
+              onChange={(e) => handleSelectedChange(e.target.value)}
+            >
               <option value="">-- Select a module --</option>
               {gestions.map((gestion) => (
                 <option key={gestion} value={gestion}>
@@ -164,8 +178,8 @@ export const AddNewRole = ({ show, onHide, onSuccess }: AddRoleModalProps) => {
               ))}
             </Form.Select>
 
-            <Form.Label className="fw-bold mb-2">
-              Assigner les actions
+            <Form.Label className="fw-bold mt-3 mb-2">
+              Actions assignées
             </Form.Label>
             <div className="d-flex flex-wrap gap-3">
               {actions.map((action) => (
@@ -191,7 +205,7 @@ export const AddNewRole = ({ show, onHide, onSuccess }: AddRoleModalProps) => {
               Annuler
             </Button>
             <Button variant="primary" type="submit" disabled={isLoading}>
-              {isLoading ? "Enregistrement..." : "Enregistrer"}
+              {isLoading ? "Mise à jour..." : "Mettre à jour"}
             </Button>
           </div>
         </Form>

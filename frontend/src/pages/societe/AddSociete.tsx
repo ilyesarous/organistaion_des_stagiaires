@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Form, Button, Row, Col, Alert, Modal } from "react-bootstrap";
 import axios from "axios";
+import { getItem } from "../../tools/localStorage";
 
 interface AddSocieteModalProps {
   show: boolean;
@@ -124,7 +125,7 @@ export const AddNewSociete = ({ show, onHide, onSuccess }: AddSocieteModalProps)
         headers: {
           'Content-Type': 'multipart/form-data',
           'X-Requested-With': 'XMLHttpRequest',
-          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Authorization": `Bearer ${getItem("token")}`,
         }
       }
     );

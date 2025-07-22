@@ -28,7 +28,8 @@ class RegistrationRequest extends FormRequest
             'password' => ['nullable'],
             'phone' => ['nullable', 'string', 'max:15'],
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'type' => 'required|in:employee,etudiant,admin'
+            'type' => 'required|in:employee,etudiant',
+            'role' => 'required|string',
         ];
     }
 }

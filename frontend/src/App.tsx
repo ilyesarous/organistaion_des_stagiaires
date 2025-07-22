@@ -7,11 +7,11 @@ import NotFoundPage from "./components/NotFound";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Profile } from "./pages/auth/Profile";
+import type { RootState } from "./tools/redux/Store";
 
 function App() {
-  const isAuthenticated = useSelector((state: any)=> state.auth.isAuthenticated);
+  const isAuthenticated = useSelector((state: RootState)=> state.auth.isAuthenticated);
 
-  // Listen for changes in localStorage
   useEffect(() => {
     isAuthenticated
   }, [isAuthenticated]);

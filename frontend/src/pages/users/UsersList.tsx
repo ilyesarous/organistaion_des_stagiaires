@@ -34,12 +34,12 @@ export const UsersList = () => {
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this société?"))
+    if (!window.confirm("Are you sure you want to delete this utilisateur?"))
       return;
 
     setDeleteId(id);
     try {
-      await axiosRequest("delete", `societe/delete/${id}`);
+      await axiosRequest("delete", `auth/delete/${id}`);
       setUsers(users.filter((user) => user.id !== id));
     } catch (err) {
       setError("Failed to delete société. Please try again.");

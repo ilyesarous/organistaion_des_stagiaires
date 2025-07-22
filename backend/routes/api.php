@@ -35,11 +35,11 @@ Route::post('auth/verify-complete', [AuthController::class, 'verifyComplete']);
 Route::post('auth/register', [AuthController::class, 'register'])->middleware(['auth:api', 'verified']);
 
 Route::prefix('auth')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {
-    Route::get('getUser', [AuthController::class, 'getUser']);
     Route::get('getAll', [AuthController::class, 'getAllUsers'])->middleware(['can:superAdmin_or_admin']);
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('update/{id}', [AuthController::class, 'updateProfile']);
     Route::put('assignRolesToUsers', [AuthController::class, 'assignRolesToUsers'])->middleware(['can:superAdmin_or_admin']);
-    Route::put('setVerifEmail/{id}', [AuthController::class, 'validateNewUserEmail']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::delete('delete/{id}', [AuthController::class, 'deleteUser'])->middleware(['can:superAdmin_or_admin']);
 });
 
 Route::prefix('societe')->middleware(['auth:api', 'verified', 'can:superAdmin', 'tenant'])->group(function () {
@@ -51,7 +51,7 @@ Route::prefix('societe')->middleware(['auth:api', 'verified', 'can:superAdmin', 
 
 Route::get('/faculteeAdmin', [FaculteController::class, 'getAll']);
 
-Route::prefix('facultee')->middleware(['auth:api', 'verified', 'can:admin', 'tenant', 'can:superAdmin_or_admin'])->group(function () {
+Route::prefix('facultee')->middleware(['auth:api', 'verified', 'tenant', 'can:admin'])->group(function () {
     Route::get('/', [FaculteController::class, 'getAll']);
     Route::post('/create', [FaculteController::class, 'create']);
     Route::get('/details/{id}', [FaculteController::class, 'getFacultyById']);
@@ -67,4 +67,6 @@ Route::prefix('role')->middleware(['auth:api', 'verified', 'tenant', 'can:superA
     Route::get('/', [RolesController::class, 'getAll']);
     Route::get('/getAllNames', [RolesController::class, 'getAllNames']);
     Route::post('/create', [RolesController::class, "create"]);
+    Route::put('/{id}/update', [RolesController::class, 'update']);
+
 });

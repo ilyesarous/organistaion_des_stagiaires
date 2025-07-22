@@ -17,7 +17,7 @@ class RolesController extends Controller
 
         $role = Role::on('admin')->create(['name' => $request->name]);
 
-        if($request->has('gestions') && $request->has('actions')){
+        if ($request->has('gestions') && $request->has('actions')) {
             foreach ($request->gestions as $g) {
                 foreach ($request->actions as $a) {
                     $action = Actions::on('admin')->where('name', $a)->first();
@@ -43,7 +43,7 @@ class RolesController extends Controller
 
         foreach ($roles as $role) {
             $gestions = GestionsController::getGestionByRole($role->id);
-            $response[] = ["id"=>$role->id, "name" => $role->name, "data" => $gestions];
+            $response[] = ["id" => $role->id, "name" => $role->name, "data" => $gestions];
             // echo($role->id);
         }
         return response()->json($response);
@@ -55,5 +55,44 @@ class RolesController extends Controller
 
         // dd(response()->json($roles));
         return response()->json($roles);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'gestions' => 'array',
+            'actions' => 'array',
+        ]);
+
+        $role = Role::on('admin')->findOrFail($id);
+        $role->update(['name' => $request->name]);
+
+        // Detach all existing gestions before updating
+        $role->gestions()->detach();
+
+        if ($request->has('gestions') && $request->has('actions')) {
+            foreach ($request->gestions as $g) {
+                foreach ($request->actions as $a) {
+                    $action = Actions::on('admin')->where('name', $a)->first();
+                    if (!$action) continue;
+
+                    $gestion = Gestion::on('admin')
+                        ->where('name', $g)
+                        ->where('action_id', $action->id)
+                        ->first();
+
+                    if ($gestion) {
+                        $this->assignGestionToRole($role, $gestion);
+                    }
+                }
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Role updated successfully',
+            'role' => $role,
+        ]);
     }
 }

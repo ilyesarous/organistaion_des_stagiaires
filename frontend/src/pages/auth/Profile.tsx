@@ -1,58 +1,27 @@
-import { Card, Row, Col, Image, Button } from "react-bootstrap";
-import profilePic from "../../assets/images/profilePic.png";
-import { useState } from "react";
-import { EditProfileModal } from "./EditProfileModel";
 import { useSelector } from "react-redux";
+import type { RootState } from "../../tools/redux/Store";
+import UserProfile from "../../components/UserProfileComponent";
+import type { User } from "../../models/User";
+import { removeItem, setItem } from "../../tools/localStorage";
+import { useState } from "react";
 
 export const Profile = () => {
-  const user = useSelector((state: any) => state.auth.user)
-  const [showModal, setShowModal] = useState(false);
-
+  const [user, setUser] = useState(
+    useSelector((state: RootState) => state.auth.user)
+  );
+  const handleUserUpdate = (updatedUser: User) => {
+    setUser(updatedUser);
+    removeItem("user");
+    setItem("user", updatedUser);
+  };
 
   return (
-    <Card className="text-center p-4 shadow bg-light">
-      <div className="profile-header mb-4">
-        {user?.profilePicture ? (
-          <Image
-            src={user?.profilePicture}
-            alt="Profile"
-            roundedCircle
-            style={{ width: 150, height: 150, objectFit: "cover" }}
-          />
-        ) : (
-          <Image
-            src={profilePic}
-            alt="Default Profile"
-            roundedCircle
-            style={{ width: 150, height: 150, objectFit: "cover" }}
-          />
-        )}
-        <h3 className="mt-3 mb-1">
-          {user?.nom} {user?.prenom}
-        </h3>
-        <p className="text-muted mb-2">{user?.role}</p>
-      </div>
-
-      <Row className="text-center mb-4">
-        <Col>
-          <p className="fw-semibold mb-0">Email</p>
-          <p className="text-muted">{user?.email}</p>
-        </Col>
-        <Col>
-          <p className="fw-semibold mb-0">Phone</p>
-          <p className="text-muted">{user?.phone}</p>
-        </Col>
-      </Row>
-
-      <Button variant="primary" onClick={() => setShowModal(true)}>
-        Modifier le profil
-      </Button>
-
-      <EditProfileModal
-        show={showModal}
-        onHide={() => setShowModal(false)}
-        user={user}
-      />
-    </Card>
+    <div className="container mt-5">
+      {user ? (
+        <UserProfile user={user} onUpdate={handleUserUpdate} />
+      ) : (
+        <p>Chargement...</p>
+      )}
+    </div>
   );
 };

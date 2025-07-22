@@ -1,23 +1,18 @@
-import { FaGear } from "react-icons/fa6";
+import { useDispatch, useSelector } from "react-redux";
 import Sidebar from "../components/sideBar";
-import { IoMdPaper, IoMdPerson } from "react-icons/io";
-import { useEffect, useState } from "react";
-import { BiLogOut } from "react-icons/bi";
-import { useDispatch } from "react-redux";
 import { AuthActions } from "./auth/authRedux/AuthSlice";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { IoMdPaper, IoMdPerson } from "react-icons/io";
+import { MdOutlineManageAccounts } from "react-icons/md";
 import { IoBusiness } from "react-icons/io5";
 import { LuUniversity } from "react-icons/lu";
-import { MdOutlineManageAccounts } from "react-icons/md";
+import { FaGear } from "react-icons/fa6";
+import { BiLogOut } from "react-icons/bi";
+import type { RootState } from "../tools/redux/Store";
 
 export const Dashboard = () => {
-  const [type, setType] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedType = localStorage.getItem("type");
-    console.log("User type:", storedType);
-    setType(storedType);
-  }, []);
+  const type = useSelector((state: RootState) => state.auth.type);
 
   const sidebarItems = [
     { id: "users", title: "Users", icon: <IoMdPerson /> },
@@ -29,13 +24,34 @@ export const Dashboard = () => {
     { id: "logout", title: "Logout", icon: <BiLogOut /> },
   ];
 
+  // Compute filteredItems based on type
+  const filteredItems = 
+    type === "superAdmin"
+      ? sidebarItems.filter((item) => item.id !== "facultees" && item.id !== "sujets")
+      : type === "admin"
+      ? sidebarItems.filter((item) => item.id !== "societes")
+      : type === "HR"
+      ? sidebarItems.filter((item) => item.id !== "societes" && item.id !== "roles")
+      : type === "etudiant"
+      ? sidebarItems.filter(
+          (item) =>
+            item.id === "sujets" ||
+            item.id === "settings" ||
+            item.id === "logout"
+        )
+      : sidebarItems.filter(
+          (item) => item.id === "users" || item.id === "sujets"
+        );
+
+  const [activeItem, setActiveItem] = useState(() => {
+    return filteredItems.length > 0 ? filteredItems[0].id : "users";
+  });
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [activeItem, setActiveItem] = useState("users");
 
   const handleItemClick = (id: string) => {
     setActiveItem(id);
-    console.log(`Navigating to: ${id}`);
     if (id === "logout") {
       dispatch(AuthActions.logout());
       navigate("/");
@@ -45,7 +61,7 @@ export const Dashboard = () => {
   return (
     <div className="d-flex h-100">
       <Sidebar
-        items={sidebarItems}
+        items={filteredItems}
         onItemClick={handleItemClick}
         activeItem={activeItem}
         logo={<h4 className="mb-0">MyApp</h4>}

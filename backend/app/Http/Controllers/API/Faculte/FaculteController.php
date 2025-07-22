@@ -16,13 +16,13 @@ class FaculteController extends Controller
     {
         $data = $request->validated();
         $faculte = Facultee::on("tenant")->create($data);
-        $dbName = DB::getDatabaseName();
+        // $dbName = DB::getDatabaseName();
 
-        $faculteAdmin = Facultee::on("admin")->where("name", $data['name'])->get();
+        $faculteAdmin = Facultee::on("admin")->where("name", $data['name'])->first();
         if (!$faculteAdmin) {
-            Facultee::on("admin")->firstOrCreate([
+            Facultee::on("admin")->create([
                 'name' => $data['name'],
-                'database' => $dbName
+                'database' => DB::getDatabaseName()
             ]);
         }
 

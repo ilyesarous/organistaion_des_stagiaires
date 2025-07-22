@@ -1,5 +1,5 @@
 // components/modals/RegisterUserModal.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { axiosRequest } from "../../apis/AxiosHelper";
 
@@ -14,7 +14,21 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
   const [prenom, setPrenom] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState("admin");
+  const [role, setRole] = useState("etudiant");
+  const [type, setType] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [displayRoles, setDisplayRoles] = useState<string[]>([]);
+
+  const fetchRoles = async () => {
+    await axiosRequest("get", "role/getAllNames").then((res) => {
+      setDisplayRoles(res.data);
+    });
+  };
+
+  useEffect(() => {
+    fetchRoles();
+    setIsLoading(false);
+  }, []);
 
   const register = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -23,13 +37,17 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
     formData.append("prenom", prenom);
     formData.append("email", email);
     formData.append("phone", phone);
-    formData.append("type", role);
-
+    formData.append("type", type);
+    formData.append("role", role);
+    setIsLoading(true);
     try {
       await axiosRequest("post", "auth/register", formData);
+      setRole("etudiant");
       onSuccess();
     } catch (error) {
       console.error("Registration failed:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -77,7 +95,7 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
               name="role"
               value="etudiant"
               onChange={async (e) => {
-                setRole(e.target.value);
+                setType(e.target.value);
               }}
             />
             <Form.Check
@@ -85,9 +103,24 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
               label="Employer"
               name="role"
               value="employee"
-              onChange={(e) => setRole(e.target.value)}
+              onChange={(e) => setType(e.target.value)}
             />
           </div>
+          {type === "employee" && (
+            <>
+              <Form.Label>Rôle</Form.Label>
+              <Form.Select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                disabled={isLoading}
+                autoFocus
+              >
+                {displayRoles.filter((role)=>role!=="etudiant").map((role) => (
+                  <option>{role}</option>
+                ))}
+              </Form.Select>
+            </>
+          )}
           <div className="d-flex justify-content-end gap-3 mt-4">
             <Button variant="secondary" onClick={onHide}>
               Annuler

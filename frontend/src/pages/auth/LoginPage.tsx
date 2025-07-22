@@ -16,8 +16,6 @@ export const LoginPage = () => {
 
     await axiosRequest("post", "/auth/login", { email, password })
       .then((response) => {
-        console.log(response.data);
-        
         dispatch(AuthActions.login(response.data));
         navigate("/dashboard"); 
       })

@@ -8,6 +8,9 @@ import { TableFooter } from "../../components/tableComponents/TableFooter";
 import { DisplayTableRole } from "./DisplayTableRole";
 import type { role } from "../../models/Role";
 import { AddNewRole } from "./AddRole";
+import { UpdateRoleModal } from "./UpdateRoleModal";
+import { useSelector } from "react-redux";
+import type { RootState } from "../../tools/redux/Store";
 
 export const GestionList = () => {
   // const [gestionData, setGestionData] = useState<Gestion[]>([]);
@@ -16,7 +19,14 @@ export const GestionList = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-  // const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<role | null>(null);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const type = useSelector((state: RootState) => state.auth.type);
+
+  const handleUpdateClick = (role: role) => {
+    setSelectedRole(role);
+    setShowUpdateModal(true);
+  };
 
   const fetchData = async () => {
     try {
@@ -67,7 +77,14 @@ export const GestionList = () => {
           {filteredData.length === 0 ? (
             <EmptyState searchTerm={searchTerm} name="permission" />
           ) : (
-            <DisplayTableRole data={roles} />
+            <DisplayTableRole
+              data={
+                type === "admin"
+                  ? roles.filter((role) => role.name !== "superAdmin")
+                  : roles
+              }
+              onUpdate={handleUpdateClick}
+            />
           )}
         </Card.Body>
 
@@ -84,6 +101,12 @@ export const GestionList = () => {
         show={showModal}
         onHide={() => setShowModal(false)}
         onSuccess={handleSuccess}
+      />
+      <UpdateRoleModal
+        show={showUpdateModal}
+        onHide={() => setShowUpdateModal(false)}
+        onSuccess={handleSuccess}
+        selectedRole={selectedRole}
       />
     </Container>
   );

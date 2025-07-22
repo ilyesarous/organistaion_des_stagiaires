@@ -25,6 +25,9 @@ export const VerifyEmailPage = () => {
   const email = searchParams.get("email");
   const role = searchParams.get("role");
 
+  console.log(role);
+  
+
   const clear = () => signature.current?.clear();
   const trim = () => {
     if (signature.current && !signature.current.isEmpty()) {

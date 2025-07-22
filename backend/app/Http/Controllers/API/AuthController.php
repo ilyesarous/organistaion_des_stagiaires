@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
@@ -25,7 +26,6 @@ class AuthController extends Controller
     {
         $email = $request->email;
         $token = Auth::attempt($request->validated());
-
         if ($email !== env("ADMIN_EMAIL")) {
             $tenant = Tenants::where("email", $email)->firstOrFail();
             $this->ChangeToTenant($tenant->database);
@@ -58,6 +58,12 @@ class AuthController extends Controller
             'phone' => $request->phone,
             'societe_id' => $loggedIN->societe_id,
         ]);
+        $role = Role::on('admin')->where("name", $request->role)->first();
+
+        $user->roles()->attach($role->id);
+        $user->role = $role->name;
+
+        $user->save();
         $userable = null;
         if ($request->type === "employee") {
             $userable = new Employee();
@@ -77,7 +83,7 @@ class AuthController extends Controller
         $verificationLink = $frontendUrl . '/verify-email?' . http_build_query([
             'token' => $token,
             'email' => $user->email,
-            'role' => $user->userable_type,
+            'role' => $user->userable_type === "App\Models\Employee" ? "employee" : "etudiant",
         ]);
 
 
@@ -112,12 +118,12 @@ class AuthController extends Controller
         $this->createNewTenant($user->email, $user->societe_id);
 
         $userable = null;
-        if ($user->userable_type === 'employee') {
+        if ($user->userable_type === 'App\Models\Employee') {
             $userable = Employee::create([
                 'numBadge' => $request->numBadge,
                 'signature' => $request->signature ?? null
             ]);
-        } elseif ($user->userable_type === "etudiant") {
+        } elseif ($user->userable_type === "App\Models\Etudiant") {
             $cvPath = $request->file('cv')?->store('cv', 'public');
             $conventionPath = $request->file('convention')?->store('conventions', 'public');
             $letterPath = $request->file('letterAffectation')?->store('letters', 'public');
@@ -144,14 +150,66 @@ class AuthController extends Controller
         return response()->json(['message' => 'Account verified successfully']);
     }
 
-    public function getUser()
+    public function updateProfile(Request $request, $id)
     {
-        $user = Auth::guard('api')->user();
-        if (!$user) {
-            return response()->json(['status' => 'error', 'message' => 'User not found'], 404);
+        $user = User::on('admin')->findOrFail($id);
+        $tenant = Tenants::on('admin')->where("email", $user->email)->first();
+
+        $validated = $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'cv' => 'nullable|string|max:255',
+            'convention' => 'nullable|string|max:255',
+            'letterAffectation' => 'nullable|string|max:255',
+            'numBadge' => 'nullable|string|max:50',
+            'signature' => 'nullable|string|max:255',
+        ]);
+        // Update base user fields
+        $user->update([
+            'nom' => $validated['nom'],
+            'prenom' => $validated['prenom'],
+            'phone' => $validated['phone'],
+        ]);
+        // Handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+            if ($user->profile_picture && Storage::disk('public')->exists($user->profile_picture)) {
+                Storage::disk('public')->delete($user->profile_picture);
+            }
+            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $user->profile_picture = $path;
+            $user->save();
         }
-        return response()->json(['status' => 'success', 'user' => $user]);
+        // Handle Etudiant data
+        $this->ChangeToTenant($tenant->database);
+        if ($user->userable_type === "App\Model\Etudiant") {
+            $etudiant = Etudiant::on('tenant')->where("id", $user->userable_id)->first();
+            if ($etudiant) {
+                $etudiant->update([
+                    'cv' => $validated['cv'] ?? $etudiant->cv,
+                    'convention' => $validated['convention'] ?? $etudiant->convention,
+                    'letterAffectation' => $validated['letterAffectation'] ?? $etudiant->letterAffectation,
+                ]);
+            }
+        }
+        // Handle Employee data
+        if ($user->userable_type === "App\Model\Employee") {
+            $employee = Employee::on('tenant')->where("id", $user->userable_id)->first();
+            if ($employee) {
+                $employee->update([
+                    'numBadge' => $validated['numBadge'] ?? $employee->numBadge,
+                    'signature' => $validated['signature'] ?? $employee->signature,
+                ]);
+            }
+        }
+
+        // Return updated user with relations
+        // $user->load('userable');
+
+        return response()->json($user);
     }
+
 
     public function getAllUsers()
     {
@@ -171,19 +229,29 @@ class AuthController extends Controller
         return response()->json(['status' => "success", 'users' => $users, "database" => DB::getConnections()]);
     }
 
-    public function validateNewUserEmail(int $id)
+    public function deleteUser($id)
     {
-        $this->ChangeToTenant("perfaxis");
-        $user = User::where('id', $id)->first();
-        $user->markEmailAsVerified();
-        return response()->json(['status' => "success", 'user' => $user]);
+        try {
+            $user = User::on('admin')->where('id', $id)->firstOrFail();
+            if ($user->roles()->exists())
+                $user->roles()->detach();
+            if ($user->userable_type === "App\Models\Employee")
+                Employee::destroy($user->userable_id);
+            else {
+                Etudiant::destroy($user->userable_id);
+            }
+            $tenant = Tenants::on('admin')->where("email", $user->email)->first();
+            $tenant->delete();
+            $user->delete();
+            return response()->json(['status' => "success", "message" => "user deleted successfully!"], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'error', 'message' => "error, user not found!"], 404);
+        }
     }
 
     public function logout()
     {
-        // $request->$user()->curentAccessToken()->delete();
         if (Auth::authenticate()) {
-            # code...
             Auth::logout();
             return response()->json(['status' => 'success', 'message' => 'Logged out successfully']);
         }
@@ -195,9 +263,19 @@ class AuthController extends Controller
      */
     public function responseWithToken($token, $user)
     {
+        $employee = null;
+        $etudiant = null;
+        if ($user->userable_type === Etudiant::class) {
+            $etudiant = Etudiant::find($user->userable_id);
+        }
+        if ($user->userable_type === Employee::class) {
+            $employee = Employee::find($user->userable_id);
+        }
         return response()->json([
             'status' => 'success',
             'user' => $user,
+            'employee' => $employee,
+            'etudiant' => $etudiant,
             'access_token' => $token,
             'token_type' => 'Bearer'
         ]);
@@ -216,12 +294,12 @@ class AuthController extends Controller
     public function assignRolesToUsers(Request $request)
     {
         $request->validate([
-            'userId'=> 'required|int',
-            'role'=> 'required|string', 
+            'userId' => 'required|int',
+            'role' => 'required|string',
         ]);
 
         $user = User::on('admin')->where('id', $request->userId)->first();
-        if($user->roles()->exists())
+        if ($user->roles()->exists())
             $user->roles()->detach();
 
         $role = Role::on('admin')->where("name", $request->role)->first();
@@ -237,12 +315,10 @@ class AuthController extends Controller
 
     public function ChangeToTenant($dbName)
     {
-        DB::purge("admin");
-        DB::purge("tenant");
+        DB::purge('admin');
+        DB::purge('tenant');
         Config::set('database.connections.tenant.database', $dbName);
-        // Config::set('database.default', 'tenant');
-        DB::reconnect("tenant");
-        DB::setDefaultConnection("tenant");
+        DB::setDefaultConnection('tenant');
     }
 
     public function ChangeToAdmin()

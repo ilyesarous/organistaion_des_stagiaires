@@ -1,14 +1,15 @@
 import { Table, Badge, Button } from "react-bootstrap";
-import type { Gestion, role } from "../../models/Role";
+import type { role } from "../../models/Role";
 import { MdEdit } from "react-icons/md";
 import { FaRegEye } from "react-icons/fa6";
 import { CiTrash } from "react-icons/ci";
 
 interface GestionTableProps {
   data: role[];
+  onUpdate: (role: role) => void;
 }
 
-export const DisplayTableRole = ({ data }: GestionTableProps) => {
+export const DisplayTableRole = ({ data, onUpdate }: GestionTableProps) => {
   // console.log(data);
 
   return (
@@ -33,35 +34,35 @@ export const DisplayTableRole = ({ data }: GestionTableProps) => {
                   )}
                 </td>
                 <td>
-                  {[...new Set(role.data.map((gestion) => gestion.action_id))].map(
-                    (action) => (
-                      <Badge
-                        key={action}
-                        bg={
-                          action === 5
-                            ? "danger"
-                            : action === 2
-                            ? "warning"
-                            : action === 4
-                            ? "secondary"
-                            : action === 1
-                            ? "primary"
-                            : "info"
-                        }
-                        className="p-2 m-2 text-capitalize"
-                      >
-                        {action === 5
-                          ? "delete"
+                  {[
+                    ...new Set(role.data.map((gestion) => gestion.action_id)),
+                  ].map((action) => (
+                    <Badge
+                      key={action}
+                      bg={
+                        action === 5
+                          ? "danger"
                           : action === 2
-                          ? "update"
+                          ? "warning"
                           : action === 4
-                          ? "detail"
+                          ? "secondary"
                           : action === 1
-                          ? "add"
-                          : "display"}
-                      </Badge>
-                    )
-                  )}
+                          ? "primary"
+                          : "info"
+                      }
+                      className="p-2 m-2 text-capitalize"
+                    >
+                      {action === 5
+                        ? "delete"
+                        : action === 2
+                        ? "update"
+                        : action === 4
+                        ? "detail"
+                        : action === 1
+                        ? "add"
+                        : "display"}
+                    </Badge>
+                  ))}
                 </td>
                 <td>
                   <div className="d-flex justify-content-end gap-2">
@@ -79,9 +80,11 @@ export const DisplayTableRole = ({ data }: GestionTableProps) => {
                       size="sm"
                       className="p-2"
                       title="Modifier"
+                      onClick={() => onUpdate(role)}
                     >
                       <MdEdit size={16} />
                     </Button>
+
                     <Button
                       variant="outline-danger"
                       size="sm"

@@ -67,7 +67,7 @@ export const DisplayTableUser = ({
               <tr key={user.id} className="align-middle">
                 <td>
                   <LogoDisplay
-                    logo={user.profilePicture}
+                    logo={user.profile_picture ? `/storage/${user.profile_picture}`: null}
                     raisonSociale={user.nom + " " + user.prenom}
                   />
                 </td>
