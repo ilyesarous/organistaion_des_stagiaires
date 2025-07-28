@@ -5,8 +5,10 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\Faculte\FaculteController;
 use App\Http\Controllers\API\Societe\SocieteController;
 use App\Http\Controllers\Gestion\GestionsController;
+use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Role\RolesController;
 use App\Http\Controllers\Sujet\SujetController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 
@@ -30,6 +32,7 @@ use Illuminate\Support\Facades\Route;
 //     ->middleware('signed')->name('verification.verify');
 
 
+Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:api']]);
 
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::post('auth/verify-complete', [AuthController::class, 'verifyComplete']);
@@ -41,6 +44,7 @@ Route::prefix('auth')->middleware(['auth:api', 'verified', 'tenant'])->group(fun
     Route::post('update/{id}', [AuthController::class, 'updateProfile']);
     Route::put('assignRolesToUsers', [AuthController::class, 'assignRolesToUsers'])->middleware(['can:superAdmin_or_admin']);
     Route::delete('delete/{id}', [AuthController::class, 'deleteUser'])->middleware(['can:superAdmin_or_admin']);
+    Route::get('societe/users', [SocieteController::class, 'getAllUsers']);
 });
 
 Route::get('societe/employees', [SocieteController::class, 'getEmployees'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin', 'tenant']);
@@ -82,4 +86,9 @@ Route::prefix('sujet')->middleware(['auth:api', 'verified', 'tenant'])->group(fu
     Route::post('/create', [SujetController::class, "create"]);
     Route::put('/update/{id}', [SujetController::class, 'updateSujet']);
     Route::delete('/delete/{id}', [SujetController::class, 'delete']);
+});
+
+Route::prefix('chat')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {
+    Route::get('/{id}', [MessageController::class, 'read']);
+    Route::post('/', [MessageController::class, 'store']);
 });

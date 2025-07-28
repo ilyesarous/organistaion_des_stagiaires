@@ -106,16 +106,26 @@ class SocieteController extends Controller
         ->get();
         return response()->json(['employees' => $employees], 200);
     }
-    public function getEtudiants($id)
+    public function getEtudiants()
     {
-        $societe = Societe::findOrFail($id);
-
-        if ($societe) {
-            $etudiants = Etudiant::where('societe_id', $id)->get();
-        }
+        $id = Auth::user()->societe_id;
+        $etudiants = User::on('admin')
+        ->where("societe_id", $id)
+        ->where("userable_type", Etudiant::class)
+        ->get();
 
         return response()->json(['etudiants' => $etudiants], 200);
     }
+    public function getAllUsers()
+    {
+        $id = Auth::user()->societe_id;
+        $users = User::on('admin')
+        ->where("societe_id", $id)
+        ->get();
+
+        return response()->json(['users' => $users], 200);
+    }
+
 
     public function getAll()
     {

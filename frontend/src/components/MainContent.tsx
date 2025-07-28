@@ -5,6 +5,7 @@ import { FaculteeList } from "../pages/facultee/ShowFacultees";
 import { Profile } from "../pages/auth/Profile";
 import { GestionList } from "../pages/roles/ShowRoles";
 import { SujetList } from "../pages/sujet/ShowSujet";
+import { Chat } from "../pages/chat/Chat";
 
 export const MainContent = (props: any) => {
   let content = props.content;
@@ -17,6 +18,7 @@ export const MainContent = (props: any) => {
         {content === "roles" && <GestionList />}
         {content === "settings" && <Profile />}
         {content === "sujets" && <SujetList />}
+        {content === "chat" && <Chat />}
       </Col>
     </>
   );

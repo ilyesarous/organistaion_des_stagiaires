@@ -50,9 +50,7 @@ const UserProfile: React.FC<Props> = ({ user, onUpdate }) => {
                 <strong>Societe ID:</strong> {user.societe_id}
               </ListGroup.Item>
 
-              {etudiant && (
-                <EtudiantDetails etudiant={etudiant}/>
-              )}
+              {etudiant && <EtudiantDetails etudiant={etudiant} />}
 
               {employee && (
                 <>
@@ -62,7 +60,18 @@ const UserProfile: React.FC<Props> = ({ user, onUpdate }) => {
                     <strong>Numéro Badge:</strong> {employee.numBadge}
                   </ListGroup.Item>
                   <ListGroup.Item>
-                    <strong>Signature:</strong> {employee.signature}
+                    <strong>Signature:</strong>
+                    <div>
+                      <img
+                        src={employee.signature}
+                        alt="Signature"
+                        style={{
+                          maxWidth: "100%",
+                          height: "auto",
+                          marginTop: "10px",
+                        }}
+                      />
+                    </div>
                   </ListGroup.Item>
                 </>
               )}

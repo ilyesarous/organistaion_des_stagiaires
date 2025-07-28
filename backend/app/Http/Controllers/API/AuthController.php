@@ -164,7 +164,7 @@ class AuthController extends Controller
             'convention' => 'nullable|string|max:255',
             'letterAffectation' => 'nullable|string|max:255',
             'numBadge' => 'nullable|string|max:50',
-            'signature' => 'nullable|string|max:255',
+            'signature' => 'nullable|string',
         ]);
         // Update base user fields
         $user->update([

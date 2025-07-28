@@ -10,6 +10,7 @@ import { LuUniversity } from "react-icons/lu";
 import { FaGear } from "react-icons/fa6";
 import { BiLogOut } from "react-icons/bi";
 import type { RootState } from "../tools/redux/Store";
+import { BsChatDots } from "react-icons/bs";
 
 export const Dashboard = () => {
   const type = useSelector((state: RootState) => state.auth.type);
@@ -20,6 +21,7 @@ export const Dashboard = () => {
     { id: "societes", title: "Societes", icon: <IoBusiness /> },
     { id: "facultees", title: "Facultés", icon: <LuUniversity /> },
     { id: "sujets", title: "Sujets", icon: <IoMdPaper /> },
+    { id: "chat", title: "Chat", icon: <BsChatDots /> },
     { id: "settings", title: "Settings", icon: <FaGear /> },
     { id: "logout", title: "Logout", icon: <BiLogOut /> },
   ];
@@ -37,10 +39,11 @@ export const Dashboard = () => {
           (item) =>
             item.id === "sujets" ||
             item.id === "settings" ||
-            item.id === "logout"
+            item.id === "logout" ||
+            item.id === "chat"
         )
       : sidebarItems.filter(
-          (item) => item.id === "users" || item.id === "sujets"
+          (item) => item.id === "users" || item.id === "sujets" || item.id === "chat" || item.id === "settings" || item.id === "logout" 
         );
 
   const [activeItem, setActiveItem] = useState(() => {

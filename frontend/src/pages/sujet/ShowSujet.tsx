@@ -28,7 +28,6 @@ export const SujetList = () => {
   const fetchSujet = async () => {
     try {
       const response = await axiosRequest("get", "sujet");
-      console.log(response.data.data);
       setSujet(response.data.data);
     } catch (err) {
       setError("Failed to fetch sujets. Please try again later.");
@@ -44,7 +43,6 @@ export const SujetList = () => {
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this société?"))
       return;
-
     setDeleteId(id);
     try {
       await axiosRequest("delete", `sujet/delete/${id}`);

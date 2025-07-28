@@ -11,7 +11,12 @@ type Props = {
   onUpdate: (updatedUser: User) => void;
 };
 
-const EditProfileModal: React.FC<Props> = ({ show, onClose, user, onUpdate }) => {
+const EditProfileModal: React.FC<Props> = ({
+  show,
+  onClose,
+  user,
+  onUpdate,
+}) => {
   const [formData, setFormData] = useState({
     nom: "",
     prenom: "",
@@ -63,7 +68,10 @@ const EditProfileModal: React.FC<Props> = ({ show, onClose, user, onUpdate }) =>
       data.append("prenom", formData.prenom);
       data.append("phone", formData.phone);
 
-      if (formData.profile_picture && typeof formData.profile_picture !== "string") {
+      if (
+        formData.profile_picture &&
+        typeof formData.profile_picture !== "string"
+      ) {
         data.append("profile_picture", formData.profile_picture);
       }
 
@@ -74,7 +82,10 @@ const EditProfileModal: React.FC<Props> = ({ show, onClose, user, onUpdate }) =>
         if (formData.convention && typeof formData.convention !== "string") {
           data.append("convention", formData.convention);
         }
-        if (formData.letterAffectation && typeof formData.letterAffectation !== "string") {
+        if (
+          formData.letterAffectation &&
+          typeof formData.letterAffectation !== "string"
+        ) {
           data.append("letterAffectation", formData.letterAffectation);
         }
       }
@@ -113,35 +124,53 @@ const EditProfileModal: React.FC<Props> = ({ show, onClose, user, onUpdate }) =>
             <Col md={6}>
               <Form.Group>
                 <Form.Label>Nom</Form.Label>
-                <Form.Control name="nom" value={formData.nom} onChange={handleChange} />
+                <Form.Control
+                  name="nom"
+                  value={formData.nom}
+                  onChange={handleChange}
+                />
               </Form.Group>
             </Col>
             <Col md={6}>
               <Form.Group>
                 <Form.Label>Prénom</Form.Label>
-                <Form.Control name="prenom" value={formData.prenom} onChange={handleChange} />
+                <Form.Control
+                  name="prenom"
+                  value={formData.prenom}
+                  onChange={handleChange}
+                />
               </Form.Group>
             </Col>
           </Row>
 
           <Form.Group className="mt-3">
             <Form.Label>Téléphone</Form.Label>
-            <Form.Control name="phone" value={formData.phone} onChange={handleChange} />
+            <Form.Control
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+            />
           </Form.Group>
 
           <Form.Group className="mt-3">
             <Form.Label>Photo de Profil</Form.Label>
-            <Form.Control type="file" name="profile_picture" accept="image/*" onChange={handleFileChange} />
-            {formData.profile_picture && typeof formData.profile_picture !== "string" && (
-              <img
-                src={URL.createObjectURL(formData.profile_picture)}
-                alt="preview"
-                className="mt-2"
-                width={100}
-                height={100}
-                style={{ borderRadius: "8px", objectFit: "cover" }}
-              />
-            )}
+            <Form.Control
+              type="file"
+              name="profile_picture"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            {formData.profile_picture &&
+              typeof formData.profile_picture !== "string" && (
+                <img
+                  src={URL.createObjectURL(formData.profile_picture)}
+                  alt="preview"
+                  className="mt-2"
+                  width={100}
+                  height={100}
+                  style={{ borderRadius: "8px", objectFit: "cover" }}
+                />
+              )}
           </Form.Group>
 
           {etudiant && (
@@ -150,15 +179,30 @@ const EditProfileModal: React.FC<Props> = ({ show, onClose, user, onUpdate }) =>
               <h5>Données Étudiant</h5>
               <Form.Group className="mt-2">
                 <Form.Label>CV</Form.Label>
-                <Form.Control type="file" name="cv" accept=".pdf" onChange={handleFileChange} />
+                <Form.Control
+                  type="file"
+                  name="cv"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                />
               </Form.Group>
               <Form.Group className="mt-2">
                 <Form.Label>Convention</Form.Label>
-                <Form.Control type="file" name="convention" accept=".pdf" onChange={handleFileChange} />
+                <Form.Control
+                  type="file"
+                  name="convention"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                />
               </Form.Group>
               <Form.Group className="mt-2">
                 <Form.Label>Lettre d’affectation</Form.Label>
-                <Form.Control type="file" name="letterAffectation" accept=".pdf" onChange={handleFileChange} />
+                <Form.Control
+                  type="file"
+                  name="letterAffectation"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                />
               </Form.Group>
             </>
           )}
@@ -169,11 +213,25 @@ const EditProfileModal: React.FC<Props> = ({ show, onClose, user, onUpdate }) =>
               <h5>Données Employé</h5>
               <Form.Group className="mt-2">
                 <Form.Label>Numéro Badge</Form.Label>
-                <Form.Control name="numBadge" value={formData.numBadge} onChange={handleChange} />
+                <Form.Control
+                  name="numBadge"
+                  value={formData.numBadge}
+                  onChange={handleChange}
+                />
               </Form.Group>
               <Form.Group className="mt-2">
                 <Form.Label>Signature</Form.Label>
-                <Form.Control name="signature" value={formData.signature} onChange={handleChange} />
+                <div>
+                  <img
+                    src={employee.signature}
+                    alt="Signature"
+                    style={{
+                      maxWidth: "100%",
+                      height: "auto",
+                      marginTop: "10px",
+                    }}
+                  />
+                </div>
               </Form.Group>
             </>
           )}
