@@ -62,12 +62,4 @@ class FaculteController extends Controller
         }
     }
 
-    // public function getEtudiants(int $id){
-    //     try {
-    //         $etudiants = Etudiant::get()->where("facultee_id", $id);
-    //         return response()->json(['etudiants' => $etudiants], 200);
-    //     } catch (\Throwable $th) {
-    //         //throw $th;
-    //     }
-    // }
 }

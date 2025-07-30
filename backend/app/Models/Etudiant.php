@@ -25,7 +25,7 @@ class Etudiant extends Model
     }
     public function sujet()
     {
-        return $this->hasOne(Sujet::class);
+        return $this->belongsTo(Sujet::class);
     }
     public function employees()
     {

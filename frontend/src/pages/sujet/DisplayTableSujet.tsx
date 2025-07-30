@@ -1,4 +1,4 @@
-import { Button, Table } from "react-bootstrap";
+import { Badge, Button, Table } from "react-bootstrap";
 import { FaRegEye } from "react-icons/fa";
 import { MdEdit } from "react-icons/md";
 import { CiTrash } from "react-icons/ci";
@@ -8,6 +8,7 @@ interface SocieteTableProps {
   sujets: Sujet[];
   onDelete: (id: number) => void;
   Details: (id: number) => void;
+  onUpdate: (sujet: Sujet) => void;
   deleteId: number | null;
 }
 
@@ -15,6 +16,7 @@ export const DisplayTable = ({
   sujets,
   onDelete,
   Details,
+  onUpdate,
   deleteId,
 }: SocieteTableProps) => {
   return (
@@ -26,7 +28,8 @@ export const DisplayTable = ({
             <th>Competences</th>
             <th>Description</th>
             <th>Type</th>
-            <th>Nomber Etudiants</th>
+            <th>Durée</th>
+            <th>Status</th>
             <th style={{ width: "120px" }} className="text-end">
               Actions
             </th>
@@ -43,7 +46,25 @@ export const DisplayTable = ({
                   : sujet.description}
               </td>
               <td className="fw-medium">{sujet.typeStage}</td>
-              <td className="fw-medium">{sujet.nbEtudiants}</td>
+              <td className="fw-medium">{sujet.duree} Mois</td>
+              <td>
+                <Badge
+                  bg={
+                    sujet.status === "pending"
+                      ? "warning"
+                      : sujet.status === "in_progress"
+                      ? "primary"
+                      : sujet.status === "awaiting_approval"
+                      ? "info"
+                      : sujet.status === "rejected"
+                      ? "danger"
+                      : "success"
+                  }
+                  className="p-2 m-2 text-capitalize"
+                >
+                  {sujet.status}
+                </Badge>
+              </td>
               <td>
                 <div className="d-flex justify-content-end gap-2">
                   <Button
@@ -60,6 +81,7 @@ export const DisplayTable = ({
                     size="sm"
                     className="p-2"
                     title="Modifier"
+                    onClick={() => onUpdate(sujet)}
                   >
                     <MdEdit size={16} />
                   </Button>

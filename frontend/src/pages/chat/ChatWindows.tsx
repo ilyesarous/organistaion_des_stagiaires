@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, Form, Button } from "react-bootstrap";
 import { BiSend } from "react-icons/bi";
 import axios from "axios";
@@ -22,10 +22,12 @@ const ChatWindow = ({
   currentUserId,
   messages,
 }: ChatWindowProps) => {
-  // const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [filteredMessages, setFilteredMessages] = useState<Message[]>(messages);
+  const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
 
+  const lastMessageRef = useRef<HTMLDivElement | null>(null);
+
+  // Filter messages for current conversation
   useEffect(() => {
     if (!selectedUser) return;
     setFilteredMessages(() =>
@@ -39,7 +41,11 @@ const ChatWindow = ({
     );
   }, [messages, selectedUser]);
 
-  // Send message
+  // Auto scroll to bottom when messages update
+  useEffect(() => {
+    lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [filteredMessages]);
+
   const handleSend = () => {
     if (!newMessage.trim() || !selectedUser?.id) return;
 
@@ -49,7 +55,7 @@ const ChatWindow = ({
         {
           message: newMessage,
           sender_id: currentUserId,
-          receiver_id: selectedUser?.id,
+          receiver_id: selectedUser.id,
         },
         {
           headers: {
@@ -58,7 +64,7 @@ const ChatWindow = ({
         }
       )
       .then((res) => {
-        setFilteredMessages([...filteredMessages, res.data.message]);
+        setFilteredMessages((prev) => [...prev, res.data.message]);
         setNewMessage("");
       })
       .catch((err) => console.error(err));
@@ -94,9 +100,10 @@ const ChatWindow = ({
                 className="d-flex flex-column gap-3 overflow-auto"
                 style={{ maxHeight: "70vh" }}
               >
-                {filteredMessages.map((msg) => (
+                {filteredMessages.map((msg, index) => (
                   <div
                     key={msg.id}
+                    ref={index === filteredMessages.length - 1 ? lastMessageRef : null}
                     className={`px-3 py-2 rounded-4 shadow-sm ${
                       msg.sender_id === currentUserId
                         ? "align-self-end bg-white border"
@@ -116,6 +123,12 @@ const ChatWindow = ({
                 placeholder="Write a message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
                 className="me-2 rounded-pill border-0 bg-light px-4 py-2 shadow-sm"
                 style={{ fontSize: "0.95rem" }}
               />
@@ -125,7 +138,7 @@ const ChatWindow = ({
                 style={{ width: "42px", height: "42px" }}
                 onClick={handleSend}
               >
-                <BiSend />
+                <BiSend size={20}/>
               </Button>
             </Card.Footer>
           </>
@@ -135,7 +148,7 @@ const ChatWindow = ({
               className="fw-bold text-secondary"
               style={{ fontSize: "1.5rem" }}
             >
-              Selectionnez un utilisateur pour lancer une discussion
+              Sélectionnez un utilisateur pour lancer une discussion
             </div>
           </Card.Body>
         )}

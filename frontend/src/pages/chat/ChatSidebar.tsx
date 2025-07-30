@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { ListGroup, Form, InputGroup, Image } from "react-bootstrap";
-// import { axiosRequest } from "../../apis/AxiosHelper";
 import profilePic from "../../assets/images/profilePic.png";
 import type { User } from "../../models/User";
 
@@ -10,12 +9,25 @@ interface Props {
 }
 
 const ChatSidebar = ({ onUserClick, recentMessages }: Props) => {
-  // const [users, setUsers] = useState<User[]>([]);
   const [search, setSearch] = useState("");
 
-  const filteredUsers = recentMessages.filter((user) =>
-    `${user.user.nom} ${user.user.prenom}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = recentMessages
+    .filter((user) =>
+      `${user.user.nom} ${user.user.prenom}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    )
+    .sort((a, b) => {
+      // If available, use created_at. Otherwise, fallback to ID.
+      const aValue = a.message.created_at
+        ? new Date(a.message.created_at).getTime()
+        : a.message.id;
+      const bValue = b.message.created_at
+        ? new Date(b.message.created_at).getTime()
+        : b.message.id;
+
+      return bValue - aValue; // Descending order: newest on top
+    });
 
   return (
     <div
@@ -42,8 +54,7 @@ const ChatSidebar = ({ onUserClick, recentMessages }: Props) => {
             <ListGroup.Item
               action
               key={idx}
-              onClick={() => 
-               onUserClick(user.user)}
+              onClick={() => onUserClick(user.user)}
               className="d-flex flex-column py-2 px-3 border-0 border-bottom"
               style={{ cursor: "pointer" }}
             >
@@ -59,7 +70,10 @@ const ChatSidebar = ({ onUserClick, recentMessages }: Props) => {
                   <div className="fw-semibold text-dark">
                     {user.user.nom} {user.user.prenom}
                   </div>
-                  <div className="text-muted text-truncate" style={{ fontSize: "0.85rem" }}>
+                  <div
+                    className="text-muted text-truncate"
+                    style={{ fontSize: "0.85rem" }}
+                  >
                     {user.message.message}
                   </div>
                 </div>

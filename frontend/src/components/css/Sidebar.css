@@ -11,6 +11,7 @@
 }
 
 .nav-item .nav-link:hover {
+  cursor: pointer;
   background: #f8f9fa;
   color: #0d6efd;
   transform: translateX(3px);

@@ -11,6 +11,7 @@ class Sujet extends Model
 
     protected $casts = [
         'typeStage' => TypeStage::class,
+        'status' => StatusStage::class,
     ];
 
     protected $fillable = [
@@ -20,6 +21,7 @@ class Sujet extends Model
         'duree',
         'nbEtudiants',
         'typeStage',
+        'status',
         'employee_id'
     ];
     public function attestations()
@@ -28,7 +30,7 @@ class Sujet extends Model
     }
     public function etudiants()
     {
-        return $this->belongsToMany(Etudiant::class);
+        return $this->hasMany(Etudiant::class);
     }
     public function employes()
     {

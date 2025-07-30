@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\SujetRequest;
 use App\Models\Employee;
 use App\Models\Etudiant;
+use App\Models\Status;
+use App\Models\StatusStage;
 use App\Models\Sujet;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class SujetController extends Controller
 {
@@ -23,6 +26,7 @@ class SujetController extends Controller
             'duree' => $data['duree'],
             'nbEtudiants' => $data['nbEtudiants'],
             'typeStage' => $data['typeStage'],
+            'status' => StatusStage::PENDING->value,
             'employee_id' => $user->userable_id,
         ]);
 
@@ -48,12 +52,31 @@ class SujetController extends Controller
         ]);
     }
 
-    public function updateSujet(SujetRequest $request, $id)
+    public function updateSujet(Request $request, $id)
     {
-        $data = $request->validated();
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string|max:255',
+            'competences' => 'required|string|max:255',
+            'duree' => 'required|integer',
+            'nbEtudiants' => 'required|integer',
+            'typeStage' => 'required|string|max:255',
+            'status' => 'required|string|in:pending,in_progress,awaiting_approval,rejected,completed',
+            'employee_id' => 'required|integer'
+        ]);
 
         $sujet = Sujet::findOrFail($id);
         $sujet->update($data);
+        if ($request->has('etudiants')) {
+            foreach ($request->etudiants as $etudiantId) {
+                $user = User::on("admin")->where("id", $etudiantId)->first();
+                if (!$user) {
+                    return response()->json(['status' => 'error', 'message' => "Etudiant not found!"], 404);
+                }
+                $etudiant = Etudiant::find($user->userable_id);
+                $this->assignEtudiantToSujet($etudiant, $sujet);
+            }
+        }
 
         return response()->json([
             'message' => 'Sujet updated successfully',
@@ -69,16 +92,42 @@ class SujetController extends Controller
         ]);
     }
 
-    public function assignEtudiantToSujet(int $idEtudiant, $id)
+    public function assignEtudiantToSujet(Etudiant $etudiant, Sujet $sujet)
     {
-        $sujet = Sujet::find($id);
-        $etudiant = Etudiant::find($idEtudiant);
-        $etudiant->sujet()->attach($sujet);
+        $etudiant->sujet()->associate($sujet);
+        $sujet->status = StatusStage::IN_PROGRESS->value;
+        $etudiant->save();
+        $sujet->save();
+        return response()->json([
+            'message' => 'Etudiant assigned to Sujet successfully'
+        ]);
     }
 
     public function assignEmployeeToSujet(int $idEmpoyee, Sujet $sujet)
     {
         $employee = Employee::find($idEmpoyee);
         $employee->sujet()->attach($sujet);
+    }
+
+    public function getEmployeeById(int $id)
+    {
+        try {
+            $employee = User::on("admin")->where("userable_type", Employee::class)->where("userable_id", $id)->first();
+            return response()->json(['employee' => $employee], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'error', 'message' => "error, employee not found!"], 404);
+        }
+    }
+    public function getEtudiantsById(int $id)
+    {
+        try {
+            $listEtudiants = Etudiant::where("sujet_id", $id)->get();
+            foreach ($listEtudiants as $e) {
+                $etudiants[] = User::on("admin")->where("userable_type", Etudiant::class)->where("userable_id", $e->id)->first();
+            }
+            return response()->json(['etudiants' => $etudiants], 200);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => 'error', 'message' => "error, etudiant not found!"], 404);
+        }
     }
 }

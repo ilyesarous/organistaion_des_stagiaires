@@ -6,6 +6,7 @@ import { Profile } from "../pages/auth/Profile";
 import { GestionList } from "../pages/roles/ShowRoles";
 import { SujetList } from "../pages/sujet/ShowSujet";
 import { Chat } from "../pages/chat/Chat";
+import { CalenderVeiw } from "../pages/calander/CalenderView";
 
 export const MainContent = (props: any) => {
   let content = props.content;
@@ -19,6 +20,7 @@ export const MainContent = (props: any) => {
         {content === "settings" && <Profile />}
         {content === "sujets" && <SujetList />}
         {content === "chat" && <Chat />}
+        {content === "calender" && <CalenderVeiw />}
       </Col>
     </>
   );

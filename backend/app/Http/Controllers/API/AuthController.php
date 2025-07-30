@@ -232,7 +232,7 @@ class AuthController extends Controller
     public function deleteUser($id)
     {
         try {
-            $user = User::on('admin')->where('id', $id)->firstOrFail();
+            $user = User::on('admin')->where('id', $id)->first();
             if ($user->roles()->exists())
                 $user->roles()->detach();
             if ($user->userable_type === "App\Models\Employee")

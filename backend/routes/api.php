@@ -48,12 +48,12 @@ Route::prefix('auth')->middleware(['auth:api', 'verified', 'tenant'])->group(fun
 });
 
 Route::get('societe/employees', [SocieteController::class, 'getEmployees'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin', 'tenant']);
+Route::get('societe/etudiants', [SocieteController::class, 'getEtudiants'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin', 'tenant']);
 
 Route::prefix('societe')->middleware(['auth:api', 'verified', 'can:superAdmin', 'tenant'])->group(function () {
     Route::get('/', [SocieteController::class, 'getAll']);
     Route::post('/create', [SocieteController::class, 'create']);
     Route::get('/details/{id}', [SocieteController::class, 'getSocieteById']);
-    Route::get('/etudiants/{id}', [SocieteController::class, 'getEtudiants']);
     Route::delete('/delete/{id}', [SocieteController::class, 'deleteSociete']);
 });
 
@@ -86,6 +86,9 @@ Route::prefix('sujet')->middleware(['auth:api', 'verified', 'tenant'])->group(fu
     Route::post('/create', [SujetController::class, "create"]);
     Route::put('/update/{id}', [SujetController::class, 'updateSujet']);
     Route::delete('/delete/{id}', [SujetController::class, 'delete']);
+    Route::get('/getEmployeeById/{id}', [SujetController::class, 'getEmployeeById']);
+    Route::get('/getEtudiantById/{id}', [SujetController::class, 'getEtudiantsById']);
+    Route::post('/assignEtudiantToSujet/{id}', [SujetController::class, 'assignEtudiantToSujet']);
 });
 
 Route::prefix('chat')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {

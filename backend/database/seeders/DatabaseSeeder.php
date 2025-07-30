@@ -7,6 +7,8 @@ namespace Database\Seeders;
 use App\Models\Actions;
 use App\Models\ActionType;
 use App\Models\Gestion;
+use App\Models\Role;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -22,6 +24,22 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+        User::create([
+            'nom' => 'admin',
+            'prenom' => 'admin',
+            'email' => 'admin@gmail.com',
+            'email_verified_at' => now(),
+            'password' => 'admin123',
+            'phone' => '21503300',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        Role::create([
+            'name' => 'superAdmin',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
         $actions = [];
         foreach (ActionType::cases() as $action) {
@@ -41,6 +59,16 @@ class DatabaseSeeder extends Seeder
                     'action_id' => $action->id,
                 ]);
             }
+        }
+
+        // Step 3: Create a superAdmin user and assign all gestions
+        $superAdmin = User::where('email', 'admin@gmail.com')->first();
+        $role = Role::where('name', 'superAdmin')->first();
+        if ($superAdmin) {
+            $role->gestions()->attach(Gestion::all());
+            $superAdmin->roles()->attach($role);
+            $superAdmin->role = $role->name;
+            $superAdmin->save();
         }
     }
 }

@@ -11,6 +11,7 @@ import { FaGear } from "react-icons/fa6";
 import { BiLogOut } from "react-icons/bi";
 import type { RootState } from "../tools/redux/Store";
 import { BsChatDots } from "react-icons/bs";
+import { CiCalendarDate } from "react-icons/ci";
 
 export const Dashboard = () => {
   const type = useSelector((state: RootState) => state.auth.type);
@@ -22,28 +23,39 @@ export const Dashboard = () => {
     { id: "facultees", title: "Facultés", icon: <LuUniversity /> },
     { id: "sujets", title: "Sujets", icon: <IoMdPaper /> },
     { id: "chat", title: "Chat", icon: <BsChatDots /> },
+    { id: "calender", title: "Calender", icon: <CiCalendarDate /> },
     { id: "settings", title: "Settings", icon: <FaGear /> },
     { id: "logout", title: "Logout", icon: <BiLogOut /> },
   ];
 
-  // Compute filteredItems based on type
-  const filteredItems = 
+  const filteredItems =
     type === "superAdmin"
-      ? sidebarItems.filter((item) => item.id !== "facultees" && item.id !== "sujets")
+      ? sidebarItems.filter(
+          (item) => item.id !== "facultees" && item.id !== "sujets"
+        )
       : type === "admin"
       ? sidebarItems.filter((item) => item.id !== "societes")
       : type === "HR"
-      ? sidebarItems.filter((item) => item.id !== "societes" && item.id !== "roles")
+      ? sidebarItems.filter(
+          (item) => item.id !== "societes" && item.id !== "roles"
+        )
       : type === "etudiant"
       ? sidebarItems.filter(
           (item) =>
             item.id === "sujets" ||
             item.id === "settings" ||
             item.id === "logout" ||
-            item.id === "chat"
+            item.id === "chat"||
+            item.id === "calender"
         )
       : sidebarItems.filter(
-          (item) => item.id === "users" || item.id === "sujets" || item.id === "chat" || item.id === "settings" || item.id === "logout" 
+          (item) =>
+            item.id === "users" ||
+            item.id === "sujets" ||
+            item.id === "chat" ||
+            item.id === "settings" ||
+            item.id === "logout" ||
+            item.id === "calender"
         );
 
   const [activeItem, setActiveItem] = useState(() => {

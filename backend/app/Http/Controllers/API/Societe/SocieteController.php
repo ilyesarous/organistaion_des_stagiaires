@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class SocieteController extends Controller
 {
@@ -101,18 +102,18 @@ class SocieteController extends Controller
     {
         $id = Auth::user()->societe_id;
         $employees = User::on('admin')
-        ->where("societe_id", $id)
-        ->where("userable_type", Employee::class)
-        ->get();
+            ->where("societe_id", $id)
+            ->where("userable_type", Employee::class)
+            ->get();
         return response()->json(['employees' => $employees], 200);
     }
     public function getEtudiants()
     {
         $id = Auth::user()->societe_id;
         $etudiants = User::on('admin')
-        ->where("societe_id", $id)
-        ->where("userable_type", Etudiant::class)
-        ->get();
+            ->where("societe_id", $id)
+            ->where("userable_type", Etudiant::class)
+            ->get();
 
         return response()->json(['etudiants' => $etudiants], 200);
     }
@@ -120,8 +121,8 @@ class SocieteController extends Controller
     {
         $id = Auth::user()->societe_id;
         $users = User::on('admin')
-        ->where("societe_id", $id)
-        ->get();
+            ->where("societe_id", $id)
+            ->get();
 
         return response()->json(['users' => $users], 200);
     }
@@ -152,7 +153,20 @@ class SocieteController extends Controller
     public function deleteSociete(int $id)
     {
         try {
-            Societe::destroy($id);
+            User::on('admin')->where('societe_id', $id)->delete();
+            if (Employee::where('societe_id', $id)->exists()) {
+                Employee::where('societe_id', $id)->delete();
+            }
+            if (Etudiant::where('societe_id', $id)->exists()) {
+                Etudiant::where('societe_id', $id)->delete();
+            }
+            // Delete the tenant database
+            $tenantDbName = Societe::find($id)->raison_sociale;
+            DB::connection('pgcreator')->statement("DROP DATABASE IF EXISTS \"$tenantDbName\"");
+            // Delete the Societe record
+            Societe::where('id', $id)->delete();
+            // Delete the tenant record
+            DB::table('tenants')->where('email', 'admin@' . $tenantDbName . '.com')->delete();
             return response()->json(['status' => "success", "message" => "societe deleted successfully!"], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'error', 'message' => "error, Societe not found!"], 404);

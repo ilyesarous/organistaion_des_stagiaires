@@ -9,6 +9,7 @@ import { DisplayTable } from "./DisplayTableSujet";
 import { TableFooter } from "../../components/tableComponents/TableFooter";
 import { SujetDetailsModal } from "./SujetDetailsModal";
 import type { Sujet } from "../../models/Sujet";
+import { UpdateSujetModal } from "./UpdateSujetModal";
 
 export const SujetList = () => {
   const [sujet, setSujet] = useState<Sujet[]>([]);
@@ -19,6 +20,12 @@ export const SujetList = () => {
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSujet, setSelectedSujet] = useState<Sujet>();
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+
+  const handleEditClick = (sujet: Sujet) => {
+    setSelectedSujet(sujet);
+    setShowUpdateModal(true);
+  };
 
   const handleSuccess = () => {
     fetchSujet();
@@ -81,7 +88,7 @@ export const SujetList = () => {
       <Card className="border-0 shadow-sm">
         <Card.Header className="bg-white border-0 py-3">
           <TableHeader
-            name="Sociétés"
+            name="Sujets"
             onAddClick={() => setShowModal(true)}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
@@ -97,6 +104,7 @@ export const SujetList = () => {
               onDelete={handleDelete}
               deleteId={deleteId}
               Details={handleDetails}
+              onUpdate={handleEditClick}
             />
           )}
         </Card.Body>
@@ -120,6 +128,12 @@ export const SujetList = () => {
         show={showDetailsModal}
         onHide={() => setShowDetailsModal(false)}
         sujet={selectedSujet ? selectedSujet : null}
+      />
+      <UpdateSujetModal
+        show={showUpdateModal}
+        onHide={() => setShowUpdateModal(false)}
+        onSuccess={handleSuccess}
+        sujet={selectedSujet!}
       />
     </Container>
   );

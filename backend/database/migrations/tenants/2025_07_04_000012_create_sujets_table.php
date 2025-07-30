@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Employee;
-use App\Models\Societe;
+use App\Models\StatusStage;
 use App\Models\TypeStage;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,11 +22,10 @@ return new class extends Migration
             $table->integer('duree'); // Duration in days
             $table->integer('nbEtudiants'); // Number of students
             $table->string('typeStage')->default(TypeStage::PFE->value);
+            $table->string('status')->default(StatusStage::PENDING->value);
             $table->timestamps();
         });
         Schema::table('sujets', function (Blueprint $table) {
-            // $table->foreignIdFor(Societe::class) // Use foreignIdFor for better readability
-            //     ->constrained('societes');
             $table->foreignIdFor(Employee::class)// Nullable in case the subject is not assigned to an employee yet
                 ->constrained('employees');
         });
