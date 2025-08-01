@@ -4,14 +4,14 @@ import { AuthActions } from "./auth/authRedux/AuthSlice";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { IoMdPaper, IoMdPerson } from "react-icons/io";
-import { MdOutlineManageAccounts } from "react-icons/md";
+import { MdOutlineManageAccounts, MdOutlineManageHistory } from "react-icons/md";
 import { IoBusiness } from "react-icons/io5";
 import { LuUniversity } from "react-icons/lu";
 import { FaGear } from "react-icons/fa6";
 import { BiLogOut } from "react-icons/bi";
 import type { RootState } from "../tools/redux/Store";
-import { BsChatDots } from "react-icons/bs";
-import { CiCalendarDate } from "react-icons/ci";
+import { BsCalendar4Event, BsChatDots } from "react-icons/bs";
+import { CiCalendarDate, CiVideoOn } from "react-icons/ci";
 
 export const Dashboard = () => {
   const type = useSelector((state: RootState) => state.auth.type);
@@ -23,7 +23,9 @@ export const Dashboard = () => {
     { id: "facultees", title: "Facultés", icon: <LuUniversity /> },
     { id: "sujets", title: "Sujets", icon: <IoMdPaper /> },
     { id: "chat", title: "Chat", icon: <BsChatDots /> },
-    { id: "calender", title: "Calender", icon: <CiCalendarDate /> },
+    { id: "events", title: "Events", icon: <MdOutlineManageHistory /> },
+    { id: "calender", title: "Calender", icon: <BsCalendar4Event /> },
+    { id: "videoCall", title: "Video Call", icon: <CiVideoOn /> },
     { id: "settings", title: "Settings", icon: <FaGear /> },
     { id: "logout", title: "Logout", icon: <BiLogOut /> },
   ];
@@ -31,7 +33,7 @@ export const Dashboard = () => {
   const filteredItems =
     type === "superAdmin"
       ? sidebarItems.filter(
-          (item) => item.id !== "facultees" && item.id !== "sujets"
+          (item) => item.id !== "facultees" && item.id !== "sujets" && item.id !== "events" && item.id !== "calender" && item.id !== "videoCall"
         )
       : type === "admin"
       ? sidebarItems.filter((item) => item.id !== "societes")
@@ -46,16 +48,17 @@ export const Dashboard = () => {
             item.id === "settings" ||
             item.id === "logout" ||
             item.id === "chat"||
-            item.id === "calender"
+            item.id === "calender"||
+            item.id === "videoCall"
         )
       : sidebarItems.filter(
           (item) =>
-            item.id === "users" ||
             item.id === "sujets" ||
             item.id === "chat" ||
             item.id === "settings" ||
             item.id === "logout" ||
-            item.id === "calender"
+            item.id === "calender"||
+            item.id === "videoCall"
         );
 
   const [activeItem, setActiveItem] = useState(() => {

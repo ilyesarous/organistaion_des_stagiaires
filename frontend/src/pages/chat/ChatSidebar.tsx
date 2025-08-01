@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ListGroup, Form, InputGroup, Image } from "react-bootstrap";
 import profilePic from "../../assets/images/profilePic.png";
 import type { User } from "../../models/User";
+import { axiosRequest } from "../../apis/AxiosHelper";
 
 interface Props {
   onUserClick: (user: User) => void;
@@ -10,24 +11,24 @@ interface Props {
 
 const ChatSidebar = ({ onUserClick, recentMessages }: Props) => {
   const [search, setSearch] = useState("");
+  const [users, setUsers] = useState<User[]>(
+    recentMessages.map((msg) => msg.user)
+  );
 
-  const filteredUsers = recentMessages
-    .filter((user) =>
-      `${user.user.nom} ${user.user.prenom}`
-        .toLowerCase()
-        .includes(search.toLowerCase())
-    )
-    .sort((a, b) => {
-      // If available, use created_at. Otherwise, fallback to ID.
-      const aValue = a.message.created_at
-        ? new Date(a.message.created_at).getTime()
-        : a.message.id;
-      const bValue = b.message.created_at
-        ? new Date(b.message.created_at).getTime()
-        : b.message.id;
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (users.length > 0) return;
+      await axiosRequest("get", "auth/societe/users").then((response) => {
+        setUsers(response.data.users);
+      });
+    };
 
-      return bValue - aValue; // Descending order: newest on top
-    });
+    fetchUsers();
+  }, []);
+
+  const filteredUsers = users.filter((user) =>
+    `${user.nom} ${user.prenom}`.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div
@@ -47,14 +48,14 @@ const ChatSidebar = ({ onUserClick, recentMessages }: Props) => {
 
       <ListGroup variant="flush" className="overflow-auto">
         {filteredUsers.map((user, idx) => {
-          const image = user.user.profile_picture
-            ? `http://localhost:8000/storage/${user.user.profile_picture}`
+          const image = user.profile_picture
+            ? `http://localhost:8000/storage/${user.profile_picture}`
             : profilePic;
           return (
             <ListGroup.Item
               action
               key={idx}
-              onClick={() => onUserClick(user.user)}
+              onClick={() => onUserClick(user)}
               className="d-flex flex-column py-2 px-3 border-0 border-bottom"
               style={{ cursor: "pointer" }}
             >
@@ -64,17 +65,18 @@ const ChatSidebar = ({ onUserClick, recentMessages }: Props) => {
                   roundedCircle
                   width={40}
                   height={40}
-                  alt={user.user.nom}
+                  alt={user.nom}
                 />
                 <div>
                   <div className="fw-semibold text-dark">
-                    {user.user.nom} {user.user.prenom}
+                    {user.nom} {user.prenom}
                   </div>
                   <div
                     className="text-muted text-truncate"
                     style={{ fontSize: "0.85rem" }}
                   >
-                    {user.message.message}
+                    {recentMessages.find((msg) => msg.user.id === user.id)
+                      ?.message?.message || "No recent messages"}
                   </div>
                 </div>
               </div>

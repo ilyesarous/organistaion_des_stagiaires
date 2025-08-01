@@ -22,10 +22,12 @@ class Employee extends Model
     {
         return $this->hasMany(Sujet::class);
     }
-    public function etudiants()
+
+    public function events()
     {
-        return $this->belongsToMany(Etudiant::class, 'employees_etudiants');
+        return $this->belongsTo(Events::class);
     }
+
     public function user()
     {
         return $this->morphOne(User::class, 'userable');

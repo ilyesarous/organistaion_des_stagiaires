@@ -2,6 +2,9 @@
 import { useEffect, useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { axiosRequest } from "../../apis/AxiosHelper";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../tools/redux/Store";
+import { UserActions } from "../users/Redux/UserSlice";
 
 interface Props {
   show: boolean;
@@ -18,6 +21,7 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
   const [type, setType] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [displayRoles, setDisplayRoles] = useState<string[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
 
   const fetchRoles = async () => {
     await axiosRequest("get", "role/getAllNames").then((res) => {
@@ -41,7 +45,8 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
     formData.append("role", role);
     setIsLoading(true);
     try {
-      await axiosRequest("post", "auth/register", formData);
+      const res = await axiosRequest("post", "auth/register", formData);
+      dispatch(UserActions.addUser(res.data.user));
       setRole("etudiant");
       onSuccess();
     } catch (error) {

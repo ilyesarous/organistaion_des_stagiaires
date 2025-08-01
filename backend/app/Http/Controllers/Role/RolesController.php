@@ -13,6 +13,7 @@ class RolesController extends Controller
 {
     public function create(Request $request)
     {
+        $this->authorize('superAdmin_or_admin');
         $request->validate(['name' => "required|string"]);
 
         $role = Role::on('admin')->create(['name' => $request->name]);
@@ -38,6 +39,7 @@ class RolesController extends Controller
 
     public function getAll()
     {
+        $this->authorize('superAdmin_or_admin');
         $roles = Role::on('admin')->get();
         $response = [];
 
@@ -59,6 +61,7 @@ class RolesController extends Controller
 
     public function update(Request $request, $id)
     {
+        $this->authorize('superAdmin_or_admin');
         $request->validate([
             'name' => 'required|string',
             'gestions' => 'array',

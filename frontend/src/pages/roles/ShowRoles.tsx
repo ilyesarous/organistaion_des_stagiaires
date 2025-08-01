@@ -11,6 +11,7 @@ import { AddNewRole } from "./AddRole";
 import { UpdateRoleModal } from "./UpdateRoleModal";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../tools/redux/Store";
+import { getItem } from "../../tools/localStorage";
 
 export const GestionList = () => {
   // const [gestionData, setGestionData] = useState<Gestion[]>([]);
@@ -22,6 +23,7 @@ export const GestionList = () => {
   const [selectedRole, setSelectedRole] = useState<role | null>(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const type = useSelector((state: RootState) => state.auth.type);
+   const role = getItem("type");
 
   const handleUpdateClick = (role: role) => {
     setSelectedRole(role);
@@ -67,6 +69,7 @@ export const GestionList = () => {
         <Card.Header className="bg-white border-0 py-3">
           <TableHeader
             name="Permissions par rôle"
+            role={role}
             onAddClick={() => setShowModal(true)} // You can handle add if needed
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}

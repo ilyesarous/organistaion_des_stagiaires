@@ -9,36 +9,34 @@ import { DisplayTable } from "./DisplayTableSociete";
 import { TableFooter } from "../../components/tableComponents/TableFooter";
 import type { Societe } from "../../models/Societe";
 import { SocieteDetailsModal } from "./SocieteDetailsModal";
+import { fetchSocietes } from "./Redux/SocieteThunk";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../tools/redux/Store";
+import { SocieteActions } from "./Redux/SocieteSlice";
+import { getItem } from "../../tools/localStorage";
 
 export const SocieteList = () => {
-  const [societes, setSocietes] = useState<Societe[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const societes = useSelector((state: RootState) => state.societe.societe);
+  const societeStatus = useSelector((state: RootState) => state.societe.status);
+  let societeError = useSelector((state: RootState) => state.societe.error);
+  const dispatch = useDispatch<AppDispatch>();
+
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedSociete, setSelectedSociete] = useState<Societe>();
+   const role = getItem("type");
 
   const handleSuccess = () => {
-    fetchSocietes();
     setShowModal(false);
   };
 
-  const fetchSocietes = async () => {
-    try {
-      const response = await axiosRequest("get", "societe");
-      setSocietes(response.data.societes);
-    } catch (err) {
-      setError("Failed to fetch sociétés. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchSocietes();
-  }, []);
+    if (societeStatus === "idle") {
+      dispatch(fetchSocietes());
+    }
+  }, [societeStatus, dispatch]);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this société?"))
@@ -47,9 +45,9 @@ export const SocieteList = () => {
     setDeleteId(id);
     try {
       await axiosRequest("delete", `societe/delete/${id}`);
-      setSocietes(societes.filter((societe) => societe.id !== id));
+      dispatch(SocieteActions.deleteSociete(id));
     } catch (err) {
-      setError("Failed to delete société. Please try again.");
+      societeError = "Failed to delete société. Please try again.";
     } finally {
       setDeleteId(null);
     }
@@ -71,11 +69,11 @@ export const SocieteList = () => {
       societe.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <LoadingIndicator />;
-  if (error)
+  if (societeStatus === "loading") return <LoadingIndicator />;
+  if (societeStatus === "failed")
     return (
-      <Alert variant="danger" onClose={() => setError(null)} dismissible>
-        {error}
+      <Alert variant="danger" onClose={() => societeError = null} dismissible>
+        {societeError}
       </Alert>
     );
 
@@ -85,6 +83,7 @@ export const SocieteList = () => {
         <Card.Header className="bg-white border-0 py-3">
           <TableHeader
             name="Sociétés"
+            role={role}
             onAddClick={() => setShowModal(true)}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}

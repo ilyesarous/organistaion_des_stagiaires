@@ -4,6 +4,7 @@ import { SearchBar } from "./Searchbar";
 
 interface SocieteListHeaderProps {
   name: string;
+  role?: string;
   onAddClick?: () => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
@@ -11,17 +12,17 @@ interface SocieteListHeaderProps {
 
 export const TableHeader = ({
   name,
+  role,
   onAddClick,
   searchTerm,
   onSearchChange,
 }: SocieteListHeaderProps) => {
-  const type = localStorage.getItem("type");
-  // console.log("search ", searchTerm );
-  
+
   const showBtn = () => {
-    // if (type === "superAdmin")
-    //   return type === "superAdmin" && name === "Utilisateurs";
-    return true;
+    if (role === "admin" || role === "superAdmin") {
+      return true;
+    }
+    return false;
   };
 
   return (

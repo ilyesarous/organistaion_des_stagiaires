@@ -37,6 +37,18 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('superAdmin_or_admin_or_HR', function(User $user): bool{
             return $user->hasRole("superAdmin") || $user->hasRole("admin") || $user->hasRole("HR");
         });
+        Gate::define('superAdmin_or_admin_or_encadrant', function(User $user): bool{
+            return $user->hasRole("superAdmin") || $user->hasRole("admin") || $user->hasRole("encadrant");
+        });
+        Gate::define('admin_or_encadrant', function(User $user): bool{
+            return $user->hasRole("admin") || $user->hasRole("encadrant");
+        });
+        Gate::define('admin_or_encadrant_or_HR', function(User $user): bool{
+            return $user->hasRole("admin") || $user->hasRole("encadrant") || $user->hasRole("HR");
+        });
+        Gate::define('admin_or_encadrant_or_etudiant', function(User $user): bool{
+            return $user->hasRole("admin") || $user->hasRole("encadrant") || $user->hasRole("etudiant");
+        });
         Gate::define('HR', function(User $user): bool{
             return $user->hasRole("HR");
         });
@@ -48,6 +60,9 @@ class AuthServiceProvider extends ServiceProvider
         });
         Gate::define('encadrant', function(User $user): bool{
             return $user->hasRole("encadrant");
+        });
+        Gate::define('etudiant', function(User $user): bool{
+            return $user->hasRole("etudiant");
         });
         //
     }

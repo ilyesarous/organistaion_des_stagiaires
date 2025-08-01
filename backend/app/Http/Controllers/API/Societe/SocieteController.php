@@ -8,10 +8,12 @@ use App\Models\Employee;
 use App\Models\Etudiant;
 use App\Models\Role;
 use App\Models\Societe;
+use App\Models\Tenants;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -150,26 +152,33 @@ class SocieteController extends Controller
         }
     }
 
-    public function deleteSociete(int $id)
+    public function deleteSociete($id)
     {
         try {
-            User::on('admin')->where('societe_id', $id)->delete();
-            if (Employee::where('societe_id', $id)->exists()) {
-                Employee::where('societe_id', $id)->delete();
-            }
-            if (Etudiant::where('societe_id', $id)->exists()) {
-                Etudiant::where('societe_id', $id)->delete();
-            }
-            // Delete the tenant database
             $tenantDbName = Societe::find($id)->raison_sociale;
-            DB::connection('pgcreator')->statement("DROP DATABASE IF EXISTS \"$tenantDbName\"");
-            // Delete the Societe record
-            Societe::where('id', $id)->delete();
-            // Delete the tenant record
-            DB::table('tenants')->where('email', 'admin@' . $tenantDbName . '.com')->delete();
+            $user = User::on('admin')->where('societe_id', $id)->get();
+            foreach ($user as $u) {
+                DB::table('users_roles')->where('user_id', $u->id)->delete();
+                User::on('admin')->where('id', $u->id)->delete();
+            }
+            Societe::destroy($id);
+            DB::table('tenants')->where('database', $tenantDbName)->delete();
+            config(['database.connections.pgcreator' => [
+                'driver'   => 'pgsql',
+                'host'     => env('DB_HOST', '127.0.0.1'),
+                'port'     => env('DB_PORT', '5432'),
+                'database' => 'postgres',
+                'username' => env('DB_USERNAME'),
+                'password' => env('DB_PASSWORD'),
+                'charset'  => 'utf8',
+                'prefix'   => '',
+                'schema'   => 'public',
+            ]]);
+            DB::connection('pgcreator')->statement("DROP DATABASE IF EXISTS " . $tenantDbName);
+
             return response()->json(['status' => "success", "message" => "societe deleted successfully!"], 200);
         } catch (\Throwable $th) {
-            return response()->json(['status' => 'error', 'message' => "error, Societe not found!"], 404);
+            return response()->json(['status' => 'error', 'message' => $th]);
         }
     }
 }

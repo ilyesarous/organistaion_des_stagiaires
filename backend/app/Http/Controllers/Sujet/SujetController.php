@@ -11,11 +11,13 @@ use App\Models\StatusStage;
 use App\Models\Sujet;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class SujetController extends Controller
 {
     public function create(SujetRequest $request)
     {
+        $this->authorize('admin_or_HR');
         $data = $request->validated();
         $user = User::on('admin')->find($data['employee_id']);
 
@@ -38,6 +40,7 @@ class SujetController extends Controller
 
     public function getAll()
     {
+        $this->authorize('admin_or_encadrant');
         $sujets = Sujet::all();
         return response()->json([
             'data' => $sujets
@@ -46,6 +49,7 @@ class SujetController extends Controller
 
     public function getSujet($id)
     {
+        $this->authorize('admin_or_encadrant_or_etudiant');
         $sujet = Sujet::find($id);
         return response()->json([
             'data' => $sujet
@@ -54,6 +58,7 @@ class SujetController extends Controller
 
     public function updateSujet(Request $request, $id)
     {
+        $this->authorize('admin_or_encadrant');
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:255',
@@ -86,6 +91,7 @@ class SujetController extends Controller
 
     public function delete($id)
     {
+        $this->authorize('admin_or_encadrant');
         Sujet::destroy($id);
         return response()->json([
             'message' => 'Sujet deleted successfully'
@@ -94,6 +100,7 @@ class SujetController extends Controller
 
     public function assignEtudiantToSujet(Etudiant $etudiant, Sujet $sujet)
     {
+        $this->authorize('encadrant');
         $etudiant->sujet()->associate($sujet);
         $sujet->status = StatusStage::IN_PROGRESS->value;
         $etudiant->save();
@@ -101,12 +108,6 @@ class SujetController extends Controller
         return response()->json([
             'message' => 'Etudiant assigned to Sujet successfully'
         ]);
-    }
-
-    public function assignEmployeeToSujet(int $idEmpoyee, Sujet $sujet)
-    {
-        $employee = Employee::find($idEmpoyee);
-        $employee->sujet()->attach($sujet);
     }
 
     public function getEmployeeById(int $id)

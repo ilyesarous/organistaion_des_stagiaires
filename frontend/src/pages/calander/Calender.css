@@ -4,3 +4,7 @@
   height: 800px;
   max-height: 90vh;
 }
+
+.is-invalid {
+  border-color: #dc3545;
+}

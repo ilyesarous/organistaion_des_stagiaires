@@ -1,55 +1,61 @@
 import { useEffect, useState } from "react";
 import { Container, Alert, Card } from "react-bootstrap";
 import { axiosRequest } from "../../apis/AxiosHelper";
+import { AddNewSujet } from "./AddSujet";
 import { LoadingIndicator } from "../../components/Loading";
 import { TableHeader } from "../../components/tableComponents/TableHeader";
 import { EmptyState } from "../../components/tableComponents/EmptyState";
-import { DisplayTable } from "./DisplayTableFacultee";
+import { DisplayTable } from "./DisplayTableSujet";
 import { TableFooter } from "../../components/tableComponents/TableFooter";
-import type { Facultee } from "../../models/Facultee";
-import { AddNewFacultee } from "./AddFacultee";
-import { FaculteeDetailsModal } from "./FaculteeDetailsModal";
+import { SujetDetailsModal } from "./SujetDetailsModal";
+import type { Sujet } from "../../models/Sujet";
+import { UpdateSujetModal } from "./UpdateSujetModal";
 import { getItem } from "../../tools/localStorage";
 
-export const FaculteeList = () => {
-  const [facultees, setFacultees] = useState<Facultee[]>([]);
+export const SujetList = () => {
+  const [sujet, setSujet] = useState<Sujet[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [selectedFacultee, setSelectedFacultee] = useState<Facultee>();
-   const role = getItem("type");
+  const [selectedSujet, setSelectedSujet] = useState<Sujet>();
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const role = getItem("type");
+
+  const handleEditClick = (sujet: Sujet) => {
+    setSelectedSujet(sujet);
+    setShowUpdateModal(true);
+  };
 
   const handleSuccess = () => {
-    fetchFacultees();
+    fetchSujet();
     setShowModal(false);
   };
 
-  const fetchFacultees = async () => {
+  const fetchSujet = async () => {
     try {
-      const response = await axiosRequest("get", "facultee");
-      setFacultees(response.data.facultes);
+      const response = await axiosRequest("get", "sujet");
+      setSujet(response.data.data);
     } catch (err) {
-      setError("Failed to fetch sociétés. Please try again later.");
+      setError("Failed to fetch sujets. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchFacultees();
+    fetchSujet();
   }, []);
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this facultée?"))
+    if (!window.confirm("Are you sure you want to delete this société?"))
       return;
-
     setDeleteId(id);
     try {
-      await axiosRequest("delete", `facultee/delete/${id}`);
-      setFacultees(facultees.filter((facultee) => facultee.id !== id));
+      await axiosRequest("delete", `sujet/delete/${id}`);
+      setSujet(sujet.filter((sujet) => sujet.id !== id));
     } catch (err) {
       setError("Failed to delete société. Please try again.");
     } finally {
@@ -58,17 +64,17 @@ export const FaculteeList = () => {
   };
 
   const handleDetails = async (id: number) => {
-    await axiosRequest("get", `facultee/details/${id}`).then((res) => {
-      setSelectedFacultee(res.data.facultes[0]);
+    await axiosRequest("get", `sujet/${id}`).then((res) => {
+      setSelectedSujet(res.data.data);
       setShowDetailsModal(true);
     });
   };
 
-  const filteredFacultees = facultees.filter(
-    (facultee) =>
-      facultee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      facultee.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      facultee.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredSujet = sujet.filter(
+    (sujet) =>
+      sujet.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sujet.competences.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sujet.typeStage.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) return <LoadingIndicator />;
@@ -84,7 +90,7 @@ export const FaculteeList = () => {
       <Card className="border-0 shadow-sm">
         <Card.Header className="bg-white border-0 py-3">
           <TableHeader
-            name="Facultées"
+            name="Sujets"
             role={role}
             onAddClick={() => setShowModal(true)}
             searchTerm={searchTerm}
@@ -93,37 +99,44 @@ export const FaculteeList = () => {
         </Card.Header>
 
         <Card.Body className="p-0">
-          {filteredFacultees.length === 0 ? (
+          {filteredSujet.length === 0 ? (
             <EmptyState searchTerm={searchTerm} name="société" />
           ) : (
             <DisplayTable
-              facultees={filteredFacultees}
+              sujets={filteredSujet}
               onDelete={handleDelete}
               deleteId={deleteId}
-              details={handleDetails}
+              Details={handleDetails}
+              onUpdate={handleEditClick}
             />
           )}
         </Card.Body>
 
-        {filteredFacultees.length > 0 && (
+        {filteredSujet.length > 0 && (
           <Card.Footer className="bg-white border-0 py-3">
             <TableFooter
-              filteredCount={filteredFacultees.length}
-              totalCount={facultees.length}
+              filteredCount={filteredSujet.length}
+              totalCount={sujet.length}
             />
           </Card.Footer>
         )}
       </Card>
 
-      <AddNewFacultee
+      <AddNewSujet
         show={showModal}
         onHide={() => setShowModal(false)}
         onSuccess={handleSuccess}
       />
-      <FaculteeDetailsModal
+      <SujetDetailsModal
         show={showDetailsModal}
         onHide={() => setShowDetailsModal(false)}
-        facultee={selectedFacultee ? selectedFacultee : null}
+        sujet={selectedSujet ? selectedSujet : null}
+      />
+      <UpdateSujetModal
+        show={showUpdateModal}
+        onHide={() => setShowUpdateModal(false)}
+        onSuccess={handleSuccess}
+        sujet={selectedSujet!}
       />
     </Container>
   );

@@ -4,6 +4,7 @@ use App\Http\Controllers\Action\ActionsController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\Faculte\FaculteController;
 use App\Http\Controllers\API\Societe\SocieteController;
+use App\Http\Controllers\Events\EventsController;
 use App\Http\Controllers\Gestion\GestionsController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Role\RolesController;
@@ -47,8 +48,8 @@ Route::prefix('auth')->middleware(['auth:api', 'verified', 'tenant'])->group(fun
     Route::get('societe/users', [SocieteController::class, 'getAllUsers']);
 });
 
-Route::get('societe/employees', [SocieteController::class, 'getEmployees'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin', 'tenant']);
-Route::get('societe/etudiants', [SocieteController::class, 'getEtudiants'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin', 'tenant']);
+Route::get('societe/employees', [SocieteController::class, 'getEmployees'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin_or_encadrant', 'tenant']);
+Route::get('societe/etudiants', [SocieteController::class, 'getEtudiants'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin_or_encadrant', 'tenant']);
 
 Route::prefix('societe')->middleware(['auth:api', 'verified', 'can:superAdmin', 'tenant'])->group(function () {
     Route::get('/', [SocieteController::class, 'getAll']);
@@ -59,7 +60,7 @@ Route::prefix('societe')->middleware(['auth:api', 'verified', 'can:superAdmin', 
 
 Route::get('/faculteeAdmin', [FaculteController::class, 'getAll']);
 
-Route::prefix('facultee')->middleware(['auth:api', 'verified', 'tenant', 'can:admin'])->group(function () {
+Route::prefix('facultee')->middleware(['auth:api', 'verified', 'tenant', 'can:admin_or_HR'])->group(function () {
     Route::get('/', [FaculteController::class, 'getAll']);
     Route::post('/create', [FaculteController::class, 'create']);
     Route::get('/details/{id}', [FaculteController::class, 'getFacultyById']);
@@ -94,4 +95,12 @@ Route::prefix('sujet')->middleware(['auth:api', 'verified', 'tenant'])->group(fu
 Route::prefix('chat')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {
     Route::get('/{id}', [MessageController::class, 'read']);
     Route::post('/', [MessageController::class, 'store']);
+});
+
+Route::prefix('events')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {
+    Route::post('/create', [EventsController::class, 'createEvent'])->middleware(['can:admin']);
+    Route::get('/', [EventsController::class, 'getEvents']);
+    Route::put('/update/{id}', [EventsController::class, 'updateEvent'])->middleware(['can:admin']);
+    Route::delete('/delete/{id}', [EventsController::class, 'deleteEvent'])->middleware(['can:admin']);
+    Route::get('/details/{id}', [EventsController::class, 'getEventById'])->middleware(['can:admin']);
 });

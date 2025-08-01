@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Events;
 use App\Models\Facultee;
 use App\Models\Societe;
 use App\Models\Sujet;
@@ -29,6 +30,10 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('sujets')
                 ->nullOnDelete();
+            $table->foreignIdFor(Events::class)
+                ->nullable()
+                ->constrained()
+                ->onDelete('set null');
         });
     }
 

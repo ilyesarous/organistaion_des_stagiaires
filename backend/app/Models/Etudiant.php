@@ -27,9 +27,10 @@ class Etudiant extends Model
     {
         return $this->belongsTo(Sujet::class);
     }
-    public function employees()
+    
+    public function events()
     {
-        return $this->belongsToMany(Employee::class, 'employees_etudiants');
+        return $this->belongsTo(Events::class);
     }
 
     public function user()

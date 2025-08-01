@@ -7,6 +7,7 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegistrationRequest;
 use App\Models\Employee;
 use App\Models\Etudiant;
+use App\Models\Events;
 use App\Models\Facultee;
 use App\Models\Role;
 use Illuminate\Support\Str;
@@ -92,7 +93,8 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => $verificationLink
+            'message' => $verificationLink,
+            'user' => $user,
         ]);
     }
 
@@ -128,8 +130,8 @@ class AuthController extends Controller
             $conventionPath = $request->file('convention')?->store('conventions', 'public');
             $letterPath = $request->file('letterAffectation')?->store('letters', 'public');
 
-            $facultyInAdmin = Facultee::on("admin")->where("id", $request->facultee_id)->get();
-            $faculteeInTenant = Facultee::on("tenant")->where("name", $facultyInAdmin[0]->name)->get();
+            $facultyInAdmin = Facultee::on("admin")->where("id", $request->facultee_id)->first();
+            $faculteeInTenant = Facultee::on("tenant")->where("name", $facultyInAdmin->name)->get();
 
             $userable = Etudiant::create([
                 'cv' => $cvPath,
@@ -204,9 +206,6 @@ class AuthController extends Controller
             }
         }
 
-        // Return updated user with relations
-        // $user->load('userable');
-
         return response()->json($user);
     }
 
@@ -219,9 +218,7 @@ class AuthController extends Controller
                 ->first();
             $users = User::on("admin")
                 ->where("societe_id", $societe->id)
-                ->get()
-                ->filter(fn($user) => $user->email !== env("ADMIN_EMAIL"))
-                ->values();
+                ->get();
         } else
             $users = User::all()->filter(fn($user) => $user->email !== env("ADMIN_EMAIL"))
                 ->values();
@@ -310,8 +307,6 @@ class AuthController extends Controller
         $user->save();
         return response()->json(['status' => 'success', 'message' => 'Role set successfully!']);
     }
-
-
 
     public function ChangeToTenant($dbName)
     {
