@@ -6,6 +6,8 @@ import type { User } from "../../models/User";
 import { axiosRequest } from "../../apis/AxiosHelper";
 import { useDispatch } from "react-redux";
 import { EventActions } from "./Redux/EventRedux";
+import echo from "../../tools/broadcast";
+import Pusher from "pusher-js";
 
 interface Props {
   show: boolean;
@@ -96,6 +98,7 @@ export const CreateEventModal: React.FC<Props> = ({
       );
 
       dispatch(EventActions.addEvent(response.data.event));
+    
       setMessage({
         text: "Company information saved successfully!",
         variant: "success",

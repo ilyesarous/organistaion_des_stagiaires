@@ -5,6 +5,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\Faculte\FaculteController;
 use App\Http\Controllers\API\Societe\SocieteController;
 use App\Http\Controllers\Events\EventsController;
+use App\Http\Controllers\Events\NotificationController;
 use App\Http\Controllers\Gestion\GestionsController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Role\RolesController;
@@ -103,4 +104,9 @@ Route::prefix('events')->middleware(['auth:api', 'verified', 'tenant'])->group(f
     Route::put('/update/{id}', [EventsController::class, 'updateEvent'])->middleware(['can:admin']);
     Route::delete('/delete/{id}', [EventsController::class, 'deleteEvent'])->middleware(['can:admin']);
     Route::get('/details/{id}', [EventsController::class, 'getEventById'])->middleware(['can:admin']);
+});
+
+Route::prefix('notifications')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {
+    Route::get('/', [NotificationController::class, 'index']);
+    Route::patch('/markAsRead', [NotificationController::class, 'markAsRead']);
 });

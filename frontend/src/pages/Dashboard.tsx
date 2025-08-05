@@ -4,17 +4,21 @@ import { AuthActions } from "./auth/authRedux/AuthSlice";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { IoMdPaper, IoMdPerson } from "react-icons/io";
-import { MdOutlineManageAccounts, MdOutlineManageHistory } from "react-icons/md";
+import {
+  MdOutlineManageAccounts,
+  MdOutlineManageHistory,
+} from "react-icons/md";
 import { IoBusiness } from "react-icons/io5";
 import { LuUniversity } from "react-icons/lu";
 import { FaGear } from "react-icons/fa6";
 import { BiLogOut } from "react-icons/bi";
 import type { RootState } from "../tools/redux/Store";
 import { BsCalendar4Event, BsChatDots } from "react-icons/bs";
-import { CiCalendarDate, CiVideoOn } from "react-icons/ci";
+import { CiVideoOn } from "react-icons/ci";
 
 export const Dashboard = () => {
   const type = useSelector((state: RootState) => state.auth.type);
+  const chatNotif = useSelector((state: RootState) => state.chat.count);
 
   const sidebarItems = [
     { id: "users", title: "Users", icon: <IoMdPerson /> },
@@ -22,9 +26,19 @@ export const Dashboard = () => {
     { id: "societes", title: "Societes", icon: <IoBusiness /> },
     { id: "facultees", title: "Facultés", icon: <LuUniversity /> },
     { id: "sujets", title: "Sujets", icon: <IoMdPaper /> },
-    { id: "chat", title: "Chat", icon: <BsChatDots /> },
+    {
+      id: "chat",
+      title: "Chat",
+      icon: <BsChatDots />,
+      notification: chatNotif,
+    },
     { id: "events", title: "Events", icon: <MdOutlineManageHistory /> },
-    { id: "calender", title: "Calender", icon: <BsCalendar4Event /> },
+    {
+      id: "calender",
+      title: "Calender",
+      icon: <BsCalendar4Event />,
+      notification: 0,
+    },
     { id: "videoCall", title: "Video Call", icon: <CiVideoOn /> },
     { id: "settings", title: "Settings", icon: <FaGear /> },
     { id: "logout", title: "Logout", icon: <BiLogOut /> },
@@ -33,7 +47,12 @@ export const Dashboard = () => {
   const filteredItems =
     type === "superAdmin"
       ? sidebarItems.filter(
-          (item) => item.id !== "facultees" && item.id !== "sujets" && item.id !== "events" && item.id !== "calender" && item.id !== "videoCall"
+          (item) =>
+            item.id !== "facultees" &&
+            item.id !== "sujets" &&
+            item.id !== "events" &&
+            item.id !== "calender" &&
+            item.id !== "videoCall"
         )
       : type === "admin"
       ? sidebarItems.filter((item) => item.id !== "societes")
@@ -47,18 +66,16 @@ export const Dashboard = () => {
             item.id === "sujets" ||
             item.id === "settings" ||
             item.id === "logout" ||
-            item.id === "chat"||
-            item.id === "calender"||
+            item.id === "chat" ||
+            item.id === "calender" ||
             item.id === "videoCall"
         )
       : sidebarItems.filter(
           (item) =>
-            item.id === "sujets" ||
-            item.id === "chat" ||
-            item.id === "settings" ||
-            item.id === "logout" ||
-            item.id === "calender"||
-            item.id === "videoCall"
+            item.id !== "users" &&
+            item.id !== "roles" &&
+            item.id !== "societes" &&
+            item.id !== "facultees" 
         );
 
   const [activeItem, setActiveItem] = useState(() => {

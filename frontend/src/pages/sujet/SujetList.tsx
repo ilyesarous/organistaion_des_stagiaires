@@ -11,11 +11,17 @@ import { SujetDetailsModal } from "./SujetDetailsModal";
 import type { Sujet } from "../../models/Sujet";
 import { UpdateSujetModal } from "./UpdateSujetModal";
 import { getItem } from "../../tools/localStorage";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../tools/redux/Store";
+import { fetchSujets } from "./Redux/SujetReduxThunk";
+import { SujetActions } from "./Redux/SujetSlice";
 
 export const SujetList = () => {
-  const [sujet, setSujet] = useState<Sujet[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const sujet = useSelector((state: RootState) => state.sujet.sujets);
+  const sujetStatus = useSelector((state: RootState) => state.sujet.status);
+  let error = useSelector((state: RootState) => state.sujet.error);
+  const dispatch = useDispatch<AppDispatch>();
+
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -30,24 +36,15 @@ export const SujetList = () => {
   };
 
   const handleSuccess = () => {
-    fetchSujet();
+    dispatch(fetchSujets());
     setShowModal(false);
   };
 
-  const fetchSujet = async () => {
-    try {
-      const response = await axiosRequest("get", "sujet");
-      setSujet(response.data.data);
-    } catch (err) {
-      setError("Failed to fetch sujets. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    fetchSujet();
-  }, []);
+    if (sujetStatus === "idle") {
+      dispatch(fetchSujets());
+    }
+  }, [dispatch, sujetStatus]);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this société?"))
@@ -55,9 +52,9 @@ export const SujetList = () => {
     setDeleteId(id);
     try {
       await axiosRequest("delete", `sujet/delete/${id}`);
-      setSujet(sujet.filter((sujet) => sujet.id !== id));
+      dispatch(SujetActions.deleteSujet(id));
     } catch (err) {
-      setError("Failed to delete société. Please try again.");
+      error = "Failed to delete société. Please try again.";
     } finally {
       setDeleteId(null);
     }
@@ -77,10 +74,10 @@ export const SujetList = () => {
       sujet.typeStage.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (loading) return <LoadingIndicator />;
-  if (error)
+  if (sujetStatus === "loading") return <LoadingIndicator />;
+  if (sujetStatus === "failed")
     return (
-      <Alert variant="danger" onClose={() => setError(null)} dismissible>
+      <Alert variant="danger" onClose={() => (error = "")} dismissible>
         {error}
       </Alert>
     );
@@ -100,7 +97,7 @@ export const SujetList = () => {
 
         <Card.Body className="p-0">
           {filteredSujet.length === 0 ? (
-            <EmptyState searchTerm={searchTerm} name="société" />
+            <EmptyState searchTerm={searchTerm} name="sujet" />
           ) : (
             <DisplayTable
               sujets={filteredSujet}

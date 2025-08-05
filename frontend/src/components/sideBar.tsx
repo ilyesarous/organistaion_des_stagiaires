@@ -3,11 +3,20 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { MainContent } from "./MainContent";
 import "./css/Sidebar.css";
 import { IoIosNotificationsOutline } from "react-icons/io";
+import { getItem } from "../tools/localStorage";
+import { useEffect, useState } from "react";
+import echo from "../tools/broadcast";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../tools/redux/Store";
+import { NotificationActions } from "../pages/notification/notificationRedux/NotificationSlice";
+import { fetchNotifications } from "../pages/notification/notificationRedux/NotificationReducThunk";
+import { DisplayNotification } from "../pages/notification/DisplayNotification";
 
 interface SidebarItem {
   id: string;
   title: string;
   icon?: React.ReactNode;
+  notification?: number;
 }
 
 interface StaticSidebarProps {
@@ -25,6 +34,46 @@ const Sidebar: React.FC<StaticSidebarProps> = ({
   logo,
   className = "",
 }) => {
+  const notificationCount = useSelector(
+    (state: RootState) => state.notification.count
+  );
+  const notifications = useSelector(
+    (state: RootState) => state.notification.notifications
+  );
+  const notificationStatus = useSelector(
+    (state: RootState) => state.notification.status
+  );
+  const dispatch = useDispatch<AppDispatch>();
+  const [showNotifications, setShowNotifications] = useState(false);
+  const userId = getItem("user");
+
+  useEffect(() => {
+    if (notificationStatus === "idle") {
+      dispatch(fetchNotifications());
+    }
+  }, [dispatch, notificationStatus]);
+
+  useEffect(() => {
+    if (!userId.id) return;
+    const channel = echo.private(`user.${userId.id}`);
+
+    channel.listen(".form-submit", () => {
+      dispatch(NotificationActions.addCount(1));
+      if (notificationStatus === "idle") {
+        dispatch(fetchNotifications());
+      }
+    });
+
+    return () => {
+      echo.leave(`user.${userId.id}`);
+    };
+  }, [userId.id]);
+
+  const handleNotificationClick = () => {
+    setShowNotifications(!showNotifications);
+    if (!showNotifications) dispatch(fetchNotifications());
+  };
+
   return (
     <Container fluid className={`px-0 ${className}`}>
       <Row className="g-0">
@@ -40,14 +89,21 @@ const Sidebar: React.FC<StaticSidebarProps> = ({
                 <span>Menu</span>
               </h5>
             )}
-            <Button variant="link" className="p-0 notification-button">
+            <Button
+              variant="link"
+              className="p-0 notification-button"
+              onClick={handleNotificationClick}
+            >
               <div>
                 <IoIosNotificationsOutline size={25} />
                 <small>
-                  <Badge>1</Badge>
+                  {notificationCount > 0 && <Badge>{notificationCount}</Badge>}
                 </small>
               </div>
             </Button>
+            {showNotifications && (
+              <DisplayNotification notifications={notifications} />
+            )}
           </div>
           <ul className="nav flex-column px-3 py-3 flex-grow-1">
             {items
@@ -64,7 +120,12 @@ const Sidebar: React.FC<StaticSidebarProps> = ({
                     {item.icon && (
                       <span className="me-3 text-muted">{item.icon}</span>
                     )}
-                    <span className="text-dark">{item.title}</span>
+                    <span className="d-flex align-items-center justify-content-between w-100">
+                      <span className="text-dark">{item.title}</span>
+                      {item.notification && item.notification > 0 ? (
+                        <Badge>{item.notification}</Badge>
+                      ) : null}
+                    </span>
                     {activeItem === item.id && (
                       <span className="active-indicator ms-auto"></span>
                     )}

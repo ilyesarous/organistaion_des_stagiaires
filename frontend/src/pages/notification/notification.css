@@ -1,0 +1,21 @@
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-dropdown {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  max-height: 450px;
+  overflow-y: auto;
+}
+
+.notification-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}

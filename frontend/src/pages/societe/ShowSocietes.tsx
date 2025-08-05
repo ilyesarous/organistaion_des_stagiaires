@@ -30,6 +30,7 @@ export const SocieteList = () => {
 
   const handleSuccess = () => {
     setShowModal(false);
+    dispatch(fetchSocietes());
   };
 
   useEffect(() => {

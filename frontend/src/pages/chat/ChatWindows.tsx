@@ -24,8 +24,8 @@ const ChatWindow = ({
 }: ChatWindowProps) => {
   const [newMessage, setNewMessage] = useState("");
   const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
-
   const lastMessageRef = useRef<HTMLDivElement | null>(null);
+ 
 
   // Filter messages for current conversation
   useEffect(() => {
@@ -103,7 +103,11 @@ const ChatWindow = ({
                 {filteredMessages.map((msg, index) => (
                   <div
                     key={msg.id}
-                    ref={index === filteredMessages.length - 1 ? lastMessageRef : null}
+                    ref={
+                      index === filteredMessages.length - 1
+                        ? lastMessageRef
+                        : null
+                    }
                     className={`px-3 py-2 rounded-4 shadow-sm ${
                       msg.sender_id === currentUserId
                         ? "align-self-end bg-white border"
@@ -138,7 +142,7 @@ const ChatWindow = ({
                 style={{ width: "42px", height: "42px" }}
                 onClick={handleSend}
               >
-                <BiSend size={20}/>
+                <BiSend size={20} />
               </Button>
             </Card.Footer>
           </>

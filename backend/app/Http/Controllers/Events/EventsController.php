@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Events;
 
+use App\Events\EventNotification;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Etudiant;
 use App\Models\Events;
+use App\Models\Notification;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
@@ -31,6 +33,13 @@ class EventsController extends Controller
             $data['room_name'] = 'meet-room-' . Str::random(6) . '-' . Date::now()->format('YmdHis');
         }
         $event = Events::create($data);
+        $message = "You are invited to " . $data['title'] . " event.";
+        if (!empty($data['room_name'])) {
+            $message .= " Room name: " . $data['room_name'];
+        }
+        $this->createNotifications($data['users'], 'New Event Created', $message);
+
+        event(new EventNotification($message, $data['users']));
         $this->attachEventToUser($data["users"], $event);
 
         return response()->json(['status' => 'success', 'event' => $event], 201);
@@ -94,5 +103,16 @@ class EventsController extends Controller
         }
 
         return response()->json(['status' => 'success', 'message' => 'Event attached successfully!']);
+    }
+
+    private function createNotifications(array $userIds, string $title, string $message): void
+    {
+        foreach ($userIds as $userId) {
+            Notification::on('admin')->create([
+                'user_id' => $userId,
+                'title' => $title,
+                'message' => $message,
+            ]);
+        }
     }
 }

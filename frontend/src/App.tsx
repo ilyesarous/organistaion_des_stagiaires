@@ -8,49 +8,54 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Profile } from "./pages/auth/Profile";
 import type { RootState } from "./tools/redux/Store";
+import EchoListener from "./tools/EchoListener";
 
 function App() {
-  const isAuthenticated = useSelector((state: RootState)=> state.auth.isAuthenticated);
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated
+  );
 
   useEffect(() => {
-    isAuthenticated
+    isAuthenticated;
   }, [isAuthenticated]);
-
 
   return (
     <BrowserRouter>
+      <EchoListener />
       <Routes>
         {/* Public routes */}
         <Route path="/verify-email" element={<VerifyEmailPage />} />
-        
+
         {/* Auth route - only accessible when not authenticated */}
-        <Route 
-          path="/login" 
-          element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />} 
+        <Route
+          path="/login"
+          element={
+            isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage />
+          }
         />
-        
+
         {/* Protected routes - only accessible when authenticated */}
-        <Route 
-          path="/dashboard" 
-          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />} 
+        <Route
+          path="/dashboard"
+          element={isAuthenticated ? <Dashboard /> : <Navigate to="/login" />}
         />
-        <Route 
-          path="/profile" 
-          element={isAuthenticated ? <Profile /> : <Navigate to="/login" />} 
+        <Route
+          path="/profile"
+          element={isAuthenticated ? <Profile /> : <Navigate to="/login" />}
         />
-        
+
         {/* Root path redirects based on auth status */}
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             isAuthenticated ? (
               <Navigate to="/dashboard" replace />
             ) : (
               <Navigate to="/login" replace />
             )
-          } 
+          }
         />
-        
+
         {/* Catch-all route */}
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

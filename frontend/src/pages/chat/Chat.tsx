@@ -1,41 +1,29 @@
 import { useEffect, useState } from "react";
-import echo from "../../tools/broadcast";
 import ChatSidebar from "./ChatSidebar";
 import ChatWindow from "./ChatWindows";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../tools/redux/Store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../tools/redux/Store";
 import type { User } from "../../models/User";
-import { axiosRequest } from "../../apis/AxiosHelper";
+import { fetchSocieteUsers } from "../users/Redux/UserReduxThunk";
+import { fetchChat } from "./chatRedux/ChatReduxThunk";
 
 export const Chat = () => {
   const currentUser = useSelector((state: RootState) => state.auth.user);
+  const recentMessages = useSelector(
+    (state: RootState) => state.chat.recentMessages
+  );
+  const messages = useSelector((state: RootState) => state.chat.messages);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [recentMessages, setRecentMessages] = useState<any[]>([]);
-  const [messages, setMessages] = useState<any[]>([]);
-
-  const fetchData = async () => {
-    await axiosRequest("get", `chat/${currentUser.id}`)
-      .then((res) => {
-        setRecentMessages(res.data.recentMessages);
-        setMessages(res.data.messages);
-      })
-      .catch((err) => console.error(err));
-  };
+  const users = useSelector((state: RootState) => state.user.usersSociete);
+  const chatStatus = useSelector((state: RootState) => state.chat.status);
+  const dispatch = useDispatch<AppDispatch>();
 
   useEffect(() => {
-    fetchData();
-
-    const userIds = [currentUser.id, selectedUser?.id].sort((a, b) => a - b);
-    const channelName = `messenger.${userIds[0]}.${userIds[1]}`;
-
-    echo.private(channelName).listen("MessageSent", () => {
-      fetchData();
-    });
-
-    return () => {
-      echo.leave(channelName);
-    };
-  }, [selectedUser]);
+    if (chatStatus === "idle") {
+      dispatch(fetchChat());
+      dispatch(fetchSocieteUsers());
+    }
+  }, [dispatch, chatStatus]);
 
   return (
     <div className="d-flex">
@@ -47,6 +35,7 @@ export const Chat = () => {
       <ChatSidebar
         onUserClick={setSelectedUser}
         recentMessages={recentMessages}
+        users={users}
       />
     </div>
   );

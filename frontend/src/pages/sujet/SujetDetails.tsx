@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { axiosRequest } from "../../apis/AxiosHelper";
 import type { Sujet } from "../../models/Sujet";
 import type { User } from "../../models/User";
+import { LoadingIndicator } from "../../components/Loading";
 
 interface Props {
   sujetId: number | null;
@@ -14,6 +15,7 @@ export const SujetDetails = ({ sujetId }: Props) => {
   const [etudiants, setEtudiants] = useState<User[]>([]);
   const [sujet, setSujet] = useState<Sujet>();
   const [error, setError] = useState<string>("");
+  const [showError, setShowError] = useState(false);
 
   useEffect(() => {
     if (!sujetId) return;
@@ -34,8 +36,17 @@ export const SujetDetails = ({ sujetId }: Props) => {
         );
         setEmployee(empRes.data.employee);
 
-        const etuRes = await axiosRequest("get", `sujet/getEtudiantById/${sujetId}`);
+        const etuRes = await axiosRequest(
+          "get",
+          `sujet/getEtudiantById/${sujetId}`
+        );
         setEtudiants(etuRes.data.etudiants || []);
+
+        setTimeout(() => {
+          if (!sujet) {
+            setShowError(true);
+          }
+        }, 5000);
       } catch (err) {
         setError("Erreur lors du chargement des données.");
       }
@@ -45,11 +56,23 @@ export const SujetDetails = ({ sujetId }: Props) => {
   }, [sujetId]);
 
   if (error) {
-    return <Alert variant="danger" className="mt-3">{error}</Alert>;
+    return (
+      <Alert variant="danger" className="mt-3">
+        {error}
+      </Alert>
+    );
   }
-
   if (!sujet) {
-    return <Alert variant="warning" className="mt-3">Aucun sujet sélectionné.</Alert>;
+    return (
+      <>
+        <LoadingIndicator />
+        {showError && (
+          <Alert variant="warning" className="mt-3">
+            Aucun sujet sélectionné.
+          </Alert>
+        )}
+      </>
+    );
   }
 
   return (
@@ -67,12 +90,22 @@ export const SujetDetails = ({ sujetId }: Props) => {
 
             <Form.Group className="mb-3">
               <Form.Label>Compétences</Form.Label>
-              <Form.Control as="textarea" rows={2} value={sujet.competences} readOnly />
+              <Form.Control
+                as="textarea"
+                rows={2}
+                value={sujet.competences}
+                readOnly
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
-              <Form.Control as="textarea" rows={3} value={sujet.description} readOnly />
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={sujet.description}
+                readOnly
+              />
             </Form.Group>
 
             <Form.Group className="mb-3">

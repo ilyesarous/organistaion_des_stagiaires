@@ -23,15 +23,16 @@ return new class extends Migration
             $table->date('date_fin');
             $table->boolean('isValid')->default(false);
             $table->boolean('isApproved')->default(false);
+            $table->text('signature')->nullable();
+            $table->text('cachet')->nullable();
             $table->timestamps();
         });
 
-        Schema::table('attestations', function(Blueprint $table){
+        Schema::table('attestations', function (Blueprint $table) {
             // $table->foreignIdFor(Societe::class)->constrained('societes');
             $table->foreignIdFor(Etudiant::class)->constrained('etudiants');
             $table->foreignIdFor(Employee::class)->constrained('employees');
             $table->foreignIdFor(Sujet::class)->constrained('sujets');
-
         });
     }
 
@@ -41,7 +42,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('attestations');
-        Schema::table('attestations', function(Blueprint $table){
+        Schema::table('attestations', function (Blueprint $table) {
             $table->dropForeignIdFor(Societe::class);
             $table->dropForeignIdFor(Etudiant::class);
             $table->dropForeignIdFor(Employee::class);

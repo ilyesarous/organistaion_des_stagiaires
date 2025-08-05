@@ -14,7 +14,9 @@ class Attestation extends Model
         'date_debut',
         'date_fin',
         'isValid',
-        'isApproved'
+        'isApproved',
+        'signature',
+        'cachet'
     ];
 
     public function sujet()
