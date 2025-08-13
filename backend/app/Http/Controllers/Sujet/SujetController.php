@@ -101,7 +101,7 @@ class SujetController extends Controller
 
     public function assignEtudiantToSujet(Etudiant $etudiant, Sujet $sujet)
     {
-        $this->authorize('encadrant');
+        $this->authorize('admin_or_encadrant');
         $etudiant->sujet()->associate($sujet);
         $sujet->status = StatusStage::IN_PROGRESS->value;
         $etudiant->save();

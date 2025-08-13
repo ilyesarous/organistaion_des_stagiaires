@@ -15,7 +15,7 @@ export const SujetDetails = ({ sujetId }: Props) => {
   const [etudiants, setEtudiants] = useState<User[]>([]);
   const [sujet, setSujet] = useState<Sujet>();
   const [error, setError] = useState<string>("");
-  const [showError, setShowError] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [sujetLien, setSujetLien] = useState<string>("");
 
   const handleUpdateLien = async () => {
@@ -42,10 +42,14 @@ export const SujetDetails = ({ sujetId }: Props) => {
     if (!sujetId) return;
 
     const fetchSujetDetails = async () => {
+      setLoading(true);
       try {
         const sujetRes = await axiosRequest("get", `sujet/${sujetId}`);
+        console.log(sujetRes.data);
+        
         if (!sujetRes.data.data) {
           setError("Sujet introuvable.");
+          setLoading(false);
           return;
         }
         const fetchedSujet = sujetRes.data.data;
@@ -63,14 +67,10 @@ export const SujetDetails = ({ sujetId }: Props) => {
           `sujet/getEtudiantById/${sujetId}`
         );
         setEtudiants(etuRes.data.etudiants || []);
-
-        setTimeout(() => {
-          if (!sujet) {
-            setShowError(true);
-          }
-        }, 5000);
       } catch (err) {
         setError("Erreur lors du chargement des données.");
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -84,18 +84,22 @@ export const SujetDetails = ({ sujetId }: Props) => {
       </Alert>
     );
   }
-  if (!sujet) {
-    return (
-      <>
-        <LoadingIndicator />
-        {showError && (
-          <Alert variant="warning" className="mt-3">
-            Aucun sujet sélectionné.
-          </Alert>
-        )}
-      </>
-    );
-  }
+if (loading) return <LoadingIndicator />;
+
+if (error)
+  return (
+    <Alert variant="danger" className="mt-3">
+      {error}
+    </Alert>
+  );
+
+if (!sujet)
+  return (
+    <Alert variant="warning" className="mt-3">
+      Aucun sujet sélectionné.
+    </Alert>
+  );
+
 
   return (
     <Card className="p-4 shadow-sm mt-3 border-0">

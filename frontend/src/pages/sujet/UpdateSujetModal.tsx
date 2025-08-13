@@ -34,7 +34,6 @@ export const UpdateSujetModal = ({
   const [etudiants, setEtudiants] = useState<User[]>([]);
   const [etudiantsStage, setEtudiantStage] = useState<User[]>([]);
   const [selectedEtudiants, setSelectedEtudiants] = useState<number[]>([]);
-  const role = getItem("type");
   const [message, setMessage] = useState<{
     text: string;
     variant: "success" | "danger";
@@ -103,7 +102,7 @@ export const UpdateSujetModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sujet) return;
-    if (selectedEtudiants.length > sujet.nbEtudiants){
+    if (selectedEtudiants.length > sujet.nbEtudiants) {
       setMessage({ text: "verifiez le nomber d'etudiant", variant: "danger" });
       return;
     }

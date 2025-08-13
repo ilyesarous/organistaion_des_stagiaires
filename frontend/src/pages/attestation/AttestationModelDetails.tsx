@@ -100,7 +100,7 @@ export const AttestationDetailsModal = ({
                 {attestation.isApproved && (
                   <div>
                     <img
-                      src={`http://localhost:8000/storage/${attestation.cachet}`}
+                      src={`data:image/png;base64,${attestation.cachet}`}
                       alt="cachet"
                     />
                   </div>
