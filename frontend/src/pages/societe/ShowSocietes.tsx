@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Container, Alert, Card } from "react-bootstrap";
 import { axiosRequest } from "../../apis/AxiosHelper";
-import { AddNewSociete } from "./AddSociete";
 import { LoadingIndicator } from "../../components/Loading";
 import { TableHeader } from "../../components/tableComponents/TableHeader";
 import { EmptyState } from "../../components/tableComponents/EmptyState";
@@ -14,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../tools/redux/Store";
 import { SocieteActions } from "./Redux/SocieteSlice";
 import { getItem } from "../../tools/localStorage";
+import AddSocieteModal from "./AddSociete";
 
 export const SocieteList = () => {
   const societes = useSelector((state: RootState) => state.societe.societe);
@@ -114,7 +114,7 @@ export const SocieteList = () => {
         )}
       </Card>
 
-      <AddNewSociete
+      <AddSocieteModal
         show={showModal}
         onHide={() => setShowModal(false)}
         onSuccess={handleSuccess}

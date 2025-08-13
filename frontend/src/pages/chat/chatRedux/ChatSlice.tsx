@@ -26,6 +26,9 @@ const ChatSlice = createSlice({
     addCount(state, action) {
       state.count += action.payload;
     },
+    resetCount(state) {
+      state.count = 0;
+    },
   },
   extraReducers: (builder) => {
     builder

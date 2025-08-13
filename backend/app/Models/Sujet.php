@@ -22,12 +22,9 @@ class Sujet extends Model
         'nbEtudiants',
         'typeStage',
         'status',
+        'lien',
         'employee_id'
     ];
-    public function attestations()
-    {
-        return $this->hasMany(Attestation::class);
-    }
     public function etudiants()
     {
         return $this->hasMany(Etudiant::class);

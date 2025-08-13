@@ -58,7 +58,7 @@ class SujetController extends Controller
 
     public function updateSujet(Request $request, $id)
     {
-        $this->authorize('admin_or_encadrant');
+        // $this->authorize('admin_or_encadrant');
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string|max:255',
@@ -67,7 +67,8 @@ class SujetController extends Controller
             'nbEtudiants' => 'required|integer',
             'typeStage' => 'required|string|max:255',
             'status' => 'required|string|in:pending,in_progress,awaiting_approval,rejected,completed',
-            'employee_id' => 'required|integer'
+            'employee_id' => 'required|integer',
+            'lien' => 'nullable|string'
         ]);
 
         $sujet = Sujet::findOrFail($id);

@@ -16,19 +16,12 @@ class Attestation extends Model
         'isValid',
         'isApproved',
         'signature',
-        'cachet'
+        'cachet',
+        'etudiant_id',
     ];
 
-    public function sujet()
-    {
-        return $this->belongsTo(Sujet::class);
-    }
     public function etudiant()
     {
         return $this->belongsTo(Etudiant::class);
-    }
-    public function employe()
-    {
-        return $this->belongsTo(Employee::class);
     }
 }

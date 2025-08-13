@@ -35,7 +35,7 @@ export const AddNewSujet = ({
     typeStage: "",
     employee_id: 0,
   });
-
+  const role = getItem("type");
   const [employees, setEmployees] = useState<User[]>([]);
 
   useEffect(() => {
@@ -45,7 +45,7 @@ export const AddNewSujet = ({
       );
     };
 
-    fetchEmployees();
+    if (role === "admin") fetchEmployees();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,5 +1,5 @@
 // src/components/SujetDetails.tsx
-import { Card, Col, Form, Row, Alert, Badge } from "react-bootstrap";
+import { Card, Col, Form, Row, Alert, Badge, Button } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { axiosRequest } from "../../apis/AxiosHelper";
 import type { Sujet } from "../../models/Sujet";
@@ -16,6 +16,27 @@ export const SujetDetails = ({ sujetId }: Props) => {
   const [sujet, setSujet] = useState<Sujet>();
   const [error, setError] = useState<string>("");
   const [showError, setShowError] = useState(false);
+  const [sujetLien, setSujetLien] = useState<string>("");
+
+  const handleUpdateLien = async () => {
+    if (!sujetId) return;
+    try {
+      await axiosRequest("put", `sujet/update/${sujetId}`, {
+        title: sujet?.title,
+        description: sujet?.description,
+        competences: sujet?.competences,
+        duree: sujet?.duree,
+        nbEtudiants: sujet?.nbEtudiants,
+        typeStage: sujet?.typeStage,
+        status: sujet?.status,
+        employee_id: sujet?.employee_id,
+        lien: sujetLien,
+      });
+      alert("Lien mis à jour avec succès !");
+    } catch (err) {
+      alert("Erreur lors de la mise à jour du lien.");
+    }
+  };
 
   useEffect(() => {
     if (!sujetId) return;
@@ -29,6 +50,7 @@ export const SujetDetails = ({ sujetId }: Props) => {
         }
         const fetchedSujet = sujetRes.data.data;
         setSujet(fetchedSujet);
+        setSujetLien(fetchedSujet.lien);
 
         const empRes = await axiosRequest(
           "get",
@@ -157,6 +179,16 @@ export const SujetDetails = ({ sujetId }: Props) => {
               <Form.Label>Status</Form.Label>
               <Form.Control value={sujet.status} readOnly />
             </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Lien du Code Source</Form.Label>
+              <Form.Control
+                value={sujetLien}
+                onChange={(e) => setSujetLien(e.target.value)}
+              />
+            </Form.Group>
+            <Button variant="primary" onClick={handleUpdateLien}>
+              Mettre à jour le lien
+            </Button>
           </Col>
         </Row>
       </Form>

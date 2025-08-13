@@ -15,6 +15,8 @@ import { BiLogOut } from "react-icons/bi";
 import type { RootState } from "../tools/redux/Store";
 import { BsCalendar4Event, BsChatDots } from "react-icons/bs";
 import { CiVideoOn } from "react-icons/ci";
+import { ChatActions } from "./chat/chatRedux/ChatSlice";
+import { TbFileCertificate } from "react-icons/tb";
 
 export const Dashboard = () => {
   const type = useSelector((state: RootState) => state.auth.type);
@@ -40,6 +42,7 @@ export const Dashboard = () => {
       notification: 0,
     },
     { id: "videoCall", title: "Video Call", icon: <CiVideoOn /> },
+    { id: "attetstation", title: "Attetstation", icon: <TbFileCertificate /> },
     { id: "settings", title: "Settings", icon: <FaGear /> },
     { id: "logout", title: "Logout", icon: <BiLogOut /> },
   ];
@@ -63,12 +66,11 @@ export const Dashboard = () => {
       : type === "etudiant"
       ? sidebarItems.filter(
           (item) =>
-            item.id === "sujets" ||
-            item.id === "settings" ||
-            item.id === "logout" ||
-            item.id === "chat" ||
-            item.id === "calender" ||
-            item.id === "videoCall"
+            item.id !== "users" &&
+            item.id !== "roles" &&
+            item.id !== "societes" &&
+            item.id !== "facultees" &&
+            item.id !== "events"
         )
       : sidebarItems.filter(
           (item) =>
@@ -87,6 +89,9 @@ export const Dashboard = () => {
 
   const handleItemClick = (id: string) => {
     setActiveItem(id);
+    if (activeItem === "chat") {
+      dispatch(ChatActions.resetCount());
+    }
     if (id === "logout") {
       dispatch(AuthActions.logout());
       navigate("/");

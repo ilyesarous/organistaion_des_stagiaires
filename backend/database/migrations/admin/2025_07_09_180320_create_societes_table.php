@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('phone')->nullable();
             $table->string('site_web')->nullable();
             $table->string('address')->nullable();
-            $table->string('cachet')->nullable();
+            $table->text('cachet')->nullable();
             $table->text('logo')->nullable();
             $table->timestamps();
         });

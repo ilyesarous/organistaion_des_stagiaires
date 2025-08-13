@@ -6,6 +6,7 @@ import { UserReducer } from "../../pages/users/Redux/UserSlice";
 import { ChatReducer } from "../../pages/chat/chatRedux/ChatSlice";
 import { NotificationReducer } from "../../pages/notification/notificationRedux/NotificationSlice";
 import { SujetReducer } from "../../pages/sujet/Redux/SujetSlice";
+import { AttestationReducer } from "../../pages/attestation/attestationRedux/AttestationSlice";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +17,7 @@ export const store = configureStore({
     event: EventReducer,
     chat: ChatReducer,
     notification: NotificationReducer,
+    attestation: AttestationReducer,
   },
 });
 

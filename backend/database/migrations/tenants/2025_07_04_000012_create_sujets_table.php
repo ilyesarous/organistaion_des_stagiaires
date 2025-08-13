@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('nbEtudiants'); // Number of students
             $table->string('typeStage')->default(TypeStage::PFE->value);
             $table->string('status')->default(StatusStage::PENDING->value);
+            $table->string('lien')->nullable();
             $table->timestamps();
         });
         Schema::table('sujets', function (Blueprint $table) {

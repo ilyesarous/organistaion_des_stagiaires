@@ -4,12 +4,15 @@ use App\Http\Controllers\Action\ActionsController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\Faculte\FaculteController;
 use App\Http\Controllers\API\Societe\SocieteController;
+use App\Http\Controllers\AttestationController;
 use App\Http\Controllers\Events\EventsController;
 use App\Http\Controllers\Events\NotificationController;
 use App\Http\Controllers\Gestion\GestionsController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\Role\RolesController;
 use App\Http\Controllers\Sujet\SujetController;
+use App\Models\Attestation;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
@@ -109,4 +112,14 @@ Route::prefix('events')->middleware(['auth:api', 'verified', 'tenant'])->group(f
 Route::prefix('notifications')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {
     Route::get('/', [NotificationController::class, 'index']);
     Route::patch('/markAsRead', [NotificationController::class, 'markAsRead']);
+});
+
+Route::get('attestation/get/{id}', [AttestationController::class, 'getAttesttationByIdEtudiant'])->middleware((['auth:api', 'verified', 'tenant', 'can:etudiant']));
+Route::prefix('attestation')->middleware(['auth:api', 'verified', 'tenant', 'can:admin_or_encadrant'])->group(function () {
+    Route::get('/', [AttestationController::class, 'index']);
+    Route::post('/create', [AttestationController::class, 'store']);
+    Route::get('/{id}', [AttestationController::class, 'getAttesttationById']);
+    Route::put('/validate/{id}', [AttestationController::class, 'validateAttestation']);
+    Route::put('/approve/{id}', [AttestationController::class, 'approveAttestation']);
+    Route::delete('/{id}', [AttestationController::class, 'deleteAttestation']);
 });

@@ -26,8 +26,7 @@ export const EditRoleModal = ({
     variant: "success" | "danger";
   } | null>(null);
   const [displayRoles, setDisplayRoles] = useState<string[]>([]);
-  // Reset role state when modal opens or currentRole changes
-
+  
   const fetchRoles = async () => {
     await axiosRequest("get", "role/getAllNames").then((res) => {
       setDisplayRoles(res.data);
@@ -102,7 +101,7 @@ export const EditRoleModal = ({
               disabled={isLoading}
               autoFocus
             >
-              {displayRoles.map((role) => (
+              {displayRoles.filter((role) => role !== "superAdmin").map((role) => (
                 <option>{role}</option>
               ))}
             </Form.Select>

@@ -9,6 +9,8 @@ import { Chat } from "../pages/chat/Chat";
 import { CalenderVeiw } from "../pages/calander/CalenderView";
 import JitsiRoom from "../pages/videoCall/JitsiRoom";
 import { EventList } from "../pages/calander/EventsView";
+import { AttestationList } from "../pages/attestation/AttestationList";
+import ShowAttestation from "../pages/attestation/ShowAttestation";
 
 export const MainContent = (props: any) => {
   let content = props.content;
@@ -26,6 +28,7 @@ export const MainContent = (props: any) => {
         {content === "calender" && <CalenderVeiw />}
         {content === "videoCall" && <JitsiRoom />}
         {content === "events" && <EventList />}
+        {content === "attetstation" && <ShowAttestation />}
       </Col>
     </>
   );

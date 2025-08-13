@@ -3,6 +3,7 @@ import { ListGroup, Form, InputGroup, Image } from "react-bootstrap";
 import profilePic from "../../assets/images/profilePic.png";
 import type { User } from "../../models/User";
 import { LoadingIndicator } from "../../components/Loading";
+import { getItem } from "../../tools/localStorage";
 
 interface Props {
   onUserClick: (user: User) => void;
@@ -12,10 +13,13 @@ interface Props {
 
 const ChatSidebar = ({ onUserClick, recentMessages, users }: Props) => {
   const [search, setSearch] = useState("");
+  const currentUser = getItem("user");
 
-  const filteredUsers = users.filter((user) =>
-    `${user.nom} ${user.prenom}`.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = users
+    .filter((user) => user.id !== currentUser.id)
+    .filter((user) =>
+      `${user.nom} ${user.prenom}`.toLowerCase().includes(search.toLowerCase())
+    );
   return (
     <div
       className="d-flex flex-column p-3 bg-white shadow-sm"

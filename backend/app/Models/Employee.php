@@ -14,10 +14,6 @@ class Employee extends Model
         'signature'
     ];
 
-    public function attestation()
-    {
-        return $this->hasOne(Attestation::class);
-    }
     public function sujet()
     {
         return $this->hasMany(Sujet::class);

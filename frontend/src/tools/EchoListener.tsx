@@ -25,7 +25,7 @@ const EchoListener = () => {
     };
   }, [currentUser?.id, dispatch]);
 
-  return null; // no UI
+  return null;
 };
 
 export default EchoListener;

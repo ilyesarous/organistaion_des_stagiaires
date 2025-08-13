@@ -29,10 +29,7 @@ return new class extends Migration
         });
 
         Schema::table('attestations', function (Blueprint $table) {
-            // $table->foreignIdFor(Societe::class)->constrained('societes');
-            $table->foreignIdFor(Etudiant::class)->constrained('etudiants');
-            $table->foreignIdFor(Employee::class)->constrained('employees');
-            $table->foreignIdFor(Sujet::class)->constrained('sujets');
+            $table->foreignIdFor(Etudiant::class)->nullable()->constrained('etudiants')->onDelete('cascade');
         });
     }
 

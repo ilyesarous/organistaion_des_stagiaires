@@ -9,6 +9,7 @@ use App\Models\Employee;
 use App\Models\Etudiant;
 use App\Models\Events;
 use App\Models\Facultee;
+use App\Models\Notification;
 use App\Models\Role;
 use Illuminate\Support\Str;
 use App\Models\Societe;
@@ -27,11 +28,20 @@ class AuthController extends Controller
     {
         $email = $request->email;
         $token = Auth::attempt($request->validated());
+
+        $refreshToken = Str::random(64);
+        DB::table('refresh_tokens')->insert([
+            'user_id' => Auth::id(),
+            'token' => hash('sha256', $refreshToken),
+            'created_at' => now(),
+            'expires_at' => now()->addDays(30), // refresh token valid for 30 days
+        ]);
+
         if ($email !== env("ADMIN_EMAIL")) {
             $tenant = Tenants::where("email", $email)->firstOrFail();
             $this->ChangeToTenant($tenant->database);
         }
-
+        
         if (!$token) {
             return response()->json([
                 'status' => 'error',
@@ -44,7 +54,8 @@ class AuthController extends Controller
                 'message' => 'Please verify your email before logging in.'
             ], 403);
         }
-        return $this->responseWithToken($token, Auth::user());
+
+        return $this->responseWithToken($token, Auth::user(), $refreshToken);
     }
 
     public function register(RegistrationRequest $request)
@@ -249,6 +260,8 @@ class AuthController extends Controller
     public function logout()
     {
         if (Auth::authenticate()) {
+            DB::purge('admin');
+            DB::setDefaultConnection('admin');
             Auth::logout();
             return response()->json(['status' => 'success', 'message' => 'Logged out successfully']);
         }
@@ -258,7 +271,7 @@ class AuthController extends Controller
     /**
      * Return a JWT token for the user.
      */
-    public function responseWithToken($token, $user)
+    public function responseWithToken($token, $user, $refreshToken = null)
     {
         $employee = null;
         $etudiant = null;
@@ -268,12 +281,14 @@ class AuthController extends Controller
         if ($user->userable_type === Employee::class) {
             $employee = Employee::find($user->userable_id);
         }
+
         return response()->json([
             'status' => 'success',
             'user' => $user,
             'employee' => $employee,
             'etudiant' => $etudiant,
             'access_token' => $token,
+            'refresh_token' => $refreshToken,
             'token_type' => 'Bearer'
         ]);
     }
@@ -307,6 +322,30 @@ class AuthController extends Controller
         $user->save();
         return response()->json(['status' => 'success', 'message' => 'Role set successfully!']);
     }
+
+    public function refreshToken(Request $request)
+    {
+        $request->validate([
+            'refresh_token' => 'required|string',
+        ]);
+
+        $hashedToken = hash('sha256', $request->refresh_token);
+
+        $tokenRecord = DB::table('refresh_tokens')
+            ->where('token', $hashedToken)
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$tokenRecord) {
+            return response()->json(['status' => 'error', 'message' => 'Invalid or expired refresh token'], 401);
+        }
+
+        $user = User::find($tokenRecord->user_id);
+        $newAccessToken = Auth::login($user);
+
+        return $this->responseWithToken($newAccessToken, $user);
+    }
+
 
     public function ChangeToTenant($dbName)
     {

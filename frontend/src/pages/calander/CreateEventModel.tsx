@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { EventActions } from "./Redux/EventRedux";
 import echo from "../../tools/broadcast";
 import Pusher from "pusher-js";
+import { getItem } from "../../tools/localStorage";
 
 interface Props {
   show: boolean;
@@ -38,6 +39,7 @@ export const CreateEventModal: React.FC<Props> = ({
 
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const role = getItem("type")
   const [message, setMessage] = useState<{
     text: string;
     variant: "success" | "danger";
@@ -51,7 +53,7 @@ export const CreateEventModal: React.FC<Props> = ({
       });
     };
 
-    fetchUsers();
+    if (role === "admin") fetchUsers();
   }, []);
 
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);

@@ -100,6 +100,9 @@ export const SujetDetailsModal = ({ show, onHide, sujet }: Props) => {
             <p>
               <strong>Status:</strong> {sujet.status}
             </p>
+            <p>
+              <strong>Code Source:</strong> {sujet.lien ? sujet.lien : "not defined"}
+            </p>
           </Col>
         </Row>
       </Modal.Body>

@@ -19,6 +19,7 @@ export interface User {
   password: string;
   phone: string;
   profile_picture: string;
+  userable_id: number;
   role: string;
   societe_id?: number;
   // etudiant?: Etudiant;

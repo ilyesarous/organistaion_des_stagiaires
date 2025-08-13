@@ -29,7 +29,7 @@ class SocieteRequest extends FormRequest
             'phone' => 'required|string|max:20',
             'site_web' => 'required|url|max:255',
             'address' => 'required|string|max:255',
-            'cachet' => 'required|string|max:255',
+            'cachet' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'logo' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }

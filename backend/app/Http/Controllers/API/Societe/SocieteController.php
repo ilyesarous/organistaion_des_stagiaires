@@ -28,6 +28,10 @@ class SocieteController extends Controller
                 $path = $request->file('logo')->store('company-logos', 'public');
                 $data['logo'] = $path; // This will store the path like "company-logos/filename.jpg"
             }
+            if ($request->hasFile('cachet')) {
+                $path = $request->file('cachet')->store('company-cachets', 'public');
+                $data['cachet'] = $path; // This will store the path like "company-logos/filename.jpg"
+            }
 
             $company = Societe::updateOrCreate(
                 ['uuid' => $request->uuid],

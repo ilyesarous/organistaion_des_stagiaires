@@ -34,6 +34,7 @@ export const UpdateSujetModal = ({
   const [etudiants, setEtudiants] = useState<User[]>([]);
   const [etudiantsStage, setEtudiantStage] = useState<User[]>([]);
   const [selectedEtudiants, setSelectedEtudiants] = useState<number[]>([]);
+  const role = getItem("type");
   const [message, setMessage] = useState<{
     text: string;
     variant: "success" | "danger";
@@ -102,6 +103,10 @@ export const UpdateSujetModal = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sujet) return;
+    if (selectedEtudiants.length > sujet.nbEtudiants){
+      setMessage({ text: "verifiez le nomber d'etudiant", variant: "danger" });
+      return;
+    }
     const updatedData =
       selectedEtudiants.length > 0
         ? { ...formData, etudiants: selectedEtudiants }
@@ -111,7 +116,7 @@ export const UpdateSujetModal = ({
     setMessage(null);
 
     try {
-      const response = await axios.put(
+      await axios.put(
         `http://localhost:8000/api/sujet/update/${sujet.id}`,
         updatedData,
         {
@@ -236,46 +241,49 @@ export const UpdateSujetModal = ({
             </Col>
           </Row>
 
-          
-            <Row>
-              <Form.Group className="mt-4 pt-3 border-top mb-4">
-                <Form.Label className="fw-bold mb-2">
-                  Assigner un etudiant
-                </Form.Label>
-                {selectedEtudiants.length > 0 && (
-                  <div className="d-flex flex-wrap gap-2 mb-3">
-                    {selectedEtudiants.map((etudiant) => (
-                      <span
-                        key={etudiant}
-                        className="d-flex align-items-center border rounded px-3 py-1"
-                      >
-                        {etudiant}
-                        <button
-                          type="button"
-                          className="btn-close btn-sm ms-2"
-                          aria-label="Remove"
-                          onClick={() => removeGestion(etudiant)}
-                          style={{ fontSize: "0.6rem" }}
-                        />
-                      </span>
-                    ))}
-                  </div>
-                )}
-                <Form.Select onChange={(e) => addEtudiants(e)}>
-                  <option value="">-- Selectionner un etudiant --</option>
-                  {etudiants.map((etudiants) => (
-                    <option key={etudiants.id} value={etudiants.id}>
-                      {etudiants.nom + " " + etudiants.prenom}
-                    </option>
+          <Row>
+            <Form.Group className="mt-4 pt-3 border-top mb-4">
+              <Form.Label className="fw-bold mb-2">
+                Assigner un etudiant
+              </Form.Label>
+              {selectedEtudiants.length > 0 && (
+                <div className="d-flex flex-wrap gap-2 mb-3">
+                  {selectedEtudiants.map((etudiant) => (
+                    <span
+                      key={etudiant}
+                      className="d-flex align-items-center border rounded px-3 py-1"
+                    >
+                      {etudiant}
+                      <button
+                        type="button"
+                        className="btn-close btn-sm ms-2"
+                        aria-label="Remove"
+                        onClick={() => removeGestion(etudiant)}
+                        style={{ fontSize: "0.6rem" }}
+                      />
+                    </span>
                   ))}
-                </Form.Select>
-              </Form.Group>
-            </Row>
+                </div>
+              )}
+              <Form.Select onChange={(e) => addEtudiants(e)}>
+                <option value="">-- Selectionner un etudiant --</option>
+                {etudiants.map((etudiants) => (
+                  <option key={etudiants.id} value={etudiants.id}>
+                    {etudiants.nom + " " + etudiants.prenom}
+                  </option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+          </Row>
           {etudiantsStage.length > 0 && (
             <Row>
               <Form.Group className="mt-4 pt-3 border-top mb-4">
                 <Form.Label className="fw-bold mb-2">Status</Form.Label>
-                <Form.Select onChange={handleSelectChange} name="status" value={formData.status}>
+                <Form.Select
+                  onChange={handleSelectChange}
+                  name="status"
+                  value={formData.status}
+                >
                   {/* <option value={formData.status}>{formData.status}</option> */}
                   <option value="pending">Pending</option>
                   <option value="in_progress">In Progress</option>
