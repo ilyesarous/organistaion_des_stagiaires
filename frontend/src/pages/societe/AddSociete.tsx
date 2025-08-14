@@ -230,7 +230,7 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
                   <Form.Control
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e, "logo")}
+                    onChange={(e) => handleFileChange(e as React.ChangeEvent<HTMLInputElement>, "logo")}
                     required
                   />
                   <Form.Text className="text-muted">
@@ -247,7 +247,7 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
                   <Form.Control
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e, "cachet")}
+                    onChange={(e) => handleFileChange(e as React.ChangeEvent<HTMLInputElement>, "cachet")}
                     required
                   />
                   <Form.Text className="text-muted">

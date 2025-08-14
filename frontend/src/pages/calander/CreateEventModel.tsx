@@ -6,8 +6,6 @@ import type { User } from "../../models/User";
 import { axiosRequest } from "../../apis/AxiosHelper";
 import { useDispatch } from "react-redux";
 import { EventActions } from "./Redux/EventRedux";
-import echo from "../../tools/broadcast";
-import Pusher from "pusher-js";
 import { getItem } from "../../tools/localStorage";
 
 interface Props {

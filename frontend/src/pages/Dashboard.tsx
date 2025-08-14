@@ -42,7 +42,7 @@ export const Dashboard = () => {
       notification: 0,
     },
     { id: "videoCall", title: "Video Call", icon: <CiVideoOn /> },
-    { id: "attetstation", title: "Attetstation", icon: <TbFileCertificate /> },
+    { id: "attetstation", title: "Attestation", icon: <TbFileCertificate /> },
     { id: "settings", title: "Settings", icon: <FaGear /> },
     { id: "logout", title: "Logout", icon: <BiLogOut /> },
   ];
@@ -55,7 +55,8 @@ export const Dashboard = () => {
             item.id !== "sujets" &&
             item.id !== "events" &&
             item.id !== "calender" &&
-            item.id !== "videoCall"
+            item.id !== "videoCall"&&
+            item.id !== "attetstation"
         )
       : type === "admin"
       ? sidebarItems.filter((item) => item.id !== "societes")

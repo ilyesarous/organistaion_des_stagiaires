@@ -4,7 +4,7 @@ import { Button, Form, Card } from "react-bootstrap";
 import { axiosRequest } from "../../apis/AxiosHelper";
 import { useDispatch } from "react-redux";
 import { AuthActions } from "./authRedux/AuthSlice";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const LoginPage = () => {
   const [email, setEmail] = useState("");

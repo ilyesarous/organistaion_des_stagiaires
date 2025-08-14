@@ -151,7 +151,7 @@ const AddAttestationModal = ({
           Annuler
         </Button>
         <Button variant="primary" onClick={handleSubmit}>
-          Ajouter
+          {isLoading ? "Ajout en cours" : "Ajouter"}
         </Button>
       </Modal.Footer>
     </Modal>

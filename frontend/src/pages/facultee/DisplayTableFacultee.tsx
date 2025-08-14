@@ -69,7 +69,7 @@ export const DisplayTable = ({ facultees, onDelete, deleteId, details }: Faculte
                     size="sm"
                     className="p-2"
                     title="Voir"
-                    onClick={()=>details(facultee.id)}
+                    onClick={()=>details(facultee.id ?? 0)}
                   >
                     <FaRegEye size={16} />
                   </Button>
@@ -86,7 +86,7 @@ export const DisplayTable = ({ facultees, onDelete, deleteId, details }: Faculte
                     size="sm"
                     className="p-2"
                     title="Supprimer"
-                    onClick={() => onDelete(facultee.id)}
+                    onClick={() => onDelete(facultee.id ?? 0)}
                     disabled={deleteId === facultee.id}
                   >
                     {deleteId === facultee.id ? (

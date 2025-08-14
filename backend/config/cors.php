@@ -15,17 +15,22 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'email/verify/*', 'broadcasting/auth', 'storage/*'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'email/verify/*', 'broadcasting/auth', 'storage/*', 'api/auth/verify-complete'],
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:5173', 'http://localhost:8000'],
+    'allowed_origins' => ['*'],
 
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    'exposed_headers' => [
+        'Authorization',
+        'Content-Type',
+        'X-Requested-With',
+        'X-CSRF-TOKEN',
+    ],
 
     'max_age' => 0,
 

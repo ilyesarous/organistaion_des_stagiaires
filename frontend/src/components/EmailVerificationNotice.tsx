@@ -69,7 +69,7 @@ export const VerifyEmailPage = () => {
     try {
       await axios.post(
         "http://localhost:8000/api/auth/verify-complete",
-        formData
+        formData,
       );
       setMessageType("success");
       setMessage("Account verified successfully!");

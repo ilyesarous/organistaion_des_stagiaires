@@ -74,6 +74,9 @@ class SujetController extends Controller
         $sujet = Sujet::findOrFail($id);
         $sujet->update($data);
         if ($request->has('etudiants')) {
+            if (count($request->etudiants)> $sujet->nbEtudiants) {
+                return response()->json(['status' => 'error', 'message' => "Nombre etudiant est supperieur aux besoin"], 404);
+            }
             foreach ($request->etudiants as $etudiantId) {
                 $user = User::on("admin")->where("id", $etudiantId)->first();
                 if (!$user) {

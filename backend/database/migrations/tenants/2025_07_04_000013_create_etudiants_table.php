@@ -17,9 +17,9 @@ return new class extends Migration
     {
         Schema::create('etudiants', function (Blueprint $table) {
             $table->id();
-            $table->string('cv')->nullable();
-            $table->string('convention')->nullable();
-            $table->string('letterAffectation')->nullable();
+            $table->text('cv')->nullable();
+            $table->text('convention')->nullable();
+            $table->text('letterAffectation')->nullable();
             $table->timestamps();
         });
         Schema::table('etudiants', function (Blueprint $table) {

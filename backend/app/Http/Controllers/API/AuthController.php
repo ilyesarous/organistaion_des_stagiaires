@@ -142,13 +142,13 @@ class AuthController extends Controller
             $letterPath = $request->file('letterAffectation')?->store('letters', 'public');
 
             $facultyInAdmin = Facultee::on("admin")->where("id", $request->facultee_id)->first();
-            $faculteeInTenant = Facultee::on("tenant")->where("name", $facultyInAdmin->name)->get();
+            $faculteeInTenant = Facultee::on("tenant")->where("name", $facultyInAdmin->name)->first();
 
             $userable = Etudiant::create([
                 'cv' => $cvPath,
                 'convention' => $conventionPath,
                 'letterAffectation' => $letterPath,
-                'facultee_id' => $faculteeInTenant[0]->id,
+                'facultee_id' => $faculteeInTenant->id,
                 'sujet_id' => $request->sujet_id,
             ]);
         }
@@ -173,9 +173,6 @@ class AuthController extends Controller
             'prenom' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'cv' => 'nullable|string|max:255',
-            'convention' => 'nullable|string|max:255',
-            'letterAffectation' => 'nullable|string|max:255',
             'numBadge' => 'nullable|string|max:50',
             'signature' => 'nullable|string',
         ]);
@@ -197,12 +194,15 @@ class AuthController extends Controller
         // Handle Etudiant data
         $this->ChangeToTenant($tenant->database);
         if ($user->userable_type === "App\Model\Etudiant") {
+            $cvPath = $request->file('cv')?->store('cv', 'public');
+            $conventionPath = $request->file('convention')?->store('conventions', 'public');
+            $letterPath = $request->file('letterAffectation')?->store('letters', 'public');
             $etudiant = Etudiant::on('tenant')->where("id", $user->userable_id)->first();
             if ($etudiant) {
                 $etudiant->update([
-                    'cv' => $validated['cv'] ?? $etudiant->cv,
-                    'convention' => $validated['convention'] ?? $etudiant->convention,
-                    'letterAffectation' => $validated['letterAffectation'] ?? $etudiant->letterAffectation,
+                    'cv' => $cvPath ?? $etudiant->cv,
+                    'convention' => $conventionPath ?? $etudiant->convention,
+                    'letterAffectation' => $letterPath ?? $etudiant->letterAffectation,
                 ]);
             }
         }

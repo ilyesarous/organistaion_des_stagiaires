@@ -22,7 +22,12 @@ export const CalenderVeiw = () => {
   const calendarApp = useCalendarApp({
     views: [createViewList(), createViewWeek(), createViewMonthGrid()],
     selectedDate: new Date().toISOString().split("T")[0],
-    events: eventList,
+    events: eventList
+      .filter((event) => event.id !== undefined)
+      .map((event) => ({
+        ...event,
+        id: String(event.id), // Ensure id is a string if required by CalendarEventExternal
+      })),
     plugins: [createEventModalPlugin()],
     calendars: {
       non_urgent: {
@@ -57,7 +62,14 @@ export const CalenderVeiw = () => {
     if (eventStatus === "idle") {
       dispatch(fetchEvents());
     }
-    calendarApp?.events.set(eventList);
+    calendarApp?.events.set(
+      eventList
+        .filter((event) => event.id !== undefined)
+        .map((event) => ({
+          ...event,
+          id: String(event.id),
+        }))
+    );
   }, [dispatch, eventStatus]);
 
   if (eventStatus === "loading") {

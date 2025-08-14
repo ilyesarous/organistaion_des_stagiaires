@@ -11,7 +11,6 @@ import type { AppDispatch, RootState } from "../tools/redux/Store";
 import { NotificationActions } from "../pages/notification/notificationRedux/NotificationSlice";
 import { fetchNotifications } from "../pages/notification/notificationRedux/NotificationReducThunk";
 import { DisplayNotification } from "../pages/notification/DisplayNotification";
-import { ChatActions } from "../pages/chat/chatRedux/ChatSlice";
 
 interface SidebarItem {
   id: string;
