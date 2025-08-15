@@ -28,13 +28,17 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: shivammathur/setup-php@15c43e89cdef867065b0213be354c2841860869e
+    - uses: shivammathur/setup-php@v2
       with:
         php-version: '8.0'
+        extensions: pdo_pgsql,pgsql,mbstring,xml,bcmath,curl,zip
 
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
-
+    
+    - name: Update Composer
+      run: composer self-update --2
+    
     - name: Install Dependencies
       run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
 
