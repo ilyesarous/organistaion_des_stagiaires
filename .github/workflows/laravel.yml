@@ -12,11 +12,11 @@ jobs:
 
     services:
       postgres:
-        image: postgres:13
+        image: postgres:15
         env:
-          POSTGRES_DB: laravel
+          POSTGRES_DB: organisation_des_stagiaires
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: password
+          POSTGRES_PASSWORD: root
         ports:
           - 5432:5432
         options: >-
@@ -54,7 +54,10 @@ jobs:
         php -r "file_put_contents('.env', preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD=password', file_get_contents('.env')));"
 
     - name: Run migrations
-      run: php artisan migrate --force
+      run: php artisan migrate --path=database/migrations/admin
+
+    - name: Run Seed
+      run: php artisan db:seed
 
     - name: Run tests
       run: php artisan test
