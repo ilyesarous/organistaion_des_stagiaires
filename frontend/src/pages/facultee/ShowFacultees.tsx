@@ -59,7 +59,7 @@ export const FaculteeList = () => {
 
   const handleDetails = async (id: number) => {
     await axiosRequest("get", `facultee/details/${id}`).then((res) => {
-      setSelectedFacultee(res.data.facultes[0]);
+      setSelectedFacultee(res.data.facultes); 
       setShowDetailsModal(true);
     });
   };

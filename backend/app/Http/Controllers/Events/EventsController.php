@@ -55,20 +55,35 @@ class EventsController extends Controller
     {
         $this->authorize('admin_or_encadrant_or_HR');
         // Validate the request data
+        // echo($request);
         $data = $request->validate([
-            'title' => 'sometimes|required|string|max:255',
-            'start' => 'sometimes|required|date',
-            'end' => 'sometimes|required|date|after_or_equal:start',
-            'description' => 'nullable|string',
-            'type' => 'sometimes|required|in:presentiel,onligne',
-            'calendarId' => 'nullable|string|max:255',
+            'title'       => 'required|string|max:255',
+            'start'       => 'required|date',
+            'end'         => 'required|date|after_or_equal:start',
+            'description' => 'required|string',
+            'type'        => 'required|in:presentiel,onligne',
+            'calendarId'  => 'required|string|max:255',
+            'users'       => 'nullable|array',
         ]);
 
+
+
         $event = Events::findOrFail($id);
-        $event->update($data);
-        if ($event->type === 'presentiel') {
+        if (isset($data['type']) && $data['type'] === 'presentiel') {
             $event->room_name = null;
             $event->save();
+        }
+        $event->update($data);
+
+        if (isset($data['users'])) {
+            $message = "You are invited to " . $data['title'] . " event.";
+            if ($event->room_name) {
+                $message .= " Room name: " . $event->room_name;
+            }
+            $this->createNotifications($data['users'], 'New Event Created', $message);
+
+            event(new EventNotification($message, $data['users']));
+            $this->attachEventToUser($data["users"], $event);
         }
 
         return response()->json(['status' => 'success', 'event' => $event]);

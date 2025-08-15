@@ -6,88 +6,87 @@ import type { User } from "../../models/User";
 import { axiosRequest } from "../../apis/AxiosHelper";
 import { useDispatch } from "react-redux";
 import { EventActions } from "./Redux/EventRedux";
-import { getItem } from "../../tools/localStorage";
 
 interface Props {
   show: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  eventData: Event;
 }
 
-export const CreateEventModal: React.FC<Props> = ({
+export const UpdateEventModal: React.FC<Props> = ({
   show,
   onClose,
   onSuccess,
+  eventData,
 }) => {
   const [formData, setFormData] = useState<Event>({
-    title: "",
-    start: "",
-    end: "",
-    description: "",
-    type: "",
-    room_name: "",
-    calendarId: "",
+    title: eventData.title,
+    start: eventData.start,
+    end: eventData.end,
+    description: eventData.description,
+    type: eventData.type,
+    room_name: eventData.room_name,
+    calendarId: eventData.calendarId,
   });
-
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
   const dispatch = useDispatch();
-
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const role = getItem("type")
   const [message, setMessage] = useState<{
     text: string;
     variant: "success" | "danger";
   } | null>(null);
 
+  // Load users for admin role
   useEffect(() => {
     const fetchUsers = async () => {
-      if (users.length > 0) return;
       await axiosRequest("get", "auth/societe/users").then((response) => {
         setUsers(response.data.users);
       });
     };
 
-    if (role === "admin") fetchUsers();
+    fetchUsers();
   }, []);
 
-  const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSelection = (e: any) => {
-    setSelectedUsers((prev) => [
-      ...prev,
-      users.find((user) => user.id === parseInt(e.target.value))!,
-    ]);
-    setFormData((prev) => ({
-      ...prev,
-      users: selectedUsers.map((user) => user.id),
-    }));
+    const user = users.find((u) => u.id === parseInt(e.target.value));
+    if (user && !selectedUsers.some((u) => u.id === user.id)) {
+      setSelectedUsers((prev) => [...prev, user]);
+    }
   };
+
   const removeUser = (userId: number) => {
-    setSelectedUsers((prev) => prev.filter((user) => user.id !== userId));
+    setSelectedUsers((prev) => prev.filter((u) => u.id !== userId));
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage(null);
-    // Create FormData object
-    const formDataToSend = new FormData();
 
+    const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null && value !== undefined) {
-        formDataToSend.append(key, value.toString());
-      }
+      formDataToSend.append(
+        key,
+        value !== null && value !== undefined ? value.toString() : ""
+      );
     });
-    // Append selected users properly
+
     selectedUsers.forEach((user) => {
       formDataToSend.append("users[]", user.id.toString());
     });
 
+    formDataToSend.forEach((key, value) => console.log(value, key));
+
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/events/create",
+        `http://localhost:8000/api/events/update/${eventData.id}`,
         formDataToSend,
         {
           headers: {
@@ -97,32 +96,23 @@ export const CreateEventModal: React.FC<Props> = ({
         }
       );
 
-      dispatch(EventActions.addEvent(response.data.event));
-    
+      console.log(response.data.event);
+
+      dispatch(EventActions.updateEvent(response.data.event));
+
       setMessage({
-        text: "Company information saved successfully!",
+        text: "Event updated successfully!",
         variant: "success",
       });
 
       setTimeout(() => {
-        setFormData({
-          title: "",
-          start: "",
-          end: "",
-          description: "",
-          type: "",
-          room_name: "",
-          calendarId: "non_urgent",
-          // users: [],
-        });
         onSuccess();
         onClose();
       }, 2000);
     } catch (error: any) {
-      console.error("Error submitting form:", error);
+      console.error("Error updating event:", error);
       const errorMessage =
         error.response?.data?.message ||
-        error.response?.data?.errors?.logo?.[0] ||
         "Network error occurred. Please try again.";
       setMessage({
         text: errorMessage,
@@ -137,8 +127,8 @@ export const CreateEventModal: React.FC<Props> = ({
     <Modal show={show} onHide={onClose} size="lg" centered>
       <Modal.Header closeButton>
         <Modal.Title>
-          <i className="bi bi-building me-2 text-primary"></i>
-          Ajouter un nouveau Evennement
+          <i className="bi bi-pencil-square me-2 text-primary"></i>
+          Modifier l'événement
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
@@ -184,7 +174,7 @@ export const CreateEventModal: React.FC<Props> = ({
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Date Debut</Form.Label>
+                <Form.Label>Date Début</Form.Label>
                 <Form.Control
                   type="datetime-local"
                   name="start"
@@ -202,7 +192,6 @@ export const CreateEventModal: React.FC<Props> = ({
                   name="end"
                   value={formData.end}
                   onChange={handleChange}
-                  className="form-field"
                 />
               </Form.Group>
             </Col>
@@ -224,7 +213,7 @@ export const CreateEventModal: React.FC<Props> = ({
             </Col>
             <Col md={6}>
               <Form.Group className="mb-3">
-                <Form.Label>Urgency</Form.Label>
+                <Form.Label>Urgence</Form.Label>
                 <Form.Select
                   name="calendarId"
                   value={formData.calendarId}
@@ -281,7 +270,7 @@ export const CreateEventModal: React.FC<Props> = ({
               Cancel
             </Button>
             <Button variant="primary" type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save Changes"}
+              {isLoading ? "Updating..." : "Update Event"}
             </Button>
           </div>
         </Form>

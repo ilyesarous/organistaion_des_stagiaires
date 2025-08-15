@@ -28,15 +28,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::post('/email/verification-notification', function (Request $request) {
-//     $request->user()->sendEmailVerificationNotification();
-//     return response()->json(['message' => 'Verification link sent!']);
-// })->middleware(['auth:sanctum', 'throttle:6,1']); // This is OK as-is
-
-// Route::get('/email/verify/{id}/{hash}', [VerificationController::class, 'verify'])
-//     ->middleware('signed')->name('verification.verify');
-
-
 Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:api']]);
 
 Route::post('auth/login', [AuthController::class, 'login']);
@@ -104,7 +95,7 @@ Route::prefix('chat')->middleware(['auth:api', 'verified', 'tenant'])->group(fun
 Route::prefix('events')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {
     Route::post('/create', [EventsController::class, 'createEvent'])->middleware(['can:admin']);
     Route::get('/', [EventsController::class, 'getEvents']);
-    Route::put('/update/{id}', [EventsController::class, 'updateEvent'])->middleware(['can:admin']);
+    Route::post('/update/{id}', [EventsController::class, 'updateEvent'])->middleware(['can:admin']);
     Route::delete('/delete/{id}', [EventsController::class, 'deleteEvent'])->middleware(['can:admin']);
     Route::get('/details/{id}', [EventsController::class, 'getEventById'])->middleware(['can:admin']);
 });

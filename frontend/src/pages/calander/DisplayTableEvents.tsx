@@ -10,9 +10,10 @@ interface EventTableProps {
   onDelete: (id: number) => void;
   deleteId: number | null;
   details: (id: number) => void;
+  update: (event: Event) => void;
 }
 
-export const DisplayTable = ({ events, onDelete, deleteId, details }: EventTableProps) => {
+export const DisplayTable = ({ events, onDelete, deleteId, details, update }: EventTableProps) => {
   return (
     <div className="table-responsive">
       <Table hover className="mb-0">
@@ -54,6 +55,7 @@ export const DisplayTable = ({ events, onDelete, deleteId, details }: EventTable
                     size="sm"
                     className="p-2"
                     title="Modifier"
+                    onClick={()=>update(event)}
                   >
                     <MdEdit size={16} />
                   </Button>

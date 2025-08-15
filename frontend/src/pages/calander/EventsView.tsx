@@ -14,6 +14,7 @@ import { EventActions } from "./Redux/EventRedux";
 import type { RootState, AppDispatch } from "../../tools/redux/Store";
 import { fetchEvents } from "./Redux/EventReduxThunk";
 import { getItem } from "../../tools/localStorage";
+import { UpdateEventModal } from "./UpdateEventModel";
 
 export const EventList = () => {
   const events = useSelector((state: RootState) => state.event.events);
@@ -25,6 +26,7 @@ export const EventList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<Event>();
   const role = getItem("type");
 
@@ -57,6 +59,10 @@ export const EventList = () => {
       setSelectedEvent(res.data.event);
       setShowDetailsModal(true);
     });
+  };
+  const handleUpate = (event: Event) => {
+      setSelectedEvent(event)
+      setShowUpdateModal(true);
   };
 
   const filteredEvents = events.filter((event) =>
@@ -93,6 +99,7 @@ export const EventList = () => {
               onDelete={handleDelete}
               deleteId={deleteId}
               details={handleDetails}
+              update={handleUpate}
             />
           )}
         </Card.Body>
@@ -117,6 +124,14 @@ export const EventList = () => {
         onHide={() => setShowDetailsModal(false)}
         event={selectedEvent ? selectedEvent : null}
       />
+      {selectedEvent && (
+        <UpdateEventModal
+          show={showUpdateModal}
+          onClose={() => setShowUpdateModal(false)}
+          onSuccess={handleSuccess}
+          eventData={selectedEvent}
+        />
+      )}
     </Container>
   );
 };

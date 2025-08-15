@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import axios from "axios";
-import type { User } from "../../models/User";
+import type { Employee, Etudiant, User } from "../../models/User";
 import { getItem } from "../../tools/localStorage";
 
 type Props = {
   show: boolean;
   onClose: () => void;
   user: User;
-  onUpdate: (updatedUser: User) => void;
+  onUpdate: (
+    updatedUser: User,
+    updateEtudiant: Etudiant,
+    updateEmployee: Employee
+  ) => void;
 };
 
 const EditProfileModal: React.FC<Props> = ({
@@ -95,6 +99,8 @@ const EditProfileModal: React.FC<Props> = ({
         data.append("signature", formData.signature);
       }
 
+      data.forEach((key, value) => console.log(key, value));
+
       const res = await axios.post(
         `http://localhost:8000/api/auth/update/${user.id}`,
         data,
@@ -106,7 +112,9 @@ const EditProfileModal: React.FC<Props> = ({
         }
       );
 
-      onUpdate(res.data);
+      const { userRes, etudiantRes, employeeRes } = res.data;
+
+      onUpdate(userRes, etudiantRes, employeeRes);
       onClose();
     } catch (err) {
       console.error(err);

@@ -46,7 +46,7 @@ class FaculteController extends Controller
     public function getFacultyById(int $id)
     {
         try {
-            $faculte = Facultee::where("id", $id)->get();
+            $faculte = Facultee::where("id", $id)->first();
             return response()->json(['facultes' => $faculte], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'error', 'message' => "error, Faculty not found!"], 404);

@@ -129,7 +129,7 @@ export const AddNewSujet = ({
       <Modal.Header closeButton>
         <Modal.Title>
           <i className="bi bi-building me-2 text-primary"></i>
-          Ajouter une nouvelle societé
+          Ajouter un nouveau Sujet
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>

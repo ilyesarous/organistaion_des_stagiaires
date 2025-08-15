@@ -44,7 +44,7 @@ export const SujetDetailsModal = ({ show, onHide, sujet }: Props) => {
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
       <Modal.Header closeButton>
-        <Modal.Title>Détails de la Société</Modal.Title>
+        <Modal.Title>Détails du Sujet</Modal.Title>
       </Modal.Header>
 
       <Modal.Body>

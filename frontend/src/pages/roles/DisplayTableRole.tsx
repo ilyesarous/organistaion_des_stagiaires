@@ -69,15 +69,6 @@ export const DisplayTableRole = ({ data, onUpdate }: GestionTableProps) => {
                 <td>
                   <div className="d-flex justify-content-end gap-2">
                     <Button
-                      variant="outline-primary"
-                      size="sm"
-                      className="p-2"
-                      title="Voir"
-                      // onClick={()=>details(facultee.id)}
-                    >
-                      <FaRegEye size={16} />
-                    </Button>
-                    <Button
                       variant="outline-secondary"
                       size="sm"
                       className="p-2"
@@ -87,23 +78,6 @@ export const DisplayTableRole = ({ data, onUpdate }: GestionTableProps) => {
                       <MdEdit size={16} />
                     </Button>
 
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      className="p-2"
-                      title="Supprimer"
-                      // onClick={() => onDelete(facultee.id)}
-                      // disabled={deleteId === facultee.id}
-                    >
-                      {/* {deleteId === facultee.id ? (
-                      <span
-                        className="spinner-border spinner-border-sm"
-                        role="status"
-                      ></span> */}
-                      {/* ) : ( */}
-                      <CiTrash size={16} />
-                      {/* )} */}
-                    </Button>
                   </div>
                 </td>
               </tr>

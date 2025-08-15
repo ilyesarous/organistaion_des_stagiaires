@@ -41,7 +41,7 @@ class AuthController extends Controller
             $tenant = Tenants::where("email", $email)->firstOrFail();
             $this->ChangeToTenant($tenant->database);
         }
-        
+
         if (!$token) {
             return response()->json([
                 'status' => 'error',
@@ -193,7 +193,9 @@ class AuthController extends Controller
         }
         // Handle Etudiant data
         $this->ChangeToTenant($tenant->database);
-        if ($user->userable_type === "App\Model\Etudiant") {
+        $etudiant = null;
+        $employee = null;
+        if ($user->userable_type === Etudiant::class) {
             $cvPath = $request->file('cv')?->store('cv', 'public');
             $conventionPath = $request->file('convention')?->store('conventions', 'public');
             $letterPath = $request->file('letterAffectation')?->store('letters', 'public');
@@ -207,7 +209,7 @@ class AuthController extends Controller
             }
         }
         // Handle Employee data
-        if ($user->userable_type === "App\Model\Employee") {
+        if ($user->userable_type === Employee::class) {
             $employee = Employee::on('tenant')->where("id", $user->userable_id)->first();
             if ($employee) {
                 $employee->update([
@@ -217,7 +219,7 @@ class AuthController extends Controller
             }
         }
 
-        return response()->json($user);
+        return response()->json(['userRes' => $user, 'etudiantRes' => $etudiant, 'employeeRes' => $employee]);
     }
 
 

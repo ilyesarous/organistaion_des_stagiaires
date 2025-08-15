@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Card, Row, Col, Image, ListGroup, Button } from "react-bootstrap";
-import type { User } from "../models/User";
+import type { Employee, Etudiant, User } from "../models/User";
 import EditProfileModal from "../pages/auth/UpdateProfileModel";
 import profilePic from "../assets/images/profilePic.png";
 import { getItem } from "../tools/localStorage";
@@ -8,7 +8,7 @@ import EtudiantDetails from "./EtudaintDetails";
 
 type Props = {
   user: User;
-  onUpdate: (updatedUser: User) => void;
+  onUpdate: (updatedUser: User, updateEtudiant: Etudiant, updateEmployee: Employee) => void;
 };
 
 const UserProfile: React.FC<Props> = ({ user, onUpdate }) => {
