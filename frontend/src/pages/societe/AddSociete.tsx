@@ -101,7 +101,6 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
         );
       }
     });
-    formDataToSend.forEach((key, value) => console.log(key, value));
 
     try {
       await axios.post(

@@ -17,7 +17,6 @@ export const DisplayNotification = ({ notifications }: NotificationProps) => {
   const notificationStatus = useSelector(
     (state: RootState) => state.notification.status
   );
-  console.log(notifications);
 
   const handleChanges = () => {
     dispatch(NotificationActions.resetCount());

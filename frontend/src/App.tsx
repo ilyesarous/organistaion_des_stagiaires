@@ -8,7 +8,6 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Profile } from "./pages/auth/Profile";
 import type { RootState } from "./tools/redux/Store";
-import EchoListener from "./tools/EchoListener";
 
 function App() {
   const isAuthenticated = useSelector(
@@ -21,7 +20,6 @@ function App() {
 
   return (
     <BrowserRouter>
-      <EchoListener />
       <Routes>
         {/* Public routes */}
         <Route path="/verify-email" element={<VerifyEmailPage />} />

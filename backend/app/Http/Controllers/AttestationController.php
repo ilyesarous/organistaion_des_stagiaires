@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\EventNotification;
+use App\Events\SyncData;
 use App\Models\Attestation;
 use App\Models\Employee;
 use App\Models\Etudiant;
@@ -10,10 +11,8 @@ use App\Models\Notification;
 use App\Models\Societe;
 use App\Models\Sujet;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class AttestationController extends Controller
 {
@@ -44,6 +43,7 @@ class AttestationController extends Controller
         $user = User::on("admin")->where("userable_type", Employee::class)->where("userable_id", $sujet->employee_id)->firstOrFail();
         $this->createNotifications($user->id, 'New Event Created', $message);
         event(new EventNotification($message, $user->id));
+        broadcast(new SyncData("attestation"))->toOthers();
         return response()->json($attestation, 201);
     }
 
@@ -78,7 +78,7 @@ class AttestationController extends Controller
         $admin = User::on('admin')->where("role", "admin")->where("societe_id", $user->societe_id)->firstOrFail();
         $this->createNotifications($admin->id, 'New Event Created', $message);
         event(new EventNotification($message, $admin->id));
-
+        broadcast(new SyncData("attestation"))->toOthers();
         return response()->json([
             'message' => 'Attestation validated successfully.',
             'data' => $attestation
@@ -98,7 +98,7 @@ class AttestationController extends Controller
         $user = User::on("admin")->where("userable_type", Employee::class)->where("userable_id", $sujet->employee_id)->firstOrFail();
         $this->createNotifications($user->id, 'New Event Created', $message);
         event(new EventNotification($message, $user->id));
-
+        broadcast(new SyncData("attestation"))->toOthers();
         return response()->json([
             'message' => 'Attestation validated successfully.',
             'data' => $attestation
@@ -107,6 +107,7 @@ class AttestationController extends Controller
 
     public function deleteAttestation($id){
         Attestation::destroy($id);
+        broadcast(new SyncData("attestation"))->toOthers();
         return response()->json(["message"=> "attestation deleted successfully"]);
     }
 

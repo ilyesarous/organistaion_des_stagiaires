@@ -36,7 +36,6 @@ export const SujetList = () => {
   };
 
   const handleSuccess = () => {
-    dispatch(fetchSujets());
     setShowModal(false);
   };
 

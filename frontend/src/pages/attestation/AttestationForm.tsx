@@ -41,7 +41,6 @@ const AddAttestationModal = ({
     const fetchEtudiants = async () => {
       await axiosRequest("get", "societe/etudiants").then((res) => {
         setEtudiants(res.data.etudiants);
-        console.log(res.data.etudiants);
       });
     };
 

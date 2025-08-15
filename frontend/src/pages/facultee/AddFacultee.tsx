@@ -61,8 +61,6 @@ export const AddNewFacultee = ({
           },
         }
       );
-
-      console.log("Form submitted:", response.data);
       setMessage({
         text: "Company information saved successfully!",
         variant: "success",

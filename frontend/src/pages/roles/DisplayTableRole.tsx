@@ -1,8 +1,6 @@
 import { Table, Badge, Button } from "react-bootstrap";
 import type { role } from "../../models/Role";
 import { MdEdit } from "react-icons/md";
-import { FaRegEye } from "react-icons/fa6";
-import { CiTrash } from "react-icons/ci";
 
 interface GestionTableProps {
   data: role[];
@@ -10,7 +8,6 @@ interface GestionTableProps {
 }
 
 export const DisplayTableRole = ({ data, onUpdate }: GestionTableProps) => {
-  // console.log(data);
 
   return (
     <div className="table-responsive">

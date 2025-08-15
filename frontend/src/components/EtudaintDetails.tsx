@@ -6,6 +6,7 @@ interface EtudiantDetailsProps {
     cv: string;
     convention: string;
     letterAffectation: string;
+    autreFichier: string
     facultee_id: number;
     sujet_id: number | null;
   };
@@ -37,6 +38,8 @@ const EtudiantDetails: React.FC<EtudiantDetailsProps> = ({ etudiant }) => {
           {etudiant.convention && renderDownload("la Convention", etudiant.convention)}
           {etudiant.letterAffectation &&
             renderDownload("la Lettre d'affectation", etudiant.letterAffectation)}
+          {etudiant.autreFichier &&
+            renderDownload("la Lettre d'affectation", etudiant.autreFichier)}
         </Col>
         <Col md={6}>
           <p>

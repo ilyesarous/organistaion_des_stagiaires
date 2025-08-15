@@ -33,7 +33,6 @@ export const GestionList = () => {
   const fetchData = async () => {
     try {
       const response = await axiosRequest("get", "role");
-      console.log(response.data);
       setRoles(response.data);
     } catch (err) {
       setError("Failed to fetch permissions. Please try again later.");

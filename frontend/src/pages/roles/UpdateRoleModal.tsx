@@ -38,8 +38,6 @@ export const UpdateRoleModal = ({
         ]);
         setGestions(gestRes.data.gestions);
         setActions(actRes.data.actions);
-
-        console.log(gestRes.data.gestions);
         
       } catch (error) {
         console.error("Failed to load gestions or actions", error);

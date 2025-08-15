@@ -19,7 +19,6 @@ const JitsiRoom = () => {
       dispatch(fetchEvents());
     }
 
-    console.log(events);
   }, [dispatch, eventStatus]);
 
   const handleSubmit = (e: React.FormEvent) => {

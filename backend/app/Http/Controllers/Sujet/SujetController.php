@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Sujet;
 
+use App\Events\SyncData;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SujetRequest;
 use App\Models\Employee;
@@ -31,6 +32,8 @@ class SujetController extends Controller
             'status' => StatusStage::PENDING->value,
             'employee_id' => $user->userable_id,
         ]);
+
+        broadcast(new SyncData("sujet"))->toOthers();
 
         return response()->json([
             'message' => 'Sujet information saved successfully',
@@ -73,8 +76,9 @@ class SujetController extends Controller
 
         $sujet = Sujet::findOrFail($id);
         $sujet->update($data);
+
         if ($request->has('etudiants')) {
-            if (count($request->etudiants)> $sujet->nbEtudiants) {
+            if (count($request->etudiants) > $sujet->nbEtudiants) {
                 return response()->json(['status' => 'error', 'message' => "Nombre etudiant est supperieur aux besoin"], 404);
             }
             foreach ($request->etudiants as $etudiantId) {
@@ -87,6 +91,7 @@ class SujetController extends Controller
             }
         }
 
+        broadcast(new SyncData("sujet"))->toOthers();
         return response()->json([
             'message' => 'Sujet updated successfully',
             'sujet' => $sujet
@@ -97,6 +102,7 @@ class SujetController extends Controller
     {
         $this->authorize('admin_or_encadrant');
         Sujet::destroy($id);
+        broadcast(new SyncData("sujet"))->toOthers();
         return response()->json([
             'message' => 'Sujet deleted successfully'
         ]);
@@ -105,9 +111,10 @@ class SujetController extends Controller
     public function assignEtudiantToSujet(Etudiant $etudiant, Sujet $sujet)
     {
         $this->authorize('admin_or_encadrant');
+        $etudiant->sujet()->dissociate();
         $etudiant->sujet()->associate($sujet);
-        $sujet->status = StatusStage::IN_PROGRESS->value;
         $etudiant->save();
+        $sujet->status = StatusStage::IN_PROGRESS->value;
         $sujet->save();
         return response()->json([
             'message' => 'Etudiant assigned to Sujet successfully'

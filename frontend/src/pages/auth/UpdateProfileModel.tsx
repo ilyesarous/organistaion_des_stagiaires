@@ -101,8 +101,6 @@ const EditProfileModal: React.FC<Props> = ({
         data.append("signature", formData.signature);
       }
 
-      data.forEach((key, value) => console.log(key, value));
-
       const res = await axios.post(
         `http://localhost:8000/api/auth/update/${user.id}`,
         data,

@@ -45,7 +45,6 @@ export const SujetDetails = ({ sujetId }: Props) => {
       setLoading(true);
       try {
         const sujetRes = await axiosRequest("get", `sujet/${sujetId}`);
-        console.log(sujetRes.data);
         
         if (!sujetRes.data.data) {
           setError("Sujet introuvable.");

@@ -11,6 +11,10 @@ import type { AppDispatch, RootState } from "../tools/redux/Store";
 import { NotificationActions } from "../pages/notification/notificationRedux/NotificationSlice";
 import { fetchNotifications } from "../pages/notification/notificationRedux/NotificationReducThunk";
 import { DisplayNotification } from "../pages/notification/DisplayNotification";
+import { ChatActions } from "../pages/chat/chatRedux/ChatSlice";
+import { fetchChat } from "../pages/chat/chatRedux/ChatReduxThunk";
+import { fetchSujets } from "../pages/sujet/Redux/SujetReduxThunk";
+import { fetchAttestations } from "../pages/attestation/attestationRedux/AttestationThunkRedux";
 
 interface SidebarItem {
   id: string;
@@ -56,6 +60,19 @@ const Sidebar: React.FC<StaticSidebarProps> = ({
   useEffect(() => {
     if (!userId.id) return;
     const channel = echo.private(`user.${userId.id}`);
+    if (!userId?.id) return;
+
+    const channelName = `messenger.${userId.id}`;
+
+    echo.private(channelName).listen(".message.sent", () => {
+      dispatch(ChatActions.addCount(1));
+      dispatch(fetchChat());
+    });
+
+    echo.join("channel-name").listen(".reload.notification", (event: any) => {
+      if (event.type === "sujet") dispatch(fetchSujets());
+      if (event.type === "attestation") dispatch(fetchAttestations());
+    });
 
     channel.listen(".form-submit", () => {
       dispatch(NotificationActions.addCount(1));
@@ -66,8 +83,9 @@ const Sidebar: React.FC<StaticSidebarProps> = ({
 
     return () => {
       echo.leave(`user.${userId.id}`);
+      echo.leave(channelName);
     };
-  }, [userId.id]);
+  }, [userId.id, dispatch]);
 
   const handleNotificationClick = () => {
     setShowNotifications(!showNotifications);

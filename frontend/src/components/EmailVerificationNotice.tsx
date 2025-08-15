@@ -159,6 +159,7 @@ export const VerifyEmailPage = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>Faculté</Form.Label>
                   <Form.Select onChange={(e) => setFaculteId(e.target.value)}>
+                    <option>--Selectionnez votre facultee--</option>
                     {facultes.map((f) => (
                       <option key={f.id} value={f.id}>
                         {f.name}

@@ -37,8 +37,10 @@ export const SujetDetailsModal = ({ show, onHide, sujet }: Props) => {
   };
 
   useEffect(() => {
-    fetchEmployee();
-    fetchEtudiant();
+    if (show) {
+      fetchEmployee();
+      fetchEtudiant();
+    }
   }, [sujet]);
 
   return (
@@ -73,7 +75,7 @@ export const SujetDetailsModal = ({ show, onHide, sujet }: Props) => {
             </p>
           </Col>
           <Col md={6}>
-            <p>
+            <span>
               <strong>Encadrant:</strong>
               <ul>
                 {employee ? (
@@ -84,7 +86,7 @@ export const SujetDetailsModal = ({ show, onHide, sujet }: Props) => {
                   <li>Aucun encadrant assigné</li>
                 )}
               </ul>
-            </p>
+            </span>
             <strong>Etudiants:</strong>
             <ul>
               {etudiants && etudiants.length > 0 ? (
@@ -101,7 +103,8 @@ export const SujetDetailsModal = ({ show, onHide, sujet }: Props) => {
               <strong>Status:</strong> {sujet.status}
             </p>
             <p>
-              <strong>Code Source:</strong> {sujet.lien ? sujet.lien : "not defined"}
+              <strong>Code Source:</strong>{" "}
+              {sujet.lien ? sujet.lien : "not defined"}
             </p>
           </Col>
         </Row>

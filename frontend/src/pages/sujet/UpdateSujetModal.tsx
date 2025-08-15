@@ -113,6 +113,7 @@ export const UpdateSujetModal = ({
 
     setIsLoading(true);
     setMessage(null);
+    
 
     try {
       await axios.put(

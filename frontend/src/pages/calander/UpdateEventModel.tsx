@@ -82,7 +82,6 @@ export const UpdateEventModal: React.FC<Props> = ({
       formDataToSend.append("users[]", user.id.toString());
     });
 
-    formDataToSend.forEach((key, value) => console.log(value, key));
 
     try {
       const response = await axios.post(
@@ -95,8 +94,6 @@ export const UpdateEventModal: React.FC<Props> = ({
           },
         }
       );
-
-      console.log(response.data.event);
 
       dispatch(EventActions.updateEvent(response.data.event));
 
