@@ -51,7 +51,7 @@ export const AddNewFacultee = ({
     });
 
     try {
-      const response = await axios.post(
+      await axios.post(
         "http://localhost:8000/api/facultee/create",
         formDataToSend,
         {
