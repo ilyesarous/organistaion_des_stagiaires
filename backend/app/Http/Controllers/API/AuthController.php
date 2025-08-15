@@ -140,6 +140,7 @@ class AuthController extends Controller
             $cvPath = $request->file('cv')?->store('cv', 'public');
             $conventionPath = $request->file('convention')?->store('conventions', 'public');
             $letterPath = $request->file('letterAffectation')?->store('letters', 'public');
+            $autreFichierPath = $request->file('autreFichier')?->store('autre', 'public');
 
             $facultyInAdmin = Facultee::on("admin")->where("id", $request->facultee_id)->first();
             $faculteeInTenant = Facultee::on("tenant")->where("name", $facultyInAdmin->name)->first();
@@ -148,6 +149,7 @@ class AuthController extends Controller
                 'cv' => $cvPath,
                 'convention' => $conventionPath,
                 'letterAffectation' => $letterPath,
+                'autreFichier' => $autreFichierPath,
                 'facultee_id' => $faculteeInTenant->id,
                 'sujet_id' => $request->sujet_id,
             ]);
@@ -199,12 +201,14 @@ class AuthController extends Controller
             $cvPath = $request->file('cv')?->store('cv', 'public');
             $conventionPath = $request->file('convention')?->store('conventions', 'public');
             $letterPath = $request->file('letterAffectation')?->store('letters', 'public');
+            $autreFichierPath = $request->file('autreFichier')?->store('autre', 'public');
             $etudiant = Etudiant::on('tenant')->where("id", $user->userable_id)->first();
             if ($etudiant) {
                 $etudiant->update([
                     'cv' => $cvPath ?? $etudiant->cv,
                     'convention' => $conventionPath ?? $etudiant->convention,
                     'letterAffectation' => $letterPath ?? $etudiant->letterAffectation,
+                    'autreFichier' => $autreFichierPath ?? $etudiant->autreFichier,
                 ]);
             }
         }

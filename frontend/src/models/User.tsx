@@ -2,6 +2,7 @@ export type Etudiant = {
   cv: string;
   convention: string;
   letterAffectation: string;
+  autreFichier: string;
   facultee_id: number;
   sujet_id: number;
 };

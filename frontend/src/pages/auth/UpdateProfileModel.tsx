@@ -29,6 +29,7 @@ const EditProfileModal: React.FC<Props> = ({
     cv: null as File | string | null,
     convention: null as File | string | null,
     letterAffectation: null as File | string | null,
+    autreFichier: null as File | string | null,
     numBadge: "",
     signature: "",
   });
@@ -59,6 +60,7 @@ const EditProfileModal: React.FC<Props> = ({
         cv: etudiant?.cv || null,
         convention: etudiant?.convention || null,
         letterAffectation: etudiant?.letterAffectation || null,
+        autreFichier: etudiant?.autreFichier || null,
         numBadge: employee?.numBadge || "",
         signature: employee?.signature || "",
       });
@@ -208,6 +210,15 @@ const EditProfileModal: React.FC<Props> = ({
                 <Form.Control
                   type="file"
                   name="letterAffectation"
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                />
+              </Form.Group>
+              <Form.Group className="mt-2">
+                <Form.Label>Autre fichier</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="autreFichier"
                   accept=".pdf"
                   onChange={handleFileChange}
                 />

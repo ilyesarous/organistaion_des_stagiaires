@@ -11,6 +11,7 @@ class Etudiant extends Model
         'cv',
         'convention',
         'letterAffectation',
+        'autreFichier',
         'facultee_id',
         'sujet_id'
     ];

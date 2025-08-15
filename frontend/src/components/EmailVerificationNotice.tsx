@@ -19,6 +19,7 @@ export const VerifyEmailPage = () => {
   const [cv, setCv] = useState<File | null>(null);
   const [convention, setConvention] = useState<File | null>(null);
   const [letterAffectation, setLetterAffectation] = useState<File | null>(null);
+  const [autreFichier, setAutrFicher] = useState<File | null>(null);
 
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
@@ -60,6 +61,7 @@ export const VerifyEmailPage = () => {
       if (convention) formData.append("convention", convention);
       if (letterAffectation)
         formData.append("letterAffectation", letterAffectation);
+      if (autreFichier) formData.append("autreFichier", autreFichier);
       formData.append("facultee_id", facultee_id);
     } else {
       formData.append("numBadge", numBadge);
@@ -69,7 +71,7 @@ export const VerifyEmailPage = () => {
     try {
       await axios.post(
         "http://localhost:8000/api/auth/verify-complete",
-        formData,
+        formData
       );
       setMessageType("success");
       setMessage("Account verified successfully!");
@@ -139,7 +141,11 @@ export const VerifyEmailPage = () => {
                     />
                   </div>
                   <div className="d-flex justify-content-end mt-2">
-                    <Button variant="outline-secondary" size="sm" onClick={clearSignature}>
+                    <Button
+                      variant="outline-secondary"
+                      size="sm"
+                      onClick={clearSignature}
+                    >
                       Clear
                     </Button>
                   </div>
@@ -152,9 +158,7 @@ export const VerifyEmailPage = () => {
               <>
                 <Form.Group className="mb-3">
                   <Form.Label>Faculté</Form.Label>
-                  <Form.Select
-                    onChange={(e) => setFaculteId(e.target.value)}
-                  >
+                  <Form.Select onChange={(e) => setFaculteId(e.target.value)}>
                     {facultes.map((f) => (
                       <option key={f.id} value={f.id}>
                         {f.name}
@@ -188,6 +192,14 @@ export const VerifyEmailPage = () => {
                     onChange={(e: any) =>
                       setLetterAffectation(e.target.files?.[0])
                     }
+                    required
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Autre fichier</Form.Label>
+                  <Form.Control
+                    type="file"
+                    onChange={(e: any) => setAutrFicher(e.target.files?.[0])}
                     required
                   />
                 </Form.Group>

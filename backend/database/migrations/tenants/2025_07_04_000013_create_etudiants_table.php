@@ -20,6 +20,7 @@ return new class extends Migration
             $table->text('cv')->nullable();
             $table->text('convention')->nullable();
             $table->text('letterAffectation')->nullable();
+            $table->text('autreFichier')->nullable();
             $table->timestamps();
         });
         Schema::table('etudiants', function (Blueprint $table) {
