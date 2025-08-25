@@ -7,12 +7,12 @@ interface SocieteLogoProps {
 }
 
 export const LogoDisplay = ({ logo, raisonSociale }: SocieteLogoProps) => {
-  
+  const apiUrl = import.meta.env.VITE_API_URL;
   return (
     <div className="d-flex justify-content-center">
       {logo ? (
         <Image
-          src={`http://localhost:8000${logo}`}
+          src={`${apiUrl}${logo}`}
           rounded
           fluid
           alt={raisonSociale}

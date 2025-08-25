@@ -82,10 +82,10 @@ export const UpdateEventModal: React.FC<Props> = ({
       formDataToSend.append("users[]", user.id.toString());
     });
 
-
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
       const response = await axios.post(
-        `http://localhost:8000/api/events/update/${eventData.id}`,
+        `${apiUrl}/events/update/${eventData.id}`,
         formDataToSend,
         {
           headers: {

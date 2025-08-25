@@ -101,10 +101,10 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
         );
       }
     });
-
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
       await axios.post(
-        "http://localhost:8000/api/societe/create",
+        `${apiUrl}/societe/create`,
         formDataToSend,
         {
           headers: {

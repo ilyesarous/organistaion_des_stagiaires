@@ -20,7 +20,7 @@ export const VerifyEmailPage = () => {
   const [convention, setConvention] = useState<File | null>(null);
   const [letterAffectation, setLetterAffectation] = useState<File | null>(null);
   const [autreFichier, setAutrFicher] = useState<File | null>(null);
-
+  const apiUrl = import.meta.env.VITE_API_URL;
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(window.location.search);
   const token = searchParams.get("token");
@@ -69,8 +69,7 @@ export const VerifyEmailPage = () => {
     }
 
     try {
-      await axios.post(
-        "http://localhost:8000/api/auth/verify-complete",
+      await axios.post(`${apiUrl}/api/auth/verify-complete`,
         formData
       );
       setMessageType("success");

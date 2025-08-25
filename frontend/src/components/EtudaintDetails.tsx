@@ -13,7 +13,8 @@ interface EtudiantDetailsProps {
 }
 
 const EtudiantDetails: React.FC<EtudiantDetailsProps> = ({ etudiant }) => {
-  const baseUrl = "http://localhost:8000/storage/";
+  const apiUrl = import.meta.env.VITE_API_URL;
+  const baseUrl = `${apiUrl}/storage/`;
 
   const renderDownload = (label: string, path: string) => (
     <Button

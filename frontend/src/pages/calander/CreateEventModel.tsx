@@ -84,10 +84,10 @@ export const CreateEventModal: React.FC<Props> = ({
     selectedUsers.forEach((user) => {
       formDataToSend.append("users[]", user.id.toString());
     });
-
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/events/create",
+        `${apiUrl}/events/create`,
         formDataToSend,
         {
           headers: {

@@ -100,9 +100,9 @@ const EditProfileModal: React.FC<Props> = ({
         data.append("numBadge", formData.numBadge);
         data.append("signature", formData.signature);
       }
-
+      const apiUrl = import.meta.env.VITE_API_URL;
       const res = await axios.post(
-        `http://localhost:8000/api/auth/update/${user.id}`,
+        `${apiUrl}/auth/update/${user.id}`,
         data,
         {
           headers: {

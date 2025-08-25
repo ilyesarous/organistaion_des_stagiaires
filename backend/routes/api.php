@@ -30,6 +30,8 @@ use Illuminate\Support\Facades\Route;
 
 Broadcast::routes(['prefix' => 'api', 'middleware' => ['auth:api']]);
 
+Route::get('auth/test', [AuthController::class, 'getAllUsers']);
+
 Route::post('auth/login', [AuthController::class, 'login']);
 Route::post('auth/verify-complete', [AuthController::class, 'verifyComplete']);
 Route::post('auth/register', [AuthController::class, 'register'])->middleware(['auth:api', 'verified']);

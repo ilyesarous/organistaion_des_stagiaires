@@ -113,11 +113,11 @@ export const UpdateSujetModal = ({
 
     setIsLoading(true);
     setMessage(null);
-    
+    const apiUrl = import.meta.env.VITE_API_URL;
 
     try {
       await axios.put(
-        `http://localhost:8000/api/sujet/update/${sujet.id}`,
+        `${apiUrl}/sujet/update/${sujet.id}`,
         updatedData,
         {
           headers: {

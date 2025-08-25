@@ -49,10 +49,10 @@ export const AddNewFacultee = ({
         formDataToSend.append(key, value.toString());
       }
     });
-
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
       await axios.post(
-        "http://localhost:8000/api/facultee/create",
+        `${apiUrl}/facultee/create`,
         formDataToSend,
         {
           headers: {

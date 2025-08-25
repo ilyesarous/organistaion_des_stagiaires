@@ -48,10 +48,10 @@ const ChatWindow = ({
 
   const handleSend = () => {
     if (!newMessage.trim() || !selectedUser?.id) return;
-
+    const apiUrl = import.meta.env.VITE_API_URL;
     axios
       .post(
-        "http://localhost:8000/api/chat",
+        `${apiUrl}/api/chat`,
         {
           message: newMessage,
           sender_id: currentUserId,

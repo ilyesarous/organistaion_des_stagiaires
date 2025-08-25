@@ -14,7 +14,7 @@ interface Props {
 const ChatSidebar = ({ onUserClick, recentMessages, users }: Props) => {
   const [search, setSearch] = useState("");
   const currentUser = getItem("user");
-
+  const apiUrl = import.meta.env.VITE_API_URL;
   const filteredUsers = users
     .filter((user) => user.id !== currentUser.id)
     .filter((user) =>
@@ -42,7 +42,7 @@ const ChatSidebar = ({ onUserClick, recentMessages, users }: Props) => {
         <ListGroup variant="flush" className="overflow-auto">
           {filteredUsers.map((user, idx) => {
             const image = user.profile_picture
-              ? `http://localhost:8000/storage/${user.profile_picture}`
+              ? `${apiUrl}/storage/${user.profile_picture}`
               : profilePic;
             return (
               <ListGroup.Item

@@ -72,10 +72,10 @@ export const AddNewSujet = ({
         formDataToSend.append(key, value.toString());
       }
     });
-
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
       await axios.post(
-        "http://localhost:8000/api/sujet/create",
+        `${apiUrl}/sujet/create`,
         formDataToSend,
         {
           headers: {
