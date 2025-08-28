@@ -49,9 +49,10 @@ const ChatWindow = ({
   const handleSend = () => {
     if (!newMessage.trim() || !selectedUser?.id) return;
     const apiUrl = import.meta.env.VITE_API_URL;
+    const newStr = apiUrl.replace(/\bapi\b/, '');
     axios
       .post(
-        `${apiUrl}/api/chat`,
+        `${newStr}/api/chat`,
         {
           message: newMessage,
           sender_id: currentUserId,

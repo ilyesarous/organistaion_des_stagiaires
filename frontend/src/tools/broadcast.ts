@@ -16,11 +16,12 @@ const echo = new Echo({
   broadcaster: "pusher",
   key: "local-key",
   cluster: "mt1",
-  wsHost: "laravel-service",
-  wsPort: 6001,
+  wsHost: "myapp.com",
+  wsPort: 80,
   forceTLS: false,
   disableStats: true,
   enabledTransports: ["ws", "wss"],
+  wsPath: "/ws",
   authEndpoint: `${newStr.trim()}/broadcasting/auth`,
   auth: {
     headers: {

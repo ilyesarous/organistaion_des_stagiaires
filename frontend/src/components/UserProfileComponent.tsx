@@ -16,8 +16,9 @@ const UserProfile: React.FC<Props> = ({ user, onUpdate }) => {
   const employee = getItem("employee");
   const etudiant = getItem("etudiant");
   const apiUrl = import.meta.env.VITE_API_URL;
+  const newStr = apiUrl.replace(/\bapi\b/, '');
   const image = user.profile_picture
-    ? `${apiUrl}/storage/${user.profile_picture}`
+    ? `${newStr}/storage/${user.profile_picture}`
     : profilePic;
   return (
     <>

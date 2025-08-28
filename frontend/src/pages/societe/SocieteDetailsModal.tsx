@@ -11,6 +11,7 @@ interface Props {
 export const SocieteDetailsModal = ({ show, onHide, societe }: Props) => {
   if (!societe) return null;
   const apiUrl = import.meta.env.VITE_API_URL;
+  const newStr = apiUrl.replace(/\bapi\b/, '');
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
       <Modal.Header closeButton>
@@ -22,7 +23,7 @@ export const SocieteDetailsModal = ({ show, onHide, societe }: Props) => {
           <Col>
             {societe.logo ? (
               <Image
-                src={`${apiUrl}/storage/${societe.logo}`}
+                src={`${newStr}/storage/${societe.logo}`}
                 rounded
                 fluid
                 alt="Logo de la société"
@@ -78,7 +79,7 @@ export const SocieteDetailsModal = ({ show, onHide, societe }: Props) => {
           <strong>Cachet:</strong>{" "}
             {societe.cachet ? (
               <Image
-                src={`${apiUrl}/storage/${societe.cachet}`}
+                src={`${newStr}/storage/${societe.cachet}`}
                 rounded
                 fluid
                 alt="cachet de la société"

@@ -69,7 +69,7 @@ export const VerifyEmailPage = () => {
     }
 
     try {
-      await axios.post(`${apiUrl}/api/auth/verify-complete`,
+      await axios.post(`${apiUrl}/auth/verify-complete`,
         formData
       );
       setMessageType("success");

@@ -14,7 +14,8 @@ interface EtudiantDetailsProps {
 
 const EtudiantDetails: React.FC<EtudiantDetailsProps> = ({ etudiant }) => {
   const apiUrl = import.meta.env.VITE_API_URL;
-  const baseUrl = `${apiUrl}/storage/`;
+  const newStr = apiUrl.replace(/\bapi\b/, '');
+  const baseUrl = `${newStr}/storage/`;
 
   const renderDownload = (label: string, path: string) => (
     <Button
