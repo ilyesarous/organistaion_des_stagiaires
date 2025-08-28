@@ -1,6 +1,6 @@
 name: Laravel
-
 on:
+  workflow_dispatch:
   push:
     branches: [ "backend" ]
   pull_request:
@@ -38,7 +38,12 @@ jobs:
     
     - name: Update Composer
       run: composer self-update --2
-    
+      
+    - name: Copy composer.json
+      run: php -r "file_exists('composer.json') || copy('composer.json.example', 'composer.json');"
+    - name: Copy composer.json
+      run: php -r "file_exists('composer.lock') || copy('composer.lock.example', 'composer.lock');"
+      
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
