@@ -79,7 +79,7 @@ export const AddNewFacultee = ({
         });
         onSuccess();
         onHide();
-      }, 2000);
+      }, 500);
     } catch (error: any) {
       console.error("Error submitting form:", error);
       const errorMessage =

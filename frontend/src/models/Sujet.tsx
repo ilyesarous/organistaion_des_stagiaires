@@ -9,5 +9,6 @@ export interface Sujet {
   typeStage: string;
   status: string;
   lien: string;
+  created_at: string
   employee_id?: number;
 }

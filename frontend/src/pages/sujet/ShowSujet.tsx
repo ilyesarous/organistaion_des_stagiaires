@@ -1,5 +1,6 @@
 import { getItem } from "../../tools/localStorage";
 import { SujetDetails } from "./SujetDetails";
+import { SujetFolders } from "./SujetFolder";
 import { SujetList } from "./SujetList";
 
 const ShowSujet = () => {
@@ -10,7 +11,8 @@ const ShowSujet = () => {
       {role === "etudiant" ? (
         <SujetDetails sujetId={etudiant.sujet_id} />
       ) : (
-        <SujetList />
+        // <SujetList />
+        <SujetFolders/>
       )}
     </div>
   );

@@ -43,7 +43,7 @@ export const SujetList = () => {
     if (sujetStatus === "idle") {
       dispatch(fetchSujets());
     }
-  }, [dispatch, sujetStatus]);
+  }, [sujetStatus, dispatch]);
 
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this société?"))

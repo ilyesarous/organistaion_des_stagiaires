@@ -75,7 +75,7 @@ export const VerifyEmailPage = () => {
       );
       setMessageType("success");
       setMessage("Account verified successfully!");
-      setTimeout(() => navigate("/"), 1500);
+      setTimeout(() => navigate("/"), 500);
     } catch (err) {
       console.error(err);
       setMessageType("danger");

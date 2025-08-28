@@ -48,7 +48,7 @@ export const AddNewSujet = ({
     if (role === "admin") fetchEmployees();
   }, []);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
@@ -103,7 +103,7 @@ export const AddNewSujet = ({
         });
         onSuccess();
         onHide();
-      }, 2000);
+      }, 1500);
     } catch (error: any) {
       console.error("Error submitting form:", error);
       const errorMessage =
@@ -170,25 +170,14 @@ export const AddNewSujet = ({
           </Row>
 
           <Row>
-            <Col md={6}>
+            <Col>
               <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
                 <Form.Control
-                  type="arie-text"
+                  as="textarea"
+                  // rows={3}
                   name="description"
                   value={formData.description}
-                  onChange={handleChange}
-                  className="form-field"
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Type</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="typeStage"
-                  value={formData.typeStage}
                   onChange={handleChange}
                   className="form-field"
                 />
@@ -199,42 +188,64 @@ export const AddNewSujet = ({
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
+                <Form.Label>Type</Form.Label>
+                <Form.Select
+                  name="typeStage"
+                  value={formData.typeStage}
+                  onChange={handleChange}
+                >
+                  <option value={""}>-- selectionné le type de stage --</option>
+                  <option value={"stage d'été"}>stage d'été</option>
+                  <option value={"stage pfe"}>stage pfe</option>
+                </Form.Select>
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
                 <Form.Label>Durée</Form.Label>
                 <Form.Control
                   type="number"
                   name="duree"
                   value={formData.duree}
-                  onChange={handleChange}
-                  className="form-field"
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group className="mb-3">
-                <Form.Label>Nomber Etudiants</Form.Label>
-                <Form.Control
-                  type="number"
-                  name="nbEtudiants"
-                  value={formData.nbEtudiants}
+                  min={0}
                   onChange={handleChange}
                   className="form-field"
                 />
               </Form.Group>
             </Col>
           </Row>
-          <Form.Group className="mb-4">
-            <Form.Label className="fw-bold mb-2">
-              Assigner un encadrant
-            </Form.Label>
-            <Form.Select onChange={(e) => handleSelectedChange(e.target.value)}>
-              <option value="">-- Selectionner un encadrant --</option>
-              {employees.map((employee) => (
-                <option key={employee.id} value={employee.id}>
-                  {employee.nom + " " + employee.prenom}
-                </option>
-              ))}
-            </Form.Select>
-          </Form.Group>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Nomber Etudiants</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="nbEtudiants"
+                  min={0}
+                  value={formData.nbEtudiants}
+                  onChange={handleChange}
+                  className="form-field"
+                />
+              </Form.Group>
+            </Col>
+            <Col>
+              <Form.Group className="mb-4">
+                <Form.Label className="fw-bold mb-2">
+                  Assigner un encadrant
+                </Form.Label>
+                <Form.Select
+                  onChange={(e) => handleSelectedChange(e.target.value)}
+                >
+                  <option value="">-- Selectionner un encadrant --</option>
+                  {employees.map((employee) => (
+                    <option key={employee.id} value={employee.id}>
+                      {employee.nom + " " + employee.prenom}
+                    </option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
           <div className="mt-4 pt-3 border-top d-flex justify-content-end">
             <Button
               variant="outline-secondary"

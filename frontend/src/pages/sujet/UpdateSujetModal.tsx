@@ -134,7 +134,7 @@ export const UpdateSujetModal = ({
       setTimeout(() => {
         onSuccess();
         onHide();
-      }, 2000);
+      }, 500);
     } catch (error: any) {
       console.error("Error updating sujet:", error);
       const errorMessage =

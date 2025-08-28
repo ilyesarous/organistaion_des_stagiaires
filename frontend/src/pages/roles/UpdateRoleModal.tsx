@@ -99,7 +99,7 @@ export const UpdateRoleModal = ({
         setSelectedAction([]);
         onSuccess();
         onHide();
-      }, 2000);
+      }, 500);
     } catch (error: any) {
       console.error("Update failed:", error);
       setMessage({

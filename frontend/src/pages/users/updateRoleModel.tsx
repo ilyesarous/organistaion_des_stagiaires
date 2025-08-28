@@ -64,7 +64,7 @@ export const EditRoleModal = ({
       setMessage({ text: "Rôle mis à jour avec succès", variant: "success" });
       setTimeout(() => {
         onHide();
-      }, 1500);
+      }, 500);
     } catch (error: any) {
       setMessage({
         text:
