@@ -29,6 +29,9 @@ export const UsersList = () => {
     }
   }, [userStatus, dispatch]);
 
+  // console.log(users);
+  
+
   const handleDelete = async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this utilisateur?"))
       return;

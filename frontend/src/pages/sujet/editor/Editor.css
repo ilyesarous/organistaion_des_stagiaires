@@ -1,0 +1,14 @@
+
+
+.tox-tbtn svg {
+  fill: #0d6efd; /* Bootstrap primary color */
+}
+
+.tox-tbtn--disabled {
+  opacity: 0.3 !important;
+}
+
+.tox-tinymce {
+  border: 1px solid #dee2e6 !important;
+  border-radius: 0.5rem !important;
+}

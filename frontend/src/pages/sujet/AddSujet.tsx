@@ -4,6 +4,7 @@ import axios from "axios";
 import { getItem } from "../../tools/localStorage";
 import type { User } from "../../models/User";
 import { axiosRequest } from "../../apis/AxiosHelper";
+import Editor from "./editor/Editor";
 
 interface AddSocieteModalProps {
   show: boolean;
@@ -173,13 +174,11 @@ export const AddNewSujet = ({
             <Col>
               <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  // rows={3}
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  className="form-field"
+                <Editor
+                  initialValue={formData.description}
+                  onChange={(val) =>
+                    setFormData((prev) => ({ ...prev, description: val }))
+                  }
                 />
               </Form.Group>
             </Col>

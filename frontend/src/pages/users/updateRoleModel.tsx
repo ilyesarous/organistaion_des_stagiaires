@@ -17,7 +17,7 @@ export const EditRoleModal = ({
   userId,
   currentRole,
   onSave,
-  onSuccess
+  onSuccess,
 }: EditRoleModalProps) => {
   const [role, setRole] = useState(currentRole);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +26,7 @@ export const EditRoleModal = ({
     variant: "success" | "danger";
   } | null>(null);
   const [displayRoles, setDisplayRoles] = useState<string[]>([]);
-  
+
   const fetchRoles = async () => {
     await axiosRequest("get", "role/getAllNames").then((res) => {
       setDisplayRoles(res.data);
@@ -34,10 +34,12 @@ export const EditRoleModal = ({
   };
 
   useEffect(() => {
-    fetchRoles();
-    setRole(currentRole);
-    setMessage(null);
-    setIsLoading(false);
+    if (show) {
+      fetchRoles();
+      setRole(currentRole);
+      setMessage(null);
+      setIsLoading(false);
+    }
   }, [show, currentRole]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -101,9 +103,11 @@ export const EditRoleModal = ({
               disabled={isLoading}
               autoFocus
             >
-              {displayRoles.filter((role) => role !== "superAdmin").map((role) => (
-                <option>{role}</option>
-              ))}
+              {displayRoles
+                .filter((role) => role !== "superAdmin")
+                .map((role) => (
+                  <option key={role}>{role}</option>
+                ))}
             </Form.Select>
           </Form.Group>
 

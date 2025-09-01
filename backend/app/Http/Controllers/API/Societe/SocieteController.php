@@ -87,7 +87,7 @@ class SocieteController extends Controller
 
         config(['database.connections.pgcreator' => [
             'driver'   => 'pgsql',
-            'host'     => env('DB_HOST', 'db'),
+            'host'     => env('DB_HOST', '127.0.0.1'),
             'port'     => env('DB_PORT', '5432'),
             'database' => 'postgres',
             'username' => env('DB_USERNAME'),
@@ -116,21 +116,39 @@ class SocieteController extends Controller
     public function getEtudiants()
     {
         $id = Auth::user()->societe_id;
-        $etudiants = User::on('admin')
+        $users = User::on('admin')
             ->where("societe_id", $id)
             ->where("userable_type", Etudiant::class)
             ->get();
-
+        $etudiants = [];
+        foreach ($users as $user) {
+            $etudiant = Etudiant::where("id", $user->userable_id)->first();
+            if ($etudiant->hasAccess) {
+                $etudiants[] = $user;
+            }
+        }
         return response()->json(['etudiants' => $etudiants], 200);
     }
     public function getAllUsers()
     {
         $id = Auth::user()->societe_id;
+        $listUsers = [];
         $users = User::on('admin')
             ->where("societe_id", $id)
             ->get();
+        foreach ($users as $user) {
+            if($user->userable_type == Etudiant::class){
+                $etudiant = Etudiant::where("id", $user->userable_id)->first();
+                if ($etudiant->hasAccess) {
+                    $listUsers[] = $user;
+                }
+            }
+            else{
+                $listUsers[] = $user;
+            }
+        }
 
-        return response()->json(['users' => $users], 200);
+        return response()->json(['users' => $listUsers], 200);
     }
 
 

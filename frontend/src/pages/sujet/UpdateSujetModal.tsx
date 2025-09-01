@@ -3,13 +3,15 @@ import { Form, Button, Row, Col, Alert, Modal } from "react-bootstrap";
 import axios from "axios";
 import { getItem } from "../../tools/localStorage";
 import type { Sujet } from "../../models/Sujet";
-import { axiosRequest } from "../../apis/AxiosHelper";
-import type { User } from "../../models/User";
+import { SujetActions } from "./Redux/SujetSlice";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../tools/redux/Store";
+import Editor from "./editor/Editor";
 
 interface UpdateSujetModalProps {
   show: boolean;
   onHide: () => void;
-  onSuccess: () => void;
+  onSuccess: (updatedSujet: Sujet) => void; // <-- updated type
   sujet: Sujet | null;
 }
 
@@ -31,38 +33,11 @@ export const UpdateSujetModal = ({
   });
 
   const [isLoading, setIsLoading] = useState(false);
-  const [etudiants, setEtudiants] = useState<User[]>([]);
-  const [etudiantsStage, setEtudiantStage] = useState<User[]>([]);
-  const [selectedEtudiants, setSelectedEtudiants] = useState<number[]>([]);
+  const dispatch = useDispatch<AppDispatch>();
   const [message, setMessage] = useState<{
     text: string;
     variant: "success" | "danger";
   } | null>(null);
-
-  useEffect(() => {
-    const fetchEtudiantStage = async () => {
-      sujet?.id
-        ? await axiosRequest("get", `sujet/getEtudiantById/${sujet?.id}`)
-            .then((res) => {
-              setEtudiantStage(res.data.etudiants);
-            })
-            .catch(() => {
-              setEtudiantStage([]);
-            })
-        : setEtudiantStage([]);
-    };
-
-    fetchEtudiantStage();
-  }, [sujet]);
-  useEffect(() => {
-    const fetchEtudiants = async () => {
-      await axiosRequest("get", "societe/etudiants").then((res) =>
-        setEtudiants(res.data.etudiants)
-      );
-    };
-
-    fetchEtudiants();
-  }, []);
 
   useEffect(() => {
     if (sujet) {
@@ -88,37 +63,17 @@ export const UpdateSujetModal = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const addEtudiants = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedId = parseInt(e.target.value);
-    if (selectedId && !selectedEtudiants.includes(selectedId)) {
-      setSelectedEtudiants((prev) => [...prev, selectedId]);
-    }
-  };
-
-  const removeGestion = (gestion: number) => {
-    setSelectedEtudiants((prev) => prev.filter((g) => g !== gestion));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!sujet) return;
-    if (selectedEtudiants.length > sujet.nbEtudiants) {
-      setMessage({ text: "verifiez le nomber d'etudiant", variant: "danger" });
-      return;
-    }
-    const updatedData =
-      selectedEtudiants.length > 0
-        ? { ...formData, etudiants: selectedEtudiants }
-        : { ...formData };
 
     setIsLoading(true);
     setMessage(null);
-    
 
     try {
-      await axios.put(
+      const res = await axios.put(
         `http://localhost:8000/api/sujet/update/${sujet.id}`,
-        updatedData,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${getItem("token")}`,
@@ -126,19 +81,29 @@ export const UpdateSujetModal = ({
         }
       );
 
+      const updatedSujet: Sujet = {
+        ...formData,
+        id: sujet.id,
+        lien: sujet.lien || "",
+        created_at: sujet.created_at || "",
+      };
+
+      dispatch(SujetActions.updateSujet(updatedSujet));
+
       setMessage({
-        text: "Sujet updated successfully!",
+        text: "Sujet mis à jour avec succès !",
         variant: "success",
       });
 
+      // Pass updatedSujet to onSuccess
       setTimeout(() => {
-        onSuccess();
+        onSuccess(updatedSujet);
         onHide();
       }, 500);
     } catch (error: any) {
       console.error("Error updating sujet:", error);
       const errorMessage =
-        error.response.data?.message || "Update failed. Try again.";
+        error.response?.data?.message || "Échec de la mise à jour. Réessayez.";
       setMessage({ text: errorMessage, variant: "danger" });
     } finally {
       setIsLoading(false);
@@ -192,17 +157,20 @@ export const UpdateSujetModal = ({
           </Row>
 
           <Row>
-            <Col md={6}>
+            <Col>
               <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
+                <Editor
+                  initialValue={formData.description}
+                  onChange={(val) =>
+                    setFormData((prev) => ({ ...prev, description: val }))
+                  }
                 />
               </Form.Group>
             </Col>
+          </Row>
+
+          <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Type</Form.Label>
@@ -214,9 +182,6 @@ export const UpdateSujetModal = ({
                 />
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Durée</Form.Label>
@@ -228,6 +193,9 @@ export const UpdateSujetModal = ({
                 />
               </Form.Group>
             </Col>
+          </Row>
+
+          <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
                 <Form.Label>Nombre d’étudiants</Form.Label>
@@ -239,52 +207,14 @@ export const UpdateSujetModal = ({
                 />
               </Form.Group>
             </Col>
-          </Row>
-
-          <Row>
-            <Form.Group className="mt-4 pt-3 border-top mb-4">
-              <Form.Label className="fw-bold mb-2">
-                Assigner un etudiant
-              </Form.Label>
-              {selectedEtudiants.length > 0 && (
-                <div className="d-flex flex-wrap gap-2 mb-3">
-                  {selectedEtudiants.map((etudiant) => (
-                    <span
-                      key={etudiant}
-                      className="d-flex align-items-center border rounded px-3 py-1"
-                    >
-                      {etudiant}
-                      <button
-                        type="button"
-                        className="btn-close btn-sm ms-2"
-                        aria-label="Remove"
-                        onClick={() => removeGestion(etudiant)}
-                        style={{ fontSize: "0.6rem" }}
-                      />
-                    </span>
-                  ))}
-                </div>
-              )}
-              <Form.Select onChange={(e) => addEtudiants(e)}>
-                <option value="">-- Selectionner un etudiant --</option>
-                {etudiants.map((etudiants) => (
-                  <option key={etudiants.id} value={etudiants.id}>
-                    {etudiants.nom + " " + etudiants.prenom}
-                  </option>
-                ))}
-              </Form.Select>
-            </Form.Group>
-          </Row>
-          {etudiantsStage.length > 0 && (
-            <Row>
-              <Form.Group className="mt-4 pt-3 border-top mb-4">
-                <Form.Label className="fw-bold mb-2">Status</Form.Label>
+            <Col md={6}>
+              <Form.Group className="mb-4">
+                <Form.Label className="mb-2">Status</Form.Label>
                 <Form.Select
                   onChange={handleSelectChange}
                   name="status"
                   value={formData.status}
                 >
-                  {/* <option value={formData.status}>{formData.status}</option> */}
                   <option value="pending">Pending</option>
                   <option value="in_progress">In Progress</option>
                   <option value="awaiting_approval">Awaiting Approval</option>
@@ -292,8 +222,8 @@ export const UpdateSujetModal = ({
                   <option value="completed">Completed</option>
                 </Form.Select>
               </Form.Group>
-            </Row>
-          )}
+            </Col>
+          </Row>
 
           <div className="mt-4 pt-3 border-top d-flex justify-content-end">
             <Button

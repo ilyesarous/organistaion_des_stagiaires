@@ -23,8 +23,8 @@ class SujetRequest extends FormRequest
     {
         return [
             'title'=> 'required|string|max:255',
-            'description'=> 'required|string|max:255',
-            'competences'=> 'required|string|max:255',
+            'description'=> 'required|string',
+            'competences'=> 'required|string',
             'duree'=> 'required|integer',
             'nbEtudiants'=> 'required|integer',
             'typeStage' =>'required|string|max:255',

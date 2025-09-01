@@ -17,6 +17,7 @@
     "@schedule-x/events-service": "^2.36.0",
     "@schedule-x/react": "^2.36.0",
     "@schedule-x/theme-default": "^2.36.0",
+    "@tinymce/tinymce-react": "^6.3.0",
     "@tiptap/react": "^3.3.0",
     "@tiptap/starter-kit": "^3.3.0",
     "axios": "^1.10.0",

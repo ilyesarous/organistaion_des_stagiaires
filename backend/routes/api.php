@@ -41,6 +41,9 @@ Route::prefix('auth')->middleware(['auth:api', 'verified', 'tenant'])->group(fun
     Route::put('assignRolesToUsers', [AuthController::class, 'assignRolesToUsers'])->middleware(['can:superAdmin_or_admin']);
     Route::delete('delete/{id}', [AuthController::class, 'deleteUser'])->middleware(['can:superAdmin_or_admin']);
     Route::get('societe/users', [SocieteController::class, 'getAllUsers']);
+    Route::put('updateEtudiantAccess/{id}', [AuthController::class, 'UpdateEtudiantAccess'])->middleware(['can:admin_or_HR']);
+    Route::get('getEtudiant/{id}', [AuthController::class, 'getEtudiant'])->middleware(['can:admin_or_HR']);
+
 });
 
 Route::get('societe/employees', [SocieteController::class, 'getEmployees'])->middleware(['auth:api', 'verified', 'can:superAdmin_or_admin_or_encadrant', 'tenant']);
@@ -84,7 +87,8 @@ Route::prefix('sujet')->middleware(['auth:api', 'verified', 'tenant'])->group(fu
     Route::delete('/delete/{id}', [SujetController::class, 'delete']);
     Route::get('/getEmployeeById/{id}', [SujetController::class, 'getEmployeeById']);
     Route::get('/getEtudiantById/{id}', [SujetController::class, 'getEtudiantsById']);
-    Route::post('/assignEtudiantToSujet/{id}', [SujetController::class, 'assignEtudiantToSujet']);
+    Route::post('/assignEtudiantToSujet', [SujetController::class, 'assignEtudiantToSujet']);
+    Route::post('/removeEtudiantFromSujet', [SujetController::class, 'removeEtudiantFromSujet']);
 });
 
 Route::prefix('chat')->middleware(['auth:api', 'verified', 'tenant'])->group(function () {

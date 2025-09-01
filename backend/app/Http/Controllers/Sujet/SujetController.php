@@ -10,9 +10,13 @@ use App\Models\Etudiant;
 use App\Models\Status;
 use App\Models\StatusStage;
 use App\Models\Sujet;
+use App\Models\SujetEtudiant;
+use App\Models\Tenants;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
 
 class SujetController extends Controller
 {
@@ -61,11 +65,11 @@ class SujetController extends Controller
 
     public function updateSujet(Request $request, $id)
     {
-        // $this->authorize('admin_or_encadrant');
+        $this->authorize('admin_or_encadrant_or_etudiant');
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string|max:255',
-            'competences' => 'required|string|max:255',
+            'description' => 'required|string',
+            'competences' => 'required|string',
             'duree' => 'required|integer',
             'nbEtudiants' => 'required|integer',
             'typeStage' => 'required|string|max:255',
@@ -76,20 +80,6 @@ class SujetController extends Controller
 
         $sujet = Sujet::findOrFail($id);
         $sujet->update($data);
-
-        if ($request->has('etudiants')) {
-            if (count($request->etudiants) > $sujet->nbEtudiants) {
-                return response()->json(['status' => 'error', 'message' => "Nombre etudiant est supperieur aux besoin"], 404);
-            }
-            foreach ($request->etudiants as $etudiantId) {
-                $user = User::on("admin")->where("id", $etudiantId)->first();
-                if (!$user) {
-                    return response()->json(['status' => 'error', 'message' => "Etudiant not found!"], 404);
-                }
-                $etudiant = Etudiant::find($user->userable_id);
-                $this->assignEtudiantToSujet($etudiant, $sujet);
-            }
-        }
 
         broadcast(new SyncData("sujet"))->toOthers();
         return response()->json([
@@ -108,38 +98,146 @@ class SujetController extends Controller
         ]);
     }
 
-    public function assignEtudiantToSujet(Etudiant $etudiant, Sujet $sujet)
+    public function assignEtudiantToSujet(Request $request)
     {
         $this->authorize('admin_or_encadrant');
-        $etudiant->sujet()->dissociate();
+        $data = $request->validate([
+            'etudiant_id' => 'required|integer',
+            'sujet_id' => 'required|integer',
+            'raison_acceptation' => 'nullable|string',
+        ]);
+        $databaseName = DB::connection()->getDatabaseName();
+        $user = User::on("admin")->where("id", $data['etudiant_id'])->first();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => "Etudiant not found!"], 404);
+        }
+        $this->ChangeToTenant($databaseName);
+        $etudiant = Etudiant::find($user->userable_id);
+        $sujet = Sujet::find($data['sujet_id']);
+        if (!$sujet) {
+            return response()->json(['status' => 'error', 'message' => "Sujet not found!"], 404);
+        }
+        if ($sujet->etudiants()->count() >= $sujet->nbEtudiants) {
+            return response()->json(['status' => 'error', 'message' => "Nombre etudiant est supperieur aux besoin"], 404);
+        }
+        if ($etudiant->sujet_id) {
+            return response()->json(['status' => 'error', 'message' => "Etudiant already assigned to a Sujet"], 404);
+        }
         $etudiant->sujet()->associate($sujet);
         $etudiant->save();
         $sujet->status = StatusStage::IN_PROGRESS->value;
         $sujet->save();
+        SujetEtudiant::create([
+            'id_sujet' => $sujet->id,
+            'id_etudiant' => $etudiant->id,
+            'raison_acceptation' => $data['raison_acceptation'] ?? null,
+            'raison_elimination' => null,
+        ]);
         return response()->json([
             'message' => 'Etudiant assigned to Sujet successfully'
+        ]);
+    }
+    public function removeEtudiantFromSujet(Request $request)
+    {
+        $this->authorize('admin_or_encadrant');
+        $databaseName = DB::connection()->getDatabaseName();
+        $data = $request->validate([
+            'etudiant_id' => 'required|integer',
+            'sujet_id' => 'required|integer',
+            'raison_elimination' => 'nullable|string',
+        ]);
+        $user = User::on("admin")->where("id", $data['etudiant_id'])->first();
+        if (!$user) {
+            return response()->json(['status' => 'error', 'message' => "Etudiant not found!"], 404);
+        }
+        $this->ChangeToTenant($databaseName);
+        $etudiant = Etudiant::find($user->userable_id);
+        $etudiant->sujet()->dissociate();
+        $etudiant->save();
+        $sujet = Sujet::find($etudiant->sujet_id);
+        if ($sujet && $sujet->etudiants()->count() == 0) {
+            $sujet->status = StatusStage::PENDING->value;
+            $sujet->save();
+        }
+        SujetEtudiant::where('id_sujet', $data['sujet_id'])
+            ->where('id_etudiant', $etudiant->id)
+            ->update(['raison_elimination' => $data['raison_elimination'] ?? null]);
+        return response()->json([
+            'message' => 'Etudiant removed from Sujet successfully'
         ]);
     }
 
     public function getEmployeeById(int $id)
     {
         try {
-            $employee = User::on("admin")->where("userable_type", Employee::class)->where("userable_id", $id)->first();
+            $databaseName = DB::connection()->getDatabaseName();
+
+            // Get the employee user from admin DB
+            $employees = User::on("admin")
+                ->where("userable_type", Employee::class)
+                ->where("userable_id", $id)
+                ->get();
+            foreach ($employees as $emp) {
+                $exists = Tenants::on("admin")
+                    ->where('email', $emp->email)
+                    ->where('database', $databaseName)
+                    ->exists();
+
+                if ($exists) {
+                    $employee = $emp;
+                }
+            }
+
+            // Verify if this employee exists in the current tenant DB
+
+
             return response()->json(['employee' => $employee], 200);
         } catch (\Throwable $th) {
-            return response()->json(['status' => 'error', 'message' => "error, employee not found!"], 404);
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unexpected error: ' . $th->getMessage()
+            ], 500);
         }
     }
+
     public function getEtudiantsById(int $id)
     {
         try {
+            $etudiants = [];
+            $databaseName = DB::connection()->getDatabaseName();
             $listEtudiants = Etudiant::where("sujet_id", $id)->get();
-            foreach ($listEtudiants as $e) {
-                $etudiants[] = User::on("admin")->where("userable_type", Etudiant::class)->where("userable_id", $e->id)->first();
+
+            foreach ($listEtudiants as $etudiantModel) {
+                // Get the corresponding admin user
+                $users = User::on("admin")
+                    ->where("userable_type", Etudiant::class)
+                    ->where("userable_id", $etudiantModel->id)
+                    ->get();
+                if ($users) {
+                    foreach ($users as $user) {
+                        // echo($user);
+                        // Check if the user exists in the current tenant database
+                        $exists = Tenants::on("admin")
+                        ->where('email', $user->email)
+                        ->where('database', $databaseName) // <-- make sure this matches your table
+                        ->exists();
+                        
+                        if ($exists) {
+                            $etudiants[] = $user;
+                        }
+                    }
+                }
             }
-            return response()->json(['etudiants' => $etudiants], 200);
+            return response()->json(['etudiants' => $etudiants, "etudiantInfos"=>$listEtudiants], 200);
         } catch (\Throwable $th) {
             return response()->json(['status' => 'error', 'message' => "error, etudiant not found!"], 404);
         }
+    }
+    public function ChangeToTenant($dbName)
+    {
+        DB::purge('admin');
+        DB::purge('tenant');
+        Config::set('database.connections.tenant.database', $dbName);
+        DB::setDefaultConnection('tenant');
     }
 }

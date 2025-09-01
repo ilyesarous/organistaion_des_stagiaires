@@ -1,0 +1,10 @@
+body {
+  background-color: #1e1e2f; /* dark background */
+  color: #fff;                /* font color */
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  padding: 10px;
+}
+p {
+  margin: 0 0 10px 0;
+}
