@@ -7,13 +7,12 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegistrationRequest;
 use App\Models\Employee;
 use App\Models\Etudiant;
-use App\Models\Events;
 use App\Models\Facultee;
-use App\Models\Notification;
 use App\Models\Role;
 use Illuminate\Support\Str;
 use App\Models\Societe;
 use App\Models\Tenants;
+use App\Models\TypeAccess;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -146,6 +145,8 @@ class AuthController extends Controller
             $faculteeInTenant = Facultee::on("tenant")->where("name", $facultyInAdmin->name)->first();
 
             $userable = Etudiant::create([
+                'hasAccess' => true,
+                'typeAccess' => TypeAccess::STAGE->value,
                 'cv' => $cvPath,
                 'convention' => $conventionPath,
                 'letterAffectation' => $letterPath,
@@ -274,6 +275,48 @@ class AuthController extends Controller
         return response()->json(['status' => 'error', 'message' => 'user not authenticated']);
     }
 
+    public function getEtudiant($id)
+    {
+        $user = User::on('admin')->findOrFail($id);
+        if ($user->userable_type !== Etudiant::class) {
+            return response()->json(['status' => 'error', 'message' => 'User is not an Etudiant'], 400);
+        }
+        $this->ChangeToTenant(Tenants::on('admin')->where("email", $user->email)->first()->database);
+        $etudiant = Etudiant::find($user->userable_id);
+        if (!$etudiant) {
+            return response()->json(['status' => 'error', 'message' => 'Etudiant not found'], 404);
+        }
+        return response()->json(['status' => 'success', 'etudiant' => $etudiant]);
+    }
+    public function UpdateEtudiantAccess(Request $request, $id)
+    {
+        $request->validate([
+            'hasAccess' => 'required|boolean',
+            'typeAccess' => 'string|in:stage,attestation',
+        ]);
+        $user = User::on('admin')->findOrFail($id);
+        if ($user->userable_type !== Etudiant::class) {
+            return response()->json(['status' => 'error', 'message' => 'User is not an Etudiant'], 400);
+        }
+        $this->ChangeToTenant(Tenants::on('admin')->where("email", $user->email)->first()->database);
+        $etudiant = Etudiant::find($user->userable_id);
+        if (!$etudiant) {
+            return response()->json(['status' => 'error', 'message' => 'Etudiant not found'], 404);
+        }
+        $etudiant->hasAccess = $request->hasAccess;
+        $etudiant->typeAccess = $request->typeAccess;
+
+        $etudiant->save();
+
+        if ($request->hasAccess === false) {
+            Mail::to($user->email)->send(new \App\Mail\EtudiantAccessRevokedMail($user));
+        } else {
+            Mail::to($user->email)->send(new \App\Mail\EtudiantAccessPermetedMail($user));
+        }
+
+        return response()->json(['status' => 'success', 'message' => 'Etudiant access updated successfully']);
+    }
+
     /**
      * Return a JWT token for the user.
      */
@@ -283,6 +326,12 @@ class AuthController extends Controller
         $etudiant = null;
         if ($user->userable_type === Etudiant::class) {
             $etudiant = Etudiant::find($user->userable_id);
+            if ($etudiant && $etudiant->hasAccess === false) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Your account is disabled. Please contact the administrator.'
+                ], 403);
+            }
         }
         if ($user->userable_type === Employee::class) {
             $employee = Employee::find($user->userable_id);

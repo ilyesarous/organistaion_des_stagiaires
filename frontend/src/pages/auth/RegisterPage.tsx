@@ -34,9 +34,11 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
   };
 
   useEffect(() => {
-    fetchRoles();
-    setIsLoading(false);
-  }, []);
+    if (show) {
+      fetchRoles();
+      setIsLoading(false);
+    }
+  }, [show]);
 
   const register = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -71,7 +73,9 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
     <Modal show={show} onHide={onHide} size="lg" centered>
       <Card className="shadow-lg rounded-3">
         <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold">Créer un nouvel utilisateur</Modal.Title>
+          <Modal.Title className="fw-bold">
+            Créer un nouvel utilisateur
+          </Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {error && <Alert variant="danger">{error}</Alert>}
@@ -168,10 +172,19 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
             )}
 
             <div className="d-flex justify-content-end gap-3 mt-4">
-              <Button variant="secondary" onClick={onHide} className="rounded-3">
+              <Button
+                variant="secondary"
+                onClick={onHide}
+                className="rounded-3"
+              >
                 Annuler
               </Button>
-              <Button variant="primary" type="submit" className="rounded-3" disabled={isLoading}>
+              <Button
+                variant="primary"
+                type="submit"
+                className="rounded-3"
+                disabled={isLoading}
+              >
                 {isLoading ? "Création..." : "Créer"}
               </Button>
             </div>

@@ -7,7 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Etudiant extends Model
 {
 
+    protected $casts = [
+        'typeAccess' => TypeAccess::class,
+    ];
+
     protected $fillable = [
+        'hasAccess',
+        'typeAccess',
         'cv',
         'convention',
         'letterAffectation',

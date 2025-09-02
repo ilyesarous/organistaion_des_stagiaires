@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Sujet } from "../../../models/Sujet";
 import { fetchSujets } from "./SujetReduxThunk";
 
@@ -12,9 +12,15 @@ const SujetSlice = createSlice({
   name: "sujet",
   initialState,
   reducers: {
-    deleteSujet(state, action){
-        state.sujets.filter((sujet) => sujet.id !== action.payload);
-    }
+    deleteSujet(state, action: PayloadAction<number>) {
+      state.sujets = state.sujets.filter((sujet) => sujet.id !== action.payload);
+    },
+    updateSujet(state, action: PayloadAction<Sujet>) {
+      const index = state.sujets.findIndex((s) => s.id === action.payload.id);
+      if (index !== -1) {
+        state.sujets[index] = action.payload;
+      }
+    },
   },
   extraReducers(builder) {
     builder

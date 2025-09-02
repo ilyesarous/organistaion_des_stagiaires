@@ -105,7 +105,7 @@ export const UpdateEventModal: React.FC<Props> = ({
       setTimeout(() => {
         onSuccess();
         onClose();
-      }, 2000);
+      }, 500);
     } catch (error: any) {
       console.error("Error updating event:", error);
       const errorMessage =

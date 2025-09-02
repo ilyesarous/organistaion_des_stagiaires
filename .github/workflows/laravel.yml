@@ -1,10 +1,11 @@
-name: Laravel
+name: Laravel CI
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ "backend" ]
+    branches: ["backend"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   laravel-tests:
@@ -32,36 +33,49 @@ jobs:
       with:
         php-version: '8.0'
         extensions: pdo_pgsql,pgsql,mbstring,xml,bcmath,curl,zip
+        ini-values: post_max_size=256M,upload_max_filesize=256M
 
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
-    
+
     - name: Update Composer
       run: composer self-update --2
-    
+
+    - name: Copy composer files
+      run: |
+        php -r "file_exists('composer.json') || copy('composer.json.example', 'composer.json');"
+        php -r "file_exists('composer.lock') || copy('composer.lock.example', 'composer.lock');"
+
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
 
-    - name: Generate key
+    - name: Generate Laravel Key
       run: php artisan key:generate
 
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
 
-    - name: Setup Laravel Configuration for PostgreSQL
+    - name: Configure PostgreSQL in .env
       run: |
         php -r "file_put_contents('.env', preg_replace('/DB_CONNECTION=.*/', 'DB_CONNECTION=pgsql', file_get_contents('.env')));"
         php -r "file_put_contents('.env', preg_replace('/DB_HOST=.*/', 'DB_HOST=127.0.0.1', file_get_contents('.env')));"
         php -r "file_put_contents('.env', preg_replace('/DB_PORT=.*/', 'DB_PORT=5432', file_get_contents('.env')));"
-        php -r "file_put_contents('.env', preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=laravel', file_get_contents('.env')));"
+        php -r "file_put_contents('.env', preg_replace('/DB_DATABASE=.*/', 'DB_DATABASE=organisation_des_stagiaires', file_get_contents('.env')));"
         php -r "file_put_contents('.env', preg_replace('/DB_USERNAME=.*/', 'DB_USERNAME=postgres', file_get_contents('.env')));"
-        php -r "file_put_contents('.env', preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD=password', file_get_contents('.env')));"
+        php -r "file_put_contents('.env', preg_replace('/DB_PASSWORD=.*/', 'DB_PASSWORD=root', file_get_contents('.env')));"
+
+    - name: Wait for PostgreSQL
+      run: |
+        until pg_isready -h 127.0.0.1 -p 5432; do
+          echo "Waiting for database..."
+          sleep 2
+        done
 
     - name: Run migrations
-      run: php artisan migrate --path=database/migrations/admin
+      run: php artisan migrate --path=database/migrations/admin --force
 
-    - name: Run Seed
-      run: php artisan db:seed
+    - name: Seed database
+      run: php artisan db:seed --force
 
     - name: Run tests
       run: php artisan test

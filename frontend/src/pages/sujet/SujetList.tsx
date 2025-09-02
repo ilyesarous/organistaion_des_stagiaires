@@ -1,138 +1,151 @@
-import { useEffect, useState } from "react";
-import { Container, Alert, Card } from "react-bootstrap";
-import { axiosRequest } from "../../apis/AxiosHelper";
+import { Container, Card } from "react-bootstrap";
+import NavigationBar from "./NavigationBar";
+import { useState } from "react";
+import { SujetFolders } from "./SujetFolder";
 import { AddNewSujet } from "./AddSujet";
-import { LoadingIndicator } from "../../components/Loading";
-import { TableHeader } from "../../components/tableComponents/TableHeader";
-import { EmptyState } from "../../components/tableComponents/EmptyState";
-import { DisplayTable } from "./DisplayTableSujet";
-import { TableFooter } from "../../components/tableComponents/TableFooter";
-import { SujetDetailsModal } from "./SujetDetailsModal";
+import TypeSessions from "./TypeSessions";
 import type { Sujet } from "../../models/Sujet";
-import { UpdateSujetModal } from "./UpdateSujetModal";
-import { getItem } from "../../tools/localStorage";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../tools/redux/Store";
-import { fetchSujets } from "./Redux/SujetReduxThunk";
-import { SujetActions } from "./Redux/SujetSlice";
+import { SujetDetailsView } from "./SujetDetailsModal";
+
+interface NavItem {
+  name: string;
+  type?: "session" | "type" | "sujet" | "root"; // add "root"
+  data?: any; // store additional info like types or sujet
+}
 
 export const SujetList = () => {
-  const sujet = useSelector((state: RootState) => state.sujet.sujets);
-  const sujetStatus = useSelector((state: RootState) => state.sujet.status);
-  let error = useSelector((state: RootState) => state.sujet.error);
-  const dispatch = useDispatch<AppDispatch>();
-
-  const [deleteId, setDeleteId] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [selectedSujet, setSelectedSujet] = useState<Sujet>();
-  const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const role = getItem("type");
+  const [openSessions, setOpenSessions] = useState<Record<string, boolean>>({});
+  const [items, setItems] = useState<NavItem[]>([{ name: "List des Sujets" }]);
+  const [activeSession, setActiveSession] = useState<string | null>(null);
+  const [activeType, setActiveType] = useState<string | null>(null);
+  const [types, setTypes] = useState<Record<string, Sujet[]> | null>(null);
+  const [selectedSujet, setSelectedSujet] = useState<Sujet | null>(null);
 
-  const handleEditClick = (sujet: Sujet) => {
+  // Navigate breadcrumb back
+  const handleNavigateBack = (index: number) => {
+    const target = items[index];
+    setItems((prev) => prev.slice(0, index + 1));
+
+    if (!target.type || target.type === "root") {
+      // Back to folder view
+      setActiveSession(null);
+      setActiveType(null);
+      setTypes(null);
+      setSelectedSujet(null);
+    } else if (target.type === "session") {
+      // Back to session view (types)
+      setActiveSession(target.name);
+      setTypes(target.data); // types object
+      setActiveType(null);
+      setSelectedSujet(null);
+    } else if (target.type === "type") {
+      // Back to type view
+      setActiveSession(target.data.sessionName);
+      setActiveType(target.name);
+      setSelectedSujet(null);
+    } else if (target.type === "sujet") {
+      // Navigate to sujet details
+      setActiveSession(target.data.sessionName);
+      setActiveType(target.data.typeName);
+      setSelectedSujet(target.data.sujet);
+    }
+  };
+
+  // Toggle session open/close
+  const handleSessionToggle = (
+    session: string,
+    typesForSession: Record<string, Sujet[]>
+  ) => {
+    const updated = { ...openSessions, [session]: !openSessions[session] };
+    setOpenSessions(updated);
+
+    if (!openSessions[session]) {
+      // Open session
+      setActiveSession(session);
+      setTypes(typesForSession);
+      setItems((prev) => [
+        ...prev,
+        { name: session, type: "session", data: typesForSession },
+      ]);
+      setActiveType(null);
+      setSelectedSujet(null);
+    } else {
+      // Close session
+      setActiveSession(null);
+      setTypes(null);
+      setActiveType(null);
+      setSelectedSujet(null);
+    }
+  };
+
+  // Navigate to a specific type
+  const handleNavigateToType = (typeName: string) => {
+    setActiveType(typeName);
+  };
+
+  // Navigate to a specific sujet
+  const handleNavigateToSujet = (sujet: Sujet, typeName: string) => {
     setSelectedSujet(sujet);
-    setShowUpdateModal(true);
+    setActiveType(typeName);
+    const sessionName = activeSession!;
+    setItems((prev) => [
+      ...prev,
+      {
+        name: sujet.title,
+        type: "sujet",
+        data: { sessionName, typeName, sujet },
+      },
+    ]);
   };
-
-  const handleSuccess = () => {
-    setShowModal(false);
-  };
-
-  useEffect(() => {
-    if (sujetStatus === "idle") {
-      dispatch(fetchSujets());
-    }
-  }, [dispatch, sujetStatus]);
-
-  const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this société?"))
-      return;
-    setDeleteId(id);
-    try {
-      await axiosRequest("delete", `sujet/delete/${id}`);
-      dispatch(SujetActions.deleteSujet(id));
-    } catch (err) {
-      error = "Failed to delete société. Please try again.";
-    } finally {
-      setDeleteId(null);
-    }
-  };
-
-  const handleDetails = async (id: number) => {
-    await axiosRequest("get", `sujet/${id}`).then((res) => {
-      setSelectedSujet(res.data.data);
-      setShowDetailsModal(true);
-    });
-  };
-
-  const filteredSujet = sujet.filter(
-    (sujet) =>
-      sujet.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sujet.competences.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sujet.typeStage.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  if (sujetStatus === "loading") return <LoadingIndicator />;
-  if (sujetStatus === "failed")
-    return (
-      <Alert variant="danger" onClose={() => (error = "")} dismissible>
-        {error}
-      </Alert>
-    );
 
   return (
     <Container fluid className="px-4 py-3">
-      <Card className="border-0 shadow-sm">
-        <Card.Header className="bg-white border-0 py-3">
-          <TableHeader
-            name="Sujets"
-            role={role}
-            onAddClick={() => setShowModal(true)}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-          />
-        </Card.Header>
-
-        <Card.Body className="p-0">
-          {filteredSujet.length === 0 ? (
-            <EmptyState searchTerm={searchTerm} name="sujet" />
-          ) : (
-            <DisplayTable
-              sujets={filteredSujet}
-              onDelete={handleDelete}
-              deleteId={deleteId}
-              Details={handleDetails}
-              onUpdate={handleEditClick}
-            />
-          )}
-        </Card.Body>
-
-        {filteredSujet.length > 0 && (
-          <Card.Footer className="bg-white border-0 py-3">
-            <TableFooter
-              filteredCount={filteredSujet.length}
-              totalCount={sujet.length}
-            />
-          </Card.Footer>
-        )}
+      {/* Navigation / Breadcrumb */}
+      <Card className="bg-white border-0 py-3 mb-3">
+        <NavigationBar
+          items={items}
+          showModel={() => setShowModal(true)}
+          onNavigateBack={handleNavigateBack}
+        />
       </Card>
 
+      {/* Folder view */}
+      {!activeSession && !selectedSujet && (
+        <SujetFolders
+          sessions={openSessions}
+          onToggleSession={handleSessionToggle}
+        />
+      )}
+
+      {/* Type view */}
+      {activeSession && types && !selectedSujet && (
+        <TypeSessions
+          session={activeSession}
+          types={types}
+          openSessions={openSessions}
+          onNavigateToSujet={handleNavigateToSujet}
+          onNavigateToType={handleNavigateToType}
+          onNavigateBack={handleNavigateBack}
+          breadcrumbIndex={items.length - 1}
+          activeType={activeType}
+        />
+      )}
+
+      {/* Sujet details view */}
+      {selectedSujet && (
+        <SujetDetailsView
+          sujet={selectedSujet}
+          onNavigateBack={handleNavigateBack}
+          breadcrumbIndex={items.length - 1}
+        />
+      )}
+
+      {/* Add new sujet modal */}
       <AddNewSujet
         show={showModal}
         onHide={() => setShowModal(false)}
-        onSuccess={handleSuccess}
-      />
-      <SujetDetailsModal
-        show={showDetailsModal}
-        onHide={() => setShowDetailsModal(false)}
-        sujet={selectedSujet ? selectedSujet : null}
-      />
-      <UpdateSujetModal
-        show={showUpdateModal}
-        onHide={() => setShowUpdateModal(false)}
-        onSuccess={handleSuccess}
-        sujet={selectedSujet!}
+        onSuccess={() => setShowModal(false)}
       />
     </Container>
   );

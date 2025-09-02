@@ -84,7 +84,7 @@ const AddAttestationModal = ({
           });
           onSuccess();
           onHide();
-        }, 2000);
+        }, 500);
       });
     } catch (error: any) {
       setMessage({

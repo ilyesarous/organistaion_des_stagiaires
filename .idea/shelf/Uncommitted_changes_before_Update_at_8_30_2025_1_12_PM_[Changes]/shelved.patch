@@ -1,0 +1,19 @@
+Index: backend/app/Providers/RouteServiceProvider.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?php\n\nnamespace App\\Providers;\n\nuse Illuminate\\Auth\\Notifications\\VerifyEmail;\nuse Illuminate\\Cache\\RateLimiting\\Limit;\nuse Illuminate\\Foundation\\Support\\Providers\\RouteServiceProvider as ServiceProvider;\nuse Illuminate\\Http\\Request;\nuse Illuminate\\Notifications\\Messages\\MailMessage;\nuse Illuminate\\Support\\Facades\\RateLimiter;\nuse Illuminate\\Support\\Facades\\Route;\n\nclass RouteServiceProvider extends ServiceProvider\n{\n    /**\n     * The path to the \"home\" route for your application.\n     *\n     * Typically, users are redirected here after authentication.\n     *\n     * @var string\n     */\n    public const HOME = '/home';\n\n    /**\n     * Define your route model bindings, pattern filters, and other route configuration.\n     */\n    public function boot(): void\n    {\n        $this->configureRateLimiting();\n\n        $this->routes(function () {\n            Route::middleware(['api'])\n                ->prefix('api')\n                ->group(base_path('routes/api.php'));\n\n            Route::middleware('web')\n                ->group(base_path('routes/web.php'));\n        });\n\n         VerifyEmail::toMailUsing(function ($notifiable, $url) {\n        $frontendUrl = 'http://localhost:5173/verify-email?verify_url=' . urlencode($url);\n        echo \"\uD83D\uDD17 Verification URL: \" . $frontendUrl; // Debugging line to check the URL\n\n        return (new MailMessage)\n            ->subject('Verify Your Email Address')\n            ->line('Click the button below to verify your email address.')\n            ->action('Verify Email', $frontendUrl)\n            ->line('If you did not create an account, no further action is required.');\n    });\n    }\n\n    /**\n     * Configure the rate limiters for the application.\n     */\n    protected function configureRateLimiting(): void\n    {\n        RateLimiter::for('api', function (Request $request) {\n            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());\n        });\n    }\n}\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/backend/app/Providers/RouteServiceProvider.php b/backend/app/Providers/RouteServiceProvider.php
+--- a/backend/app/Providers/RouteServiceProvider.php	(revision 5ace3f615e5368377bdec97008684ac519786222)
++++ b/backend/app/Providers/RouteServiceProvider.php	(date 1756555828773)
+@@ -55,7 +55,7 @@
+     protected function configureRateLimiting(): void
+     {
+         RateLimiter::for('api', function (Request $request) {
+-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
++            return Limit::perMinute(6000)->by($request->user()?->id ?: $request->ip());
+         });
+     }
+ }

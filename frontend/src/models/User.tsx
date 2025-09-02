@@ -1,4 +1,6 @@
 export type Etudiant = {
+  hasAccess: boolean;
+  typeAccess: string;
   cv: string;
   convention: string;
   letterAffectation: string;
