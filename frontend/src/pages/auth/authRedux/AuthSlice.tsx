@@ -43,6 +43,7 @@ const authSlice = createSlice({
       removeItem("user");
       removeItem("etudiant");
       removeItem("employee");
+      removeItem("googleAccessToken");
       state.user = {};
       state.employee = {};
       state.etudiant = {};

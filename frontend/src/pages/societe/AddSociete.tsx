@@ -27,6 +27,7 @@ interface FormData {
   address: string;
   cachet: File | null;
   logo: File | null;
+  html_template: File | null;
 }
 
 interface MessageProps {
@@ -49,10 +50,14 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
     address: "",
     cachet: null,
     logo: null,
+    html_template: null,
   });
 
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [cachetPreviewUrl, setCachetPreviewUrl] = useState<string | null>(null);
+  const [htmlTemplatePreview, setHtmlTemplatePreview] = useState<string | null>(
+    null
+  );
   const [message, setMessage] = useState<MessageProps | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,11 +67,19 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
 
   const handleFileChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    type: "logo" | "cachet"
+    type: "logo" | "cachet" | "html_template"
   ) => {
     const file = e.target.files?.[0];
     if (file) {
-      const validTypes = ["image/jpeg", "image/png", "image/jpg", "image/gif"];
+      let validTypes: string[] = [];
+      if (type === "html_template") validTypes = ["text/html"];
+      validTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/jpg",
+        "image/gif",
+        "text/html",
+      ];
       if (!validTypes.includes(file.type)) {
         setMessage({ text: `Invalid ${type} format`, variant: "danger" });
         return;
@@ -80,12 +93,21 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
       }
 
       setFormData((prev) => ({ ...prev, [type]: file }));
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (type === "logo") setLogoPreviewUrl(reader.result as string);
-        else setCachetPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      if (type === "logo" || type === "cachet") {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (type === "logo") setLogoPreviewUrl(reader.result as string);
+          else setCachetPreviewUrl(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      } else if (type === "html_template") {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setHtmlTemplatePreview(reader.result as string | null);
+        };
+        reader.readAsText(file);
+      }
+
       setMessage(null);
     }
   };
@@ -136,6 +158,23 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
         />
       ) : (
         <span className="text-muted">{label} Preview</span>
+      )}
+    </div>
+  );
+  const renderHtmlPreview = (content: string | null) => (
+    <div
+      className="border rounded p-2"
+      style={{
+        width: "100%",
+        height: "200px",
+        overflowY: "auto",
+        backgroundColor: "#f8f9fa",
+      }}
+    >
+      {content ? (
+        <pre style={{ whiteSpace: "pre-wrap" }}>{content}</pre>
+      ) : (
+        <span className="text-muted">HTML Template Preview</span>
       )}
     </div>
   );
@@ -223,13 +262,18 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
             <hr />
             <h5 className="mb-3">Médias</h5>
             <Row className="mb-4">
-              <Col md={6}>
+              <Col md={4}>
                 <Form.Group>
                   <Form.Label>Logo</Form.Label>
                   <Form.Control
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e as React.ChangeEvent<HTMLInputElement>, "logo")}
+                    onChange={(e) =>
+                      handleFileChange(
+                        e as React.ChangeEvent<HTMLInputElement>,
+                        "logo"
+                      )
+                    }
                     required
                   />
                   <Form.Text className="text-muted">
@@ -240,13 +284,18 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
                   </div>
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col md={4}>
                 <Form.Group>
                   <Form.Label>Cachet</Form.Label>
                   <Form.Control
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e as React.ChangeEvent<HTMLInputElement>, "cachet")}
+                    onChange={(e) =>
+                      handleFileChange(
+                        e as React.ChangeEvent<HTMLInputElement>,
+                        "cachet"
+                      )
+                    }
                     required
                   />
                   <Form.Text className="text-muted">
@@ -254,6 +303,28 @@ const AddSocieteModal: React.FC<AddSocieteModalProps> = ({
                   </Form.Text>
                   <div className="mt-2">
                     {renderImagePreview(cachetPreviewUrl, "Cachet")}
+                  </div>
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>HTML Template</Form.Label>
+                  <Form.Control
+                    type="file"
+                    accept=".html,text/html"
+                    onChange={(e) =>
+                      handleFileChange(
+                        e as React.ChangeEvent<HTMLInputElement>,
+                        "html_template"
+                      )
+                    }
+                    required
+                  />
+                  <Form.Text className="text-muted">
+                    Format accepté : HTML (max 2MB)
+                  </Form.Text>
+                  <div className="mt-2">
+                    {renderHtmlPreview(htmlTemplatePreview)}
                   </div>
                 </Form.Group>
               </Col>

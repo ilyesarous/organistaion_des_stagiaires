@@ -17,14 +17,10 @@ return new class extends Migration
     {
         Schema::create('attestations', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('description');
-            $table->date('date_debut');
-            $table->date('date_fin');
+            $table->integer('id_sujet');
+            $table->integer('id_etudiant');
             $table->boolean('isValid')->default(false);
             $table->boolean('isApproved')->default(false);
-            $table->text('signature')->nullable();
-            $table->text('cachet')->nullable();
             $table->timestamps();
         });
 

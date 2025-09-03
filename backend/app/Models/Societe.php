@@ -19,6 +19,7 @@ class Societe extends Model
         'address',
         'cachet',
         'logo',
+        'html_template'
     ];
 
 }

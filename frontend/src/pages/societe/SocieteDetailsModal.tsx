@@ -10,6 +10,7 @@ interface Props {
 
 export const SocieteDetailsModal = ({ show, onHide, societe }: Props) => {
   if (!societe) return null;
+  console.log(societe);
 
   return (
     <Modal show={show} onHide={onHide} centered size="lg">
@@ -74,20 +75,20 @@ export const SocieteDetailsModal = ({ show, onHide, societe }: Props) => {
           </Col>
         </Row>
         <Row className="mb-3 text-center">
-          <Col className="d-flex flex-col">
-          <strong>Cachet:</strong>{" "}
-            {societe.cachet ? (
-              <Image
-                src={`http://localhost:8000/storage/${societe.cachet}`}
-                rounded
-                fluid
-                alt="cachet de la société"
-                style={{ maxHeight: "100px", objectFit: "contain" }}
-              />
-            ) : (
-              <Badge bg="secondary">Aucun cachet</Badge>
-            )}
-          </Col>
+          <p>
+            <strong>Attestations Template:</strong>
+          </p>
+          <div
+            className="border rounded p-2 bg-light"
+            style={{
+              minHeight: "200px",
+              maxHeight: "500px",
+              overflowY: "auto",
+            }}
+            dangerouslySetInnerHTML={{
+              __html: societe.html_template || "<em>Pas de description</em>",
+            }}
+          />
         </Row>
       </Modal.Body>
 

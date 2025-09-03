@@ -9,7 +9,7 @@ const ShowAttestation = () => {
   return (
     <div>
       {role === "etudiant" ? (
-        <AttestationDetails id={user.id} nom={user.nom + " " + user.prenom} />
+        <AttestationDetails studentId={user.id} />
       ) : (
         <AttestationList />
       )}

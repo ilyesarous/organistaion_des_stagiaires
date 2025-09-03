@@ -4,6 +4,9 @@ import { axiosRequest } from "../../apis/AxiosHelper";
 import type { Sujet } from "../../models/Sujet";
 import type { User } from "../../models/User";
 import { LoadingIndicator } from "../../components/Loading";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../tools/redux/Store";
+import { SujetActions } from "./Redux/SujetSlice";
 
 declare global {
   interface Window {
@@ -27,8 +30,12 @@ export const SujetDetails = ({ sujetId }: Props) => {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(true);
   const [sujetLien, setSujetLien] = useState<string>("");
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const googleAccessToken = useSelector((state: RootState) => state.sujet.googleAccessToken);
+  const [accessToken, setAccessToken] = useState<string>(
+    googleAccessToken || ""
+  );
   const [uploading, setUploading] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
 
   // Initialize Google API client
   useEffect(() => {
@@ -114,6 +121,9 @@ export const SujetDetails = ({ sujetId }: Props) => {
             return;
           }
           setAccessToken(tokenResponse.access_token);
+          dispatch(
+            SujetActions.setGoogleAccessToken(tokenResponse.access_token)
+          );
           alert("✅ Access token obtenu !");
         },
       });
@@ -220,14 +230,21 @@ export const SujetDetails = ({ sujetId }: Props) => {
               <Form.Label>Durée</Form.Label>
               <Form.Control value={`${sujet.duree} mois`} readOnly />
             </Form.Group>
-
             <Form.Group className="mb-3">
-              <Form.Label>Nombre d'Étudiants</Form.Label>
-              <Form.Control value={sujet.nbEtudiants} readOnly />
+              <Form.Label>Date Debut</Form.Label>
+              <Form.Control value={new Date(sujet.date_debut).toLocaleDateString("fr-FR")} readOnly />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Date fin</Form.Label>
+              <Form.Control value={new Date(sujet.date_fin).toLocaleDateString("fr-FR")} readOnly />
             </Form.Group>
           </Col>
 
           <Col md={6}>
+          <Form.Group className="mb-3">
+              <Form.Label>Nombre d'Étudiants</Form.Label>
+              <Form.Control value={sujet.nbEtudiants} readOnly />
+            </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Encadrant</Form.Label>
               <Form.Control

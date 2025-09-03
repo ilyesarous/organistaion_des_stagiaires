@@ -25,6 +25,8 @@ class SujetRequest extends FormRequest
             'title'=> 'required|string|max:255',
             'description'=> 'required|string',
             'competences'=> 'required|string',
+            'date_debut'=> 'required|date',
+            'date_fin'=> 'required|date|after_or_equal:date_debut',
             'duree'=> 'required|integer',
             'nbEtudiants'=> 'required|integer',
             'typeStage' =>'required|string|max:255',

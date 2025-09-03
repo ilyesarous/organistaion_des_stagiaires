@@ -12,12 +12,17 @@ class Sujet extends Model
     protected $casts = [
         'typeStage' => TypeStage::class,
         'status' => StatusStage::class,
+        'date_debut' => 'date',
+        'date_fin'   => 'date',
+
     ];
 
     protected $fillable = [
         'title',
         'description',
         'competences',
+        'date_debut',
+        'date_fin',
         'duree',
         'nbEtudiants',
         'typeStage',

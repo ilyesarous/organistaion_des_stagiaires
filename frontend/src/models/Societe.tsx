@@ -9,6 +9,7 @@ export interface Societe {
   address: string | null;
   cachet: string | null;
   logo: string | null;
+  html_template: string | null;
   created_at: string;
   updated_at: string;
 }

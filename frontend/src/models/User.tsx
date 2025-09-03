@@ -17,6 +17,7 @@ export interface User {
   id: number;
   nom: string;
   prenom: string;
+  CIN: string;
   email: string;
   email_verified_at: string;
   password: string;

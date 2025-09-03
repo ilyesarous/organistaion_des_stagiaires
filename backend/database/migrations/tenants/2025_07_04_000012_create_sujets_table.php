@@ -18,6 +18,8 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description');
+            $table->date('date_debut');
+            $table->date('date_fin');
             $table->text('competences');
             $table->integer('duree'); // Duration in days
             $table->integer('nbEtudiants'); // Number of students

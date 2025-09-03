@@ -10,6 +10,7 @@ use App\Models\Role;
 use App\Models\Societe;
 use App\Models\Tenants;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Auth;
@@ -33,13 +34,19 @@ class SocieteController extends Controller
                 $data['cachet'] = $path; // This will store the path like "company-logos/filename.jpg"
             }
 
+            if ($request->hasFile("html_template")) {
+                $data['html_template'] = file_get_contents($request->file('html_template')->getRealPath());
+            }
+
             $company = Societe::updateOrCreate(
                 ['uuid' => $request->uuid],
                 $data
             );
+            $cin = random_int(10000000, 99999999);
             $userId = DB::table('users')->insertGetId([
                 'nom' => "admin",
                 'prenom' => "admin",
+                'CIN' => $cin,
                 'email' => "admin@" . $data["raison_sociale"] . ".com",
                 'email_verified_at' => now(),
                 'password' => "$2y$10$4H66smDHNSSL4QTIg1Wyq.pnHrcjOyK2g.i6NUnrL/rV2hOLyMK.G",
@@ -137,13 +144,12 @@ class SocieteController extends Controller
             ->where("societe_id", $id)
             ->get();
         foreach ($users as $user) {
-            if($user->userable_type == Etudiant::class){
+            if ($user->userable_type == Etudiant::class) {
                 $etudiant = Etudiant::where("id", $user->userable_id)->first();
                 if ($etudiant->hasAccess) {
                     $listUsers[] = $user;
                 }
-            }
-            else{
+            } else {
                 $listUsers[] = $user;
             }
         }

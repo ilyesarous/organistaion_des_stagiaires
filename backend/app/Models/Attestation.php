@@ -9,15 +9,10 @@ class Attestation extends Model
 {
     use HasFactory;
     protected $fillable = [
-        'title',
-        'description',
-        'date_debut',
-        'date_fin',
+        'id_sujet',
+        'id_etudiant',
         'isValid',
-        'isApproved',
-        'signature',
-        'cachet',
-        'etudiant_id',
+        'isApproved'
     ];
 
     public function etudiant()

@@ -31,6 +31,7 @@ class SocieteRequest extends FormRequest
             'address' => 'required|string|max:255',
             'cachet' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:2048',
             'logo' => 'sometimes|required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'html_template' => 'sometimes|required|file|mimes:html,htm',
         ];
     }
 }

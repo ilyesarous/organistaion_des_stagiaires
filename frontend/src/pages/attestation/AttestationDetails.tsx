@@ -1,159 +1,104 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { axiosRequest } from "../../apis/AxiosHelper";
-import type { Attestation } from "../../models/Attestation";
-import { Button, Spinner, Alert } from "react-bootstrap";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
-import "./certificate.css";
+import html2pdf from "html2pdf.js";
+import { Button, Container, Row, Col, Spinner } from "react-bootstrap";
+import { LoadingIndicator } from "../../components/Loading";
 
-interface AttestationDetailsProps {
-  id: number;
-  nom: string;
+interface AttestationPageProps {
+  studentId: number;
 }
 
-export const AttestationDetails = ({ id, nom }: AttestationDetailsProps) => {
-  const [attestation, setAttestation] = useState<Attestation | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const certificateRef = useRef<HTMLDivElement>(null);
+export const AttestationDetails = ({ studentId }: AttestationPageProps) => {
+  const [attestationHtml, setAttestationHtml] = useState<string>("");
 
   useEffect(() => {
     const fetchAttestation = async () => {
-      setLoading(true);
-      setError(null);
       try {
-        const response = await axiosRequest("get", `attestation/get/${id}`);
-        setAttestation(response.data.attestation);
-      } catch (err) {
-        setError("Failed to load attestation details. Please try again later.");
-      } finally {
-        setLoading(false);
+        const response = await axiosRequest(
+          "get",
+          `attestation/getAttestation/${studentId}`
+        );
+        setAttestationHtml(response.data.attestation);
+      } catch (error) {
+        console.error(error);
+        alert(
+          "Impossible d'importer l'attestation. Veuillez réessayer plus tard."
+        );
       }
     };
-
     fetchAttestation();
-  }, [id]);
+  }, [studentId]);
 
-  const handleDownloadPdf = async () => {
-    if (!certificateRef.current) return;
+  const handleDownloadPdf = () => {
+    const iframe = document.getElementById(
+      "attestation-iframe"
+    ) as HTMLIFrameElement;
 
-    try {
-      // Capture certificate as canvas
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true, // Base64 images avoid CORS issues
-      });
+    if (iframe && iframe.contentDocument) {
+      // Get the entire HTML (head + body)
+      const doc = iframe.contentDocument;
+      const fullHtml = `
+      <html>
+        <head>${doc.head.innerHTML}</head>
+        <body>${doc.body.innerHTML}</body>
+      </html>
+    `;
 
-      const imgData = canvas.toDataURL("image/png");
+      // Create a temporary element to render the full HTML
+      const tempElement = document.createElement("div");
+      tempElement.innerHTML = fullHtml;
+      document.body.appendChild(tempElement);
 
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "pt",
-        format: "a4",
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-
-      // Maintain aspect ratio
-      let scaledHeight = (imgHeight * pdfWidth) / imgWidth;
-      let scaledWidth = pdfWidth;
-      let x = 0;
-      let y = 0;
-
-      if (scaledHeight > pdfHeight) {
-        scaledHeight = pdfHeight;
-        scaledWidth = (imgWidth * pdfHeight) / imgHeight;
-        x = (pdfWidth - scaledWidth) / 2;
-      } else {
-        y = (pdfHeight - scaledHeight) / 2;
-      }
-
-      pdf.addImage(imgData, "PNG", x, y, scaledWidth, scaledHeight);
-      pdf.save(`${attestation?.title || "attestation"}.pdf`);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to download PDF.");
+      html2pdf()
+        .from(tempElement)
+        .set({
+          margin: 10,
+          filename: `attestation_${studentId}.pdf`,
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+        })
+        .save()
+        .finally(() => {
+          document.body.removeChild(tempElement);
+        });
     }
   };
 
-  if (loading)
-    return (
-      <div className="d-flex justify-content-center my-5">
-        <Spinner animation="border" variant="primary" />
-      </div>
-    );
-
-  if (error)
-    return (
-      <Alert variant="danger" className="my-5 text-center">
-        {error}
-      </Alert>
-    );
-
-  if (!attestation) return null;
-
   return (
-    <div className="attestation-wrapper p-4">
-      <div className="d-flex justify-content-end mb-3">
-        <Button variant="primary" onClick={handleDownloadPdf}>
-          Download as PDF
-        </Button>
-      </div>
-
-      <div className="certificate-container p-4" ref={certificateRef}>
-        <div className="certificate-border p-5">
-          <h1 className="certificate-title mb-3">Attestation</h1>
-
-          <h2 className="certificate-name mb-4">{attestation.title}</h2>
-          <p className="certificate-subtitle fst-italic mb-1">
-            Ceci certifie que M/Ms {nom}
-          </p>
-
-          <p className="certificate-description mb-4">
-            {attestation.description}
-          </p>
-
-          <div className="certificate-dates d-flex justify-content-center gap-5 mb-5">
-            <p>
-              <strong>Date début :</strong> {attestation.date_debut}
-            </p>
-            <p>
-              <strong>Date fin :</strong> {attestation.date_fin}
-            </p>
+    <Container fluid className="p-4">
+      <Row className="mb-3">
+        <Col className="d-flex justify-content-between">
+          <h3>Attestation</h3>
+          <div>
+            <Button variant="primary" onClick={handleDownloadPdf}>
+              Télécharger PDF
+            </Button>
           </div>
+        </Col>
+      </Row>
 
-          <div className="certificate-footer d-flex justify-content-between mt-5">
-            <div className="signature text-center">
-              <p className="mb-2">Signature</p>
-              {attestation.isValid && attestation.signature && (
-                <img
-                  src={attestation.signature}
-                  alt="Signature"
-                  className="img-fluid"
-                  style={{ maxHeight: 80 }}
-                />
-              )}
+      <Row>
+        <Col>
+          {attestationHtml ? (
+            <iframe
+              id="attestation-iframe"
+              title="attestation"
+              style={{
+                width: "100%",
+                height: "85vh",
+                border: "1px solid #ddd",
+                borderRadius: "8px",
+              }}
+              srcDoc={attestationHtml}
+            />
+          ) : (
+            <div className="text-center py-5">
+              <LoadingIndicator />
+              <p className="mt-3">Chargement de l'attestation...</p>
             </div>
-
-            <div className="cachet text-center">
-              <p className="mb-2">Cachet officiel</p>
-              {attestation.isApproved && attestation.cachet && (
-                <img
-                  src={`data:image/png;base64,${attestation.cachet}`}
-                  alt="Cachet officiel"
-                  className="img-fluid"
-                  style={{ maxHeight: 80 }}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          )}
+        </Col>
+      </Row>
+    </Container>
   );
 };

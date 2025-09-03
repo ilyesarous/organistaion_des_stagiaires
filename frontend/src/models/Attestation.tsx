@@ -1,11 +1,11 @@
 export interface Attestation {
   id?: number;
-  title: string;
-  description: string;
-  date_debut: string;
-  date_fin: string;
+  id_etudiant: number;
   isValid: boolean;
   isApproved: boolean;
-  signature: string;
-  cachet: string;
+  sujet_title: string;
+  etudiant_nom: string;
+  etudiant_prenom: string;
+  encadrant_nom: string;
+  encadrant_prenom: string;
 }

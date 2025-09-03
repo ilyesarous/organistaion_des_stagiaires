@@ -11,7 +11,7 @@ import Editor from "./editor/Editor";
 interface UpdateSujetModalProps {
   show: boolean;
   onHide: () => void;
-  onSuccess: (updatedSujet: Sujet) => void; // <-- updated type
+  onSuccess: (updatedSujet: Sujet) => void;
   sujet: Sujet | null;
 }
 
@@ -26,6 +26,8 @@ export const UpdateSujetModal = ({
     description: "",
     competences: "",
     duree: 0,
+    date_debut: "",
+    date_fin: "",
     nbEtudiants: 0,
     typeStage: "",
     status: "",
@@ -41,11 +43,18 @@ export const UpdateSujetModal = ({
 
   useEffect(() => {
     if (sujet) {
+      const formatDateForInput = (dateString: string) => {
+        if (!dateString) return "";
+        return new Date(dateString).toISOString().split("T")[0];
+      };
+      
       setFormData({
         title: sujet.title || "",
         description: sujet.description || "",
         competences: sujet.competences || "",
         duree: sujet.duree || 0,
+        date_debut: formatDateForInput(sujet.date_debut),
+        date_fin: formatDateForInput(sujet.date_fin),
         nbEtudiants: sujet.nbEtudiants || 0,
         typeStage: sujet.typeStage || "",
         status: sujet.status || "",
@@ -155,21 +164,6 @@ export const UpdateSujetModal = ({
               </Form.Group>
             </Col>
           </Row>
-
-          <Row>
-            <Col>
-              <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
-                <Editor
-                  initialValue={formData.description}
-                  onChange={(val) =>
-                    setFormData((prev) => ({ ...prev, description: val }))
-                  }
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
@@ -194,7 +188,32 @@ export const UpdateSujetModal = ({
               </Form.Group>
             </Col>
           </Row>
-
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Date de Début</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="date_debut"
+                  value={formData.date_debut}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Date de Fin</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="date_fin"
+                  value={formData.date_fin}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
+          </Row>
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">
@@ -221,6 +240,19 @@ export const UpdateSujetModal = ({
                   <option value="rejected">Rejected</option>
                   <option value="completed">Completed</option>
                 </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col>
+              <Form.Group className="mb-3">
+                <Form.Label>Description</Form.Label>
+                <Editor
+                  initialValue={formData.description}
+                  onChange={(val) =>
+                    setFormData((prev) => ({ ...prev, description: val }))
+                  }
+                />
               </Form.Group>
             </Col>
           </Row>

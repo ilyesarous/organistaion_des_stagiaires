@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../tools/redux/Store";
 import { fetchAttestations } from "./attestationRedux/AttestationThunkRedux";
 import { AttestationActions } from "./attestationRedux/AttestationSlice";
+import type { Attestation } from "../../models/Attestation";
 
 export const AttestationList = () => {
   const attestations = useSelector(
@@ -31,8 +32,7 @@ export const AttestationList = () => {
   const role = getItem("type");
 
   useEffect(() => {
-    if (status === "idle")
-      dispatch(fetchAttestations());
+    if (status === "idle") dispatch(fetchAttestations());
   }, [dispatch, attestations]);
 
   const handleDelete = async (id: number) => {
@@ -52,9 +52,8 @@ export const AttestationList = () => {
     setShowModal(false);
   };
 
-  const handleDetails = async (id: number) => {
-    const res = await axiosRequest("get", `attestation/${id}`);
-    setSelectedAttestation(res.data.attestation);
+  const handleDetails = async (attestation: Attestation) => {
+    setSelectedAttestation(attestation);
     setShowDetailsModal(true);
   };
   const validateAttestation = async (id: number) => {
@@ -62,15 +61,15 @@ export const AttestationList = () => {
       dispatch(AttestationActions.validateAttestation(id));
     });
   };
-  const approveAttestation = async (id: number) => {
-    await axiosRequest("put", `attestation/approve/${id}`).then(() => {
+  const approveAttestation = async (id: number, nbDays: number) => {
+    await axiosRequest("put", `attestation/approve/${id}/${nbDays}`).then(() => {
       dispatch(AttestationActions.approveAttestation(id));
     });
   };
 
-  const filteredAttestations = attestations.filter((a) =>
-    a.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // const filteredAttestations = attestations.filter((a) =>
+  //   a.sujet_title.includes(searchTerm)
+  // );
 
   if (status === "loading") return <LoadingIndicator />;
   if (status === "failed")
@@ -94,11 +93,11 @@ export const AttestationList = () => {
         </Card.Header>
 
         <Card.Body className="p-0">
-          {filteredAttestations.length === 0 ? (
+          {attestations.length === 0 ? (
             <EmptyState searchTerm={searchTerm} name="attestation" />
           ) : (
             <DisplayTable
-              attestations={filteredAttestations}
+              attestations={attestations}
               onDelete={handleDelete}
               deleteId={deleteId}
               onDetails={handleDetails}
@@ -108,10 +107,10 @@ export const AttestationList = () => {
           )}
         </Card.Body>
 
-        {filteredAttestations.length > 0 && (
+        {attestations.length > 0 && (
           <Card.Footer className="bg-white border-0 py-3">
             <TableFooter
-              filteredCount={filteredAttestations.length}
+              filteredCount={attestations.length}
               totalCount={attestations.length}
             />
           </Card.Footer>
@@ -125,9 +124,10 @@ export const AttestationList = () => {
       />
 
       <AttestationDetailsModal
+        studentId={selectedAttestation?.id_etudiant}
         show={showDetailsModal}
         onHide={() => setShowDetailsModal(false)}
-        attestation={selectedAttestation}
+        // attestation={selectedAttestation}
       />
     </Container>
   );

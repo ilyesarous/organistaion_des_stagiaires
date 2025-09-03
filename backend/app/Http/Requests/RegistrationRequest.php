@@ -24,6 +24,7 @@ class RegistrationRequest extends FormRequest
         return [
             'nom' => ['required', 'string', 'min:2'],
             'prenom' => ['required', 'string', 'min:2'],
+            'CIN' => ['required', 'string', 'unique:users'],
             'email' => ['required', 'email:filter', 'unique:users'],
             'password' => ['nullable'],
             'phone' => ['nullable', 'string', 'max:15'],

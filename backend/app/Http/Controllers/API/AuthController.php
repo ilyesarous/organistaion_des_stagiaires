@@ -27,7 +27,6 @@ class AuthController extends Controller
     {
         $email = $request->email;
         $token = Auth::attempt($request->validated());
-
         $refreshToken = Str::random(64);
         DB::table('refresh_tokens')->insert([
             'user_id' => Auth::id(),
@@ -35,7 +34,6 @@ class AuthController extends Controller
             'created_at' => now(),
             'expires_at' => now()->addDays(30), // refresh token valid for 30 days
         ]);
-
         if ($email !== env("ADMIN_EMAIL")) {
             $tenant = Tenants::where("email", $email)->firstOrFail();
             $this->ChangeToTenant($tenant->database);
@@ -64,6 +62,7 @@ class AuthController extends Controller
         $user = User::on('admin')->create([
             'nom' => $request->nom,
             'prenom' => $request->prenom,
+            'CIN' => $request->CIN,
             'email' => $request->email,
             'password' => null,
             'phone' => $request->phone,

@@ -4,6 +4,8 @@ export interface Sujet {
   title: string;
   description: string;
   competences: string;
+  date_debut: string;
+  date_fin: string;
   duree: number;
   nbEtudiants: number;
   typeStage: string;

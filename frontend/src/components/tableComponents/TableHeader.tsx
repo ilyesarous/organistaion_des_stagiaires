@@ -19,7 +19,7 @@ export const TableHeader = ({
 }: SocieteListHeaderProps) => {
 
   const showBtn = () => {
-    if (role === "admin" || role === "superAdmin") {
+    if (role === "admin" || role === "superAdmin" || "encadrant") {
       return true;
     }
     return false;

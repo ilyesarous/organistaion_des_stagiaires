@@ -15,6 +15,7 @@ interface Props {
 export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
+  const [CIN, setCIN] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("etudiant");
@@ -46,6 +47,7 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
     const formData = new FormData();
     formData.append("nom", nom);
     formData.append("prenom", prenom);
+    formData.append("CIN", CIN);
     formData.append("email", email);
     formData.append("phone", phone);
     formData.append("type", type);
@@ -58,6 +60,7 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
       onSuccess();
       setNom("");
       setPrenom("");
+      setCIN("");
       setEmail("");
       setPhone("");
       setType("");
@@ -109,17 +112,34 @@ export const RegisterUserModal = ({ show, onHide, onSuccess }: Props) => {
               </Col>
             </Row>
 
-            <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                placeholder="Entrer votre email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="rounded-3"
-              />
-            </Form.Group>
+            <Row className="mb-3">
+              <Col>
+                <Form.Group>
+                  <Form.Label>CIN</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Entrer votre CIN"
+                    value={CIN}
+                    onChange={(e) => setCIN(e.target.value)}
+                    required
+                    className="rounded-3"
+                  />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group>
+                  <Form.Label>Email</Form.Label>
+                  <Form.Control
+                    type="email"
+                    placeholder="Entrer votre email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="rounded-3"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
             <Form.Group className="mb-3">
               <Form.Label>Téléphone</Form.Label>

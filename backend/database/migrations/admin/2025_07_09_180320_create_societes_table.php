@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('address')->nullable();
             $table->text('cachet')->nullable();
             $table->text('logo')->nullable();
+            $table->text('html_template')->nullable(); 
             $table->timestamps();
         });
     }

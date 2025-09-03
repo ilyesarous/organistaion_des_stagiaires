@@ -85,6 +85,7 @@ Route::prefix('sujet')->middleware(['auth:api', 'verified', 'tenant'])->group(fu
     Route::post('/create', [SujetController::class, "create"]);
     Route::put('/update/{id}', [SujetController::class, 'updateSujet']);
     Route::delete('/delete/{id}', [SujetController::class, 'delete']);
+    Route::get('/getSujetByEmployee/{id}', [SujetController::class, 'getSujetByEmployee']);
     Route::get('/getEmployeeById/{id}', [SujetController::class, 'getEmployeeById']);
     Route::get('/getEtudiantById/{id}', [SujetController::class, 'getEtudiantsById']);
     Route::post('/assignEtudiantToSujet', [SujetController::class, 'assignEtudiantToSujet']);
@@ -110,11 +111,16 @@ Route::prefix('notifications')->middleware(['auth:api', 'verified', 'tenant'])->
 });
 
 Route::get('attestation/get/{id}', [AttestationController::class, 'getAttesttationByIdEtudiant'])->middleware((['auth:api', 'verified', 'tenant', 'can:etudiant']));
+Route::get('attestation/getAttestation/{studentId}', [AttestationController::class, 'generateAttestation'])->middleware((['auth:api', 'verified', 'tenant', 'can:etudiant']));
 Route::prefix('attestation')->middleware(['auth:api', 'verified', 'tenant', 'can:admin_or_encadrant'])->group(function () {
     Route::get('/', [AttestationController::class, 'index']);
     Route::post('/create', [AttestationController::class, 'store']);
     Route::get('/{id}', [AttestationController::class, 'getAttesttationById']);
     Route::put('/validate/{id}', [AttestationController::class, 'validateAttestation']);
-    Route::put('/approve/{id}', [AttestationController::class, 'approveAttestation']);
+    Route::put('/approve/{id}/{nbDays}', [AttestationController::class, 'approveAttestation']);
     Route::delete('/{id}', [AttestationController::class, 'deleteAttestation']);
+    Route::get('generateAttestation/{studentId}', [AttestationController::class, 'generateAttestation']);
+    // Route::get('/html/{studentId}', [AttestationController::class, 'getAttestationHtml']);
+
+
 });

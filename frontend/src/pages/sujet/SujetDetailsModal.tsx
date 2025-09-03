@@ -114,6 +114,14 @@ export const SujetDetailsView = ({
                 <strong>Durée:</strong> {sujet.duree}
               </p>
               <p>
+                <strong>Date début:</strong>{" "}
+                {new Date(sujet.date_debut).toLocaleDateString("fr-FR")}
+              </p>
+              <p>
+                <strong>Date fin:</strong>{" "}
+                {new Date(sujet.date_fin).toLocaleDateString("fr-FR")}
+              </p>
+              <p>
                 <strong>Nombre d'étudiants:</strong> {sujet.nbEtudiants}
               </p>
             </Col>

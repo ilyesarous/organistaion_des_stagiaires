@@ -30,6 +30,8 @@ class SujetController extends Controller
             'title' => $data['title'],
             'description' => $data['description'],
             'competences' => $data['competences'],
+            'date_debut' => $data['date_debut'],
+            'date_fin' => $data['date_fin'],
             'duree' => $data['duree'],
             'nbEtudiants' => $data['nbEtudiants'],
             'typeStage' => $data['typeStage'],
@@ -63,6 +65,20 @@ class SujetController extends Controller
         ]);
     }
 
+    public function getSujetByEmployee($id)
+    {
+        $this->authorize('encadrant');
+        // $user = User::on('admin')->find($id);
+        // if (!$user) {
+        //     return response()->json(['status' => 'error', 'message' => "Employee not found!"], 404);
+        // }
+        // echo($user);
+        $sujets = Sujet::where('employee_id', $id)->get();
+        return response()->json([
+            'data' => $sujets
+        ]);
+    }
+
     public function updateSujet(Request $request, $id)
     {
         $this->authorize('admin_or_encadrant_or_etudiant');
@@ -71,6 +87,8 @@ class SujetController extends Controller
             'description' => 'required|string',
             'competences' => 'required|string',
             'duree' => 'required|integer',
+            'date_debut' => 'required|date',
+            'date_fin' => 'required|date|after_or_equal:date_debut',
             'nbEtudiants' => 'required|integer',
             'typeStage' => 'required|string|max:255',
             'status' => 'required|string|in:pending,in_progress,awaiting_approval,rejected,completed',

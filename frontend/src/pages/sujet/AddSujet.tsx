@@ -21,6 +21,8 @@ export const AddNewSujet = ({
     title: string;
     description: string;
     competences: string;
+    date_debut: string;
+    date_fin: string;
     duree: number;
     nbEtudiants: number;
     typeStage: string;
@@ -31,6 +33,8 @@ export const AddNewSujet = ({
     title: "",
     description: "",
     competences: "",
+    date_debut: "",
+    date_fin: "",
     duree: 0,
     nbEtudiants: 0,
     typeStage: "",
@@ -97,6 +101,8 @@ export const AddNewSujet = ({
           title: "",
           description: "",
           competences: "",
+          date_debut: "",
+          date_fin: "",
           duree: 0,
           nbEtudiants: 0,
           typeStage: "",
@@ -209,6 +215,32 @@ export const AddNewSujet = ({
                   min={0}
                   onChange={handleChange}
                   className="form-field"
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Date de Début</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="date_debut"
+                  value={formData.date_debut}
+                  onChange={handleChange}
+                  required
+                />
+              </Form.Group>
+            </Col>
+            <Col md={6}>
+              <Form.Group className="mb-3">
+                <Form.Label>Date de Fin</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="date_fin"
+                  value={formData.date_fin}
+                  onChange={handleChange}
+                  required
                 />
               </Form.Group>
             </Col>

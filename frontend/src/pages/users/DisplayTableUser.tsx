@@ -8,6 +8,7 @@ import { EditRoleModal } from "./updateRoleModel";
 import { EditAccessModal } from "./EditAccessModal";
 import { axiosRequest } from "../../apis/AxiosHelper";
 import { FaRegEdit } from "react-icons/fa";
+import { getItem } from "../../tools/localStorage";
 
 interface SocieteTableProps {
   users: User[];
@@ -33,23 +34,26 @@ export const DisplayTableUser = ({
   const [editUserRole, setEditUserRole] = useState<string>("");
   const etudiant = useRef<Etudiant>(null);
   const [access, setAccess] = useState<Access[]>([]);
+  const role = getItem("type");
 
   useEffect(() => {
-    users.forEach((user) => {
-      if (user.role === "etudiant") {
-        axiosRequest("get", `auth/getEtudiant/${user.id}`).then((res) => {
-          etudiant.current = res.data.etudiant;
-          setAccess((prev) => [
-            ...prev,
-            {
-              id: user.id,
-              hasAccess: res.data.etudiant.hasAccess,
-              typeAccess: res.data.etudiant.typeAccess,
-            },
-          ]);
-        });
-      }
-    });
+    if (role !== "superAdmin") {
+      users.forEach((user) => {
+        if (user.role === "etudiant") {
+          axiosRequest("get", `auth/getEtudiant/${user.id}`).then((res) => {
+            etudiant.current = res.data.etudiant;
+            setAccess((prev) => [
+              ...prev,
+              {
+                id: user.id,
+                hasAccess: res.data.etudiant.hasAccess,
+                typeAccess: res.data.etudiant.typeAccess,
+              },
+            ]);
+          });
+        }
+      });
+    }
   }, []);
 
   const handleEditRoleClick = (user: User) => {
@@ -92,7 +96,13 @@ export const DisplayTableUser = ({
       hasAccess: newAccess,
       typeAccess: newAccessType,
     }).then(() => {
-      setAccess((prev) => prev.map((p)=> p.id === userId ? {id: userId, hasAccess: newAccess, typeAccess: newAccessType} : p));
+      setAccess((prev) =>
+        prev.map((p) =>
+          p.id === userId
+            ? { id: userId, hasAccess: newAccess, typeAccess: newAccessType }
+            : p
+        )
+      );
       handleCloseAccessModal();
       onSuccess();
     });
@@ -156,17 +166,24 @@ export const DisplayTableUser = ({
                 <td className="fw-medium">{user.role}</td>
 
                 <td>
-                  {user.role === "etudiant" ? (
+                  {user.role === "etudiant" && role !== "superAdmin" ? (
                     <div className="d-flex flex-row gap-3 align-items-start">
                       <div className="d-flex flex-column align-items-start">
                         <Badge
-                          bg={access.find((a)=> a.id === user.id)?.hasAccess ? "success" : "danger"}
+                          bg={
+                            access.find((a) => a.id === user.id)?.hasAccess
+                              ? "success"
+                              : "danger"
+                          }
                           className="mb-1"
                         >
-                          {access.find((a)=> a.id === user.id)?.hasAccess ? "Autorisé" : "Bloqué"}
+                          {access.find((a) => a.id === user.id)?.hasAccess
+                            ? "Autorisé"
+                            : "Bloqué"}
                         </Badge>
                         <small className="fst-italic text-muted">
-                          {access.find((a)=> a.id === user.id)?.typeAccess || "Aucun type"}
+                          {access.find((a) => a.id === user.id)?.typeAccess ||
+                            "Aucun type"}
                         </small>
                       </div>
                       <Button
@@ -233,7 +250,7 @@ export const DisplayTableUser = ({
         show={showAccessModal}
         onHide={handleCloseAccessModal}
         userId={editUserId}
-        currentAccess={access.find((a)=> a.id === editUserId) || null}
+        currentAccess={access.find((a) => a.id === editUserId) || null}
         onSave={handleSaveAccess}
       />
     </>

@@ -1,11 +1,13 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Sujet } from "../../../models/Sujet";
 import { fetchSujets } from "./SujetReduxThunk";
+import { getItem, setItem } from "../../../tools/localStorage";
 
-const initialState: { sujets: Sujet[]; status: string; error: string } = {
+const initialState: { sujets: Sujet[]; status: string; error: string; googleAccessToken: string } = {
   sujets: [],
   status: "idle",
   error: "",
+  googleAccessToken: getItem("googleAccessToken") || "",
 };
 
 const SujetSlice = createSlice({
@@ -21,6 +23,10 @@ const SujetSlice = createSlice({
         state.sujets[index] = action.payload;
       }
     },
+    setGoogleAccessToken(state, action: PayloadAction<string>) {
+      state.googleAccessToken = action.payload;
+      setItem("googleAccessToken", action.payload);
+    }
   },
   extraReducers(builder) {
     builder
