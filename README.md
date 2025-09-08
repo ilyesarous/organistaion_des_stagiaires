@@ -17,7 +17,7 @@ Designed to help companies ("sociétés") efficiently manage their interns, supe
 - **Automated provisioning**
   - New société → new admin user + new tenant DB with migrations.
 - **Event management**
-  - Online (with video call integration via Jitsi/Judy).
+  - Online (with video call integration via Jitsi).
   - In-person events with attendance tracking.
 - **Attestations (Certificates)**
   - Workflow: Encadrant requests → Admin validates/approves → Auto-generated PDF using société’s custom template.
@@ -30,7 +30,7 @@ Designed to help companies ("sociétés") efficiently manage their interns, supe
 - **Database:** PostgreSQL (multi-tenant, multi-database)
 - **Auth & Roles:** Laravel + custom middleware
 - **PDF Generation:** Custom templates per société
-- **Video Calls:** Jitsi/Judy integration
+- **Video Calls:** Jitsi integration
 
 ---
 
