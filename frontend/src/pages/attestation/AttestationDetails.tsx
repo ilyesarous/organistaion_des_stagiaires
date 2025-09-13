@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { axiosRequest } from "../../apis/AxiosHelper";
 import html2pdf from "html2pdf.js";
-import { Button, Container, Row, Col, Spinner } from "react-bootstrap";
+import { Button, Container, Row, Col } from "react-bootstrap";
 import { LoadingIndicator } from "../../components/Loading";
 
 interface AttestationPageProps {
