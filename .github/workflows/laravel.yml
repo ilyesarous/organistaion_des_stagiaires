@@ -46,6 +46,10 @@ jobs:
         php -r "file_exists('composer.json') || copy('composer.json.example', 'composer.json');"
         php -r "file_exists('composer.lock') || copy('composer.lock.example', 'composer.lock');"
 
+    - name: update Dependencies
+      run: composer update
+      working-directory: ./backend
+    
     - name: Install Dependencies
       run: composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts
       working-directory: ./backend
